@@ -1,0 +1,241 @@
+{
+  "project": "Sylvi",
+  "batch": "a1-variations",
+  "date": "2026-10-18",
+  "reference_image": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A1-carabao-lower-left.png",
+  "brief": "Six approved variations of the user's selected original A1 carabao, preserving its golden mango, mulberry, and jade palette. Three treatments: rounder silhouette, broader horns, gentler expression. Two independent candidates per treatment, one emerging from each lower corner.",
+  "provider": "OpenAI built-in image_gen",
+  "model": null,
+  "model_note": "The built-in tool does not expose model selection. Every returned result disclosed only image_url and output_hint; the exact model name was not provided.",
+  "generation_method": "Six independent OpenAI built-in image_gen calls using three parallel workers, one call per candidate and each referencing only original A1. All six returned images were saved byte-for-byte, without retries, filtering, post-processing or resampling.",
+  "requested_dimensions": {
+    "width": 1536,
+    "height": 1536
+  },
+  "constraint_delivery": "main-prompt constraints",
+  "variants": [
+    {
+      "id": "A1",
+      "treatment": "Rounder carabao",
+      "rationale": "A wider soft silhouette makes Sylvi feel dependable and cuddly.",
+      "corner": "lower-left",
+      "filename": "A1-rounder-lower-left.png",
+      "variation": "Make the head noticeably broader and more softly rounded than in the reference, like a plump rounded rectangle with generous lower cheeks. Tuck the shoulder mass under the head to produce a compact, cuddly silhouette. Keep the original broad mulberry horn curls, dot eyes, and tiny friendly smile close to the reference. This is a proportion study; keep the character's identity recognizable.",
+      "colors": {
+        "primary": {
+          "name": "golden mango",
+          "hex": "#F6BD60"
+        },
+        "secondary": {
+          "name": "deep mulberry",
+          "hex": "#8E235D"
+        },
+        "background": {
+          "name": "muted jade",
+          "hex": "#AACABB"
+        }
+      },
+      "reference_image": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A1-carabao-lower-left.png",
+      "prompt": "Use the supplied image as the visual identity reference for one new variation of the same character. Preserve the recognizable baby carabao, golden mango head and body, deep mulberry horns and facial marks, muted jade background, and overall friendly visual character. Do not introduce props or additional species features.\nCreate one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted jade (#AACABB). Keep muted jade visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino carabao IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature: the pair of broad sweeping mulberry horns. Preserve both paired horns in full view. Convey a helpful, reliable, friendly personality.\nVariation: Make the head noticeably broader and more softly rounded than in the reference, like a plump rounded rectangle with generous lower cheeks. Tuck the shoulder mass under the head to produce a compact, cuddly silhouette. Keep the original broad mulberry horn curls, dot eyes, and tiny friendly smile close to the reference. This is a proportion study; keep the character's identity recognizable.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and one tiny rounded mouth for the friendly expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32. Use no muzzle patch, nostrils, ears, tail, hooves or added anatomy.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, golden mango (#F6BD60) and deep mulberry (#8E235D), plus the background color muted jade (#AACABB). Use golden mango for the continuous head and shoulder masses; use deep mulberry for the broad horn crown and tiny facial marks. Organize the colors into broad purposeful masses and keep the IP, facial marks, and background clearly separated. Preserve this palette across the variation.\nComposition: keep the character upright and emerging from the assigned lower-left, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate the main figure.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraint_delivery": "main-prompt constraints",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\a1-variations\\A1-rounder-lower-left.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1372081,
+      "sha256": "09173C858761BC5F15E20D5C69031B280DFAD552C7DB616496733B066F83AE73",
+      "provider": "OpenAI built-in image_gen",
+      "model": null
+    },
+    {
+      "id": "A2",
+      "treatment": "Rounder carabao",
+      "rationale": "A compact soft silhouette makes Sylvi feel dependable and cuddly.",
+      "corner": "lower-right",
+      "filename": "A2-rounder-lower-right.png",
+      "variation": "Give the head a gently domed top and two broad full cheek curves that merge into one rounded bottom contour. Make the torso shorter and squat, almost tucked behind the oversized head. Keep the sweeping thick mulberry horns close to the reference and both fully visible; keep two simple dot eyes and a tiny rounded friendly smile. The effect should be a compact, endearing close relative of the reference.",
+      "colors": {
+        "primary": {
+          "name": "golden mango",
+          "hex": "#F6BD60"
+        },
+        "secondary": {
+          "name": "deep mulberry",
+          "hex": "#8E235D"
+        },
+        "background": {
+          "name": "muted jade",
+          "hex": "#AACABB"
+        }
+      },
+      "reference_image": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A1-carabao-lower-left.png",
+      "prompt": "Use the supplied image as the visual identity reference for one new variation of the same character. Preserve the recognizable baby carabao, golden mango head and body, deep mulberry horns and facial marks, muted jade background, and overall friendly visual character. Do not introduce props or additional species features.\nCreate one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted jade (#AACABB). Keep muted jade visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino carabao IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature: the pair of broad sweeping mulberry horns. Preserve both paired horns in full view. Convey a helpful, reliable, friendly personality.\nVariation: Give the head a gently domed top and two broad full cheek curves that merge into one rounded bottom contour. Make the torso shorter and squat, almost tucked behind the oversized head. Keep the sweeping thick mulberry horns close to the reference and both fully visible; keep two simple dot eyes and a tiny rounded friendly smile. The effect should be a compact, endearing close relative of the reference.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and one tiny rounded mouth for the friendly expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32. Use no muzzle patch, nostrils, ears, tail, hooves or added anatomy.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, golden mango (#F6BD60) and deep mulberry (#8E235D), plus the background color muted jade (#AACABB). Use golden mango for the continuous head and shoulder masses; use deep mulberry for the broad horn crown and tiny facial marks. Organize the colors into broad purposeful masses and keep the IP, facial marks, and background clearly separated. Preserve this palette across the variation.\nComposition: keep the character upright and emerging from the assigned lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate the main figure.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraint_delivery": "main-prompt constraints",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\a1-variations\\A2-rounder-lower-right.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1349557,
+      "sha256": "CBDE67DFAF7FD97FCB330051AA07A48CA23EA1B0D786CC3BE9B8C1D1878098DE",
+      "provider": "OpenAI built-in image_gen",
+      "model": null
+    },
+    {
+      "id": "B1",
+      "treatment": "Bolder carabao",
+      "rationale": "Broader horns strengthen carabao recognition while keeping the helpful personality.",
+      "corner": "lower-left",
+      "filename": "B1-bolder-horns-lower-left.png",
+      "variation": "Keep the reference head, facial proportions and shoulder mass nearly unchanged. Make both mulberry horns a little wider and rounder, with outward-sweeping upper curls that form one bold horn crown. Their tips must be visibly blunt and rounded. Keep both complete horns in view and maintain the original gentle dot eyes and tiny smile.",
+      "colors": {
+        "primary": {
+          "name": "golden mango",
+          "hex": "#F6BD60"
+        },
+        "secondary": {
+          "name": "deep mulberry",
+          "hex": "#8E235D"
+        },
+        "background": {
+          "name": "muted jade",
+          "hex": "#AACABB"
+        }
+      },
+      "reference_image": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A1-carabao-lower-left.png",
+      "prompt": "Use the supplied image as the visual identity reference for one new variation of the same character. Preserve the recognizable baby carabao, golden mango head and body, deep mulberry horns and facial marks, muted jade background, and overall friendly visual character. Do not introduce props or additional species features.\nCreate one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted jade (#AACABB). Keep muted jade visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino carabao IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature: the pair of broad sweeping mulberry horns. Preserve both paired horns in full view. Convey a helpful, reliable, friendly personality.\nVariation: Keep the reference head, facial proportions and shoulder mass nearly unchanged. Make both mulberry horns a little wider and rounder, with outward-sweeping upper curls that form one bold horn crown. Their tips must be visibly blunt and rounded. Keep both complete horns in view and maintain the original gentle dot eyes and tiny smile.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and one tiny rounded mouth for the friendly expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32. Use no muzzle patch, nostrils, ears, tail, hooves or added anatomy.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, golden mango (#F6BD60) and deep mulberry (#8E235D), plus the background color muted jade (#AACABB). Use golden mango for the continuous head and shoulder masses; use deep mulberry for the broad horn crown and tiny facial marks. Organize the colors into broad purposeful masses and keep the IP, facial marks, and background clearly separated. Preserve this palette across the variation.\nComposition: keep the character upright and emerging from the assigned lower-left, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate the main figure.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraint_delivery": "main-prompt constraints",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\a1-variations\\B1-bolder-horns-lower-left.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1365020,
+      "sha256": "72E0D7C2D0E75A15EBB4F9776F90C7A2FC24882D1C4BF1A97418E15CA1544EC4",
+      "provider": "OpenAI built-in image_gen",
+      "model": null
+    },
+    {
+      "id": "B2",
+      "treatment": "Bolder carabao",
+      "rationale": "A wide, softly curved horn crown strengthens the simple carabao silhouette.",
+      "corner": "lower-right",
+      "filename": "B2-bolder-horns-lower-right.png",
+      "variation": "Keep the reference character's soft head, compact torso and simple expression. Change only the horn silhouette and assigned composition: make a broader, lower, softly sweeping pair of mulberry horns that curve gently upward at the ends, with thick rounded blunt tips. The two horns should read as one confident curved crown while remaining visibly paired. Avoid extra loops or fine gaps. Keep both entire horns visible.",
+      "colors": {
+        "primary": {
+          "name": "golden mango",
+          "hex": "#F6BD60"
+        },
+        "secondary": {
+          "name": "deep mulberry",
+          "hex": "#8E235D"
+        },
+        "background": {
+          "name": "muted jade",
+          "hex": "#AACABB"
+        }
+      },
+      "reference_image": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A1-carabao-lower-left.png",
+      "prompt": "Use the supplied image as the visual identity reference for one new variation of the same character. Preserve the recognizable baby carabao, golden mango head and body, deep mulberry horns and facial marks, muted jade background, and overall friendly visual character. Do not introduce props or additional species features.\nCreate one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted jade (#AACABB). Keep muted jade visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino carabao IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature: the pair of broad sweeping mulberry horns. Preserve both paired horns in full view. Convey a helpful, reliable, friendly personality.\nVariation: Keep the reference character's soft head, compact torso and simple expression. Change only the horn silhouette and assigned composition: make a broader, lower, softly sweeping pair of mulberry horns that curve gently upward at the ends, with thick rounded blunt tips. The two horns should read as one confident curved crown while remaining visibly paired. Avoid extra loops or fine gaps. Keep both entire horns visible.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and one tiny rounded mouth for the friendly expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32. Use no muzzle patch, nostrils, ears, tail, hooves or added anatomy.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, golden mango (#F6BD60) and deep mulberry (#8E235D), plus the background color muted jade (#AACABB). Use golden mango for the continuous head and shoulder masses; use deep mulberry for the broad horn crown and tiny facial marks. Organize the colors into broad purposeful masses and keep the IP, facial marks, and background clearly separated. Preserve this palette across the variation.\nComposition: keep the character upright and emerging from the assigned lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate the main figure.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraint_delivery": "main-prompt constraints",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\a1-variations\\B2-bolder-horns-lower-right.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1335938,
+      "sha256": "DA8E504235FF736EE93BCE1D22F5C6E7B73368535EBE34E2E87D0B34ADD1CBB2",
+      "provider": "OpenAI built-in image_gen",
+      "model": null
+    },
+    {
+      "id": "C1",
+      "treatment": "Gentler carabao",
+      "rationale": "Full cheeks and a calm open expression communicate friendly service.",
+      "corner": "lower-left",
+      "filename": "C1-gentler-face-lower-left.png",
+      "variation": "Stay especially close to the reference head, shoulder and horn forms. Gently fill out the lower cheeks, place the two tiny mulberry dot eyes slightly farther apart, and give the face one tiny calm rounded smile. Keep the features small and subordinate. The expression should feel patient, reassuring and helpful without adding eyebrows, blush, nostrils or other marks.",
+      "colors": {
+        "primary": {
+          "name": "golden mango",
+          "hex": "#F6BD60"
+        },
+        "secondary": {
+          "name": "deep mulberry",
+          "hex": "#8E235D"
+        },
+        "background": {
+          "name": "muted jade",
+          "hex": "#AACABB"
+        }
+      },
+      "reference_image": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A1-carabao-lower-left.png",
+      "prompt": "Use the supplied image as the visual identity reference for one new variation of the same character. Preserve the recognizable baby carabao, golden mango head and body, deep mulberry horns and facial marks, muted jade background, and overall friendly visual character. Do not introduce props or additional species features.\nCreate one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted jade (#AACABB). Keep muted jade visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino carabao IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature: the pair of broad sweeping mulberry horns. Preserve both paired horns in full view. Convey a helpful, reliable, friendly personality.\nVariation: Stay especially close to the reference head, shoulder and horn forms. Gently fill out the lower cheeks, place the two tiny mulberry dot eyes slightly farther apart, and give the face one tiny calm rounded smile. Keep the features small and subordinate. The expression should feel patient, reassuring and helpful without adding eyebrows, blush, nostrils or other marks.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and one tiny rounded mouth for the friendly expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32. Use no muzzle patch, nostrils, ears, tail, hooves or added anatomy.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, golden mango (#F6BD60) and deep mulberry (#8E235D), plus the background color muted jade (#AACABB). Use golden mango for the continuous head and shoulder masses; use deep mulberry for the broad horn crown and tiny facial marks. Organize the colors into broad purposeful masses and keep the IP, facial marks, and background clearly separated. Preserve this palette across the variation.\nComposition: keep the character upright and emerging from the assigned lower-left, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate the main figure.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraint_delivery": "main-prompt constraints",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\a1-variations\\C1-gentler-face-lower-left.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1342570,
+      "sha256": "6FA0F3429DC55A072135786AD19A716BBC609B6B09F2790655092C84D6682A52",
+      "provider": "OpenAI built-in image_gen",
+      "model": null
+    },
+    {
+      "id": "C2",
+      "treatment": "Gentler carabao",
+      "rationale": "A soft attentive expression makes the reliable helper feel approachable.",
+      "corner": "lower-right",
+      "filename": "C2-gentler-face-lower-right.png",
+      "variation": "Stay close to the reference proportions and its broad curled horns, but soften the lower head contour into a plump, gently rounded face. Use two small, widely spaced mulberry dot eyes and a slightly shallower tiny rounded smile for a quiet attentive expression. Keep the horns and head upright and both horns fully visible. Add no eyebrows, blush, nostrils or other facial details.",
+      "colors": {
+        "primary": {
+          "name": "golden mango",
+          "hex": "#F6BD60"
+        },
+        "secondary": {
+          "name": "deep mulberry",
+          "hex": "#8E235D"
+        },
+        "background": {
+          "name": "muted jade",
+          "hex": "#AACABB"
+        }
+      },
+      "reference_image": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A1-carabao-lower-left.png",
+      "prompt": "Use the supplied image as the visual identity reference for one new variation of the same character. Preserve the recognizable baby carabao, golden mango head and body, deep mulberry horns and facial marks, muted jade background, and overall friendly visual character. Do not introduce props or additional species features.\nCreate one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted jade (#AACABB). Keep muted jade visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino carabao IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature: the pair of broad sweeping mulberry horns. Preserve both paired horns in full view. Convey a helpful, reliable, friendly personality.\nVariation: Stay close to the reference proportions and its broad curled horns, but soften the lower head contour into a plump, gently rounded face. Use two small, widely spaced mulberry dot eyes and a slightly shallower tiny rounded smile for a quiet attentive expression. Keep the horns and head upright and both horns fully visible. Add no eyebrows, blush, nostrils or other facial details.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and one tiny rounded mouth for the friendly expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32. Use no muzzle patch, nostrils, ears, tail, hooves or added anatomy.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, golden mango (#F6BD60) and deep mulberry (#8E235D), plus the background color muted jade (#AACABB). Use golden mango for the continuous head and shoulder masses; use deep mulberry for the broad horn crown and tiny facial marks. Organize the colors into broad purposeful masses and keep the IP, facial marks, and background clearly separated. Preserve this palette across the variation.\nComposition: keep the character upright and emerging from the assigned lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate the main figure.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "constraint_delivery": "main-prompt constraints",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\a1-variations\\C2-gentler-face-lower-right.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1353788,
+      "sha256": "A103DEBBA6B4AE53FF524C2D93FBDBFC06B6375AEB1542E5A180152CBD6ADAF0",
+      "provider": "OpenAI built-in image_gen",
+      "model": null
+    }
+  ],
+  "status": "complete",
+  "generated_count": 6,
+  "reference_sha256": "ECBDB8BC3CFE77B65D45C3FDB2B8CDCD1E8663582AB4989CBFA04E5DCFFDE9B3",
+  "returned_dimensions": {
+    "width": 1254,
+    "height": 1254
+  }
+}

@@ -1,0 +1,109 @@
+/*
+ * Sylvi tokens. The workspace is quiet so the sheet can be the loudest thing
+ * on screen: it sits on a cutting-mat green with an inch grid, and process
+ * magenta (from CMYK) is reserved for the main action, selection and marks.
+ */
+:root {
+  color-scheme: light;
+  --font: 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --paper: #f3f5f4;
+  --surface: #ffffff;
+  --surface-2: #edf0ee;
+  --surface-3: #e3e8e5;
+  --ink: #16201b;
+  --ink-2: #4c5852;
+  --ink-3: #87918c;
+  --line: #dae0dd;
+  --line-strong: #bfc8c3;
+
+  --accent: #c2185b;
+  --accent-hover: #a5124c;
+  --accent-ink: #ffffff;
+  --accent-soft: #fbe8f0;
+
+  --mat: #24443b;
+  --mat-deep: #1c372f;
+  --mat-line: rgb(255 255 255 / 0.055);
+  --mat-line-strong: rgb(255 255 255 / 0.13);
+  --mat-ink: rgb(232 242 237 / 0.7);
+  --mat-ink-strong: rgb(240 247 243 / 0.92);
+
+  --success: #1d7a4b;
+  --warning: #935500;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+
+  --shadow-sheet: 0 1px 1px rgb(0 0 0 / 0.18), 0 3px 8px -2px rgb(0 0 0 / 0.25), 0 24px 48px -16px rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 0 0 1px rgb(22 32 27 / 0.07), 0 2px 6px -2px rgb(22 32 27 / 0.1), 0 16px 40px -12px rgb(22 32 27 / 0.24);
+  --shadow-control: 0 0 0 1px rgb(22 32 27 / 0.1), 0 1px 2px rgb(22 32 27 / 0.06);
+
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+
+  --topbar-h: 52px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --paper: #0f1412;
+    --surface: #161c19;
+    --surface-2: #1d2420;
+    --surface-3: #252d29;
+    --ink: #e5ebe8;
+    --ink-2: #a6b1ab;
+    --ink-3: #6b7671;
+    --line: #27302b;
+    --line-strong: #37413c;
+    --accent: #f06a9b;
+    --accent-hover: #f58cb2;
+    --accent-ink: #2b0716;
+    --accent-soft: rgb(240 106 155 / 0.14);
+    --mat: #1a332c;
+    --mat-deep: #142a24;
+    --success: #4cc28a;
+    --warning: #e3a447;
+    --danger: #f2796e;
+    --danger-soft: rgb(242 121 110 / 0.12);
+    --shadow-pop: 0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 40px -12px rgb(0 0 0 / 0.7);
+    --shadow-control: 0 0 0 1px rgb(255 255 255 / 0.1);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #0f1412;
+  --surface: #161c19;
+  --surface-2: #1d2420;
+  --surface-3: #252d29;
+  --ink: #e5ebe8;
+  --ink-2: #a6b1ab;
+  --ink-3: #6b7671;
+  --line: #27302b;
+  --line-strong: #37413c;
+  --accent: #f06a9b;
+  --accent-hover: #f58cb2;
+  --accent-ink: #2b0716;
+  --accent-soft: rgb(240 106 155 / 0.14);
+  --mat: #1a332c;
+  --mat-deep: #142a24;
+  --success: #4cc28a;
+  --warning: #e3a447;
+  --danger: #f2796e;
+  --danger-soft: rgb(242 121 110 / 0.12);
+  --shadow-pop: 0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 40px -12px rgb(0 0 0 / 0.7);
+  --shadow-control: 0 0 0 1px rgb(255 255 255 / 0.1);
+}

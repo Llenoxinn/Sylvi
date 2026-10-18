@@ -1,0 +1,235 @@
+{
+  "project": "Sylvi",
+  "date": "2026-10-18",
+  "brief": "Automated photo printing app for Filipino print shops. Add photos and obtain print-ready files with the photos formatted at true size. Name from Tagalog silbi: usefulness / being of service. Personality: helpful, reliable, friendly.",
+  "requested_size": "approximately 1536 × 1536; preserved native 1254 × 1254 output without resampling",
+  "generation_method": "Six independent OpenAI built-in image_gen calls, one per asset, using three parallel workers; no references, retries, filtering, post-processing or resampling. Every returned result is preserved.",
+  "constraint_delivery": "main-prompt constraints",
+  "provider": "OpenAI built-in image_gen",
+  "model": null,
+  "model_note": "The built-in tool does not expose model selection and returned only image_url and output_hint; the exact model was not disclosed.",
+  "variants": [
+    {
+      "id": "A1",
+      "direction": "Carabao",
+      "rationale": "Dependable, helpful service that carries the photo-formatting work for Filipino print shops.",
+      "corner": "lower-left",
+      "filename": "A1-carabao-lower-left.png",
+      "colors": {
+        "primary": {
+          "name": "golden mango",
+          "hex": "#F6BD60"
+        },
+        "secondary": {
+          "name": "deep mulberry",
+          "hex": "#8E235D"
+        },
+        "background": {
+          "name": "muted jade",
+          "hex": "#AACABB"
+        }
+      },
+      "subject": "baby Filipino carabao with an oversized, broad rounded head flowing into a compact shoulder mass, calm widely spaced eyes, and one defining feature: a pair of thick gently curved horns with conspicuously rounded blunt ends, both fully visible",
+      "treatment": "Make the primary golden mango mass a wide softly squared head and shoulders. Use deep mulberry for the two chunky horns and the two tiny eyes; visually group the horns into a single broad crown region. Do not add a muzzle patch, nostrils, ears, hooves, or other anatomical features.",
+      "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted jade (#AACABB). Keep muted jade visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino carabao with an oversized, broad rounded head flowing into a compact shoulder mass, calm widely spaced eyes, and one defining feature: a pair of thick gently curved horns with conspicuously rounded blunt ends, both fully visible IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature. The personality should feel helpful, reliable, and friendly.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, golden mango (#F6BD60) and deep mulberry (#8E235D), plus the background color muted jade (#AACABB). Organize both character colors into broad purposeful masses and reuse them for facial marks. Make the primary golden mango mass a wide softly squared head and shoulders. Use deep mulberry for the two chunky horns and the two tiny eyes; visually group the horns into a single broad crown region. Do not add a muzzle patch, nostrils, ears, hooves, or other anatomical features. Keep the IP, facial marks, and background clearly separated. Treat the two character colors as semantic families.\nComposition: keep the character upright and emerging from the assigned lower-left, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate it.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "provider": "OpenAI built-in image_gen",
+      "model": null,
+      "model_note": "The built-in tool does not expose model selection or disclose a model name in its callable schema.",
+      "constraint_delivery": "main-prompt constraints",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A1-carabao-lower-left.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1348181,
+      "sha256": "ECBDB8BC3CFE77B65D45C3FDB2B8CDCD1E8663582AB4989CBFA04E5DCFFDE9B3"
+    },
+    {
+      "id": "A2",
+      "direction": "Carabao",
+      "rationale": "Dependable, helpful service that carries the photo-formatting work for Filipino print shops.",
+      "corner": "lower-right",
+      "filename": "A2-carabao-lower-right.png",
+      "colors": {
+        "primary": {
+          "name": "warm coral",
+          "hex": "#EF785F"
+        },
+        "secondary": {
+          "name": "deep aubergine",
+          "hex": "#49284D"
+        },
+        "background": {
+          "name": "muted periwinkle",
+          "hex": "#B8BEDD"
+        }
+      },
+      "subject": "baby Filipino carabao with a taller pill-shaped head merging into a compact heavy shoulder mass, soft cheeks, a peaceful friendly face, and one defining feature: a pair of broad upward-curving horns with completely rounded blunt ends, both fully visible",
+      "treatment": "Use warm coral for the continuous head and shoulder mass. Use deep aubergine for the chunky horn crown and two tiny eyes. Favor a calm, reliable expression and taller proportions. Omit muzzle patches, nostrils, ears, hooves, and all secondary anatomy.",
+      "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted periwinkle (#B8BEDD). Keep muted periwinkle visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino carabao with a taller pill-shaped head merging into a compact heavy shoulder mass, soft cheeks, a peaceful friendly face, and one defining feature: a pair of broad upward-curving horns with completely rounded blunt ends, both fully visible IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature. The personality should feel helpful, reliable, and friendly.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, warm coral (#EF785F) and deep aubergine (#49284D), plus the background color muted periwinkle (#B8BEDD). Organize both character colors into broad purposeful masses and reuse them for facial marks. Use warm coral for the continuous head and shoulder mass. Use deep aubergine for the chunky horn crown and two tiny eyes. Favor a calm, reliable expression and taller proportions. Omit muzzle patches, nostrils, ears, hooves, and all secondary anatomy. Keep the IP, facial marks, and background clearly separated. Treat the two character colors as semantic families.\nComposition: keep the character upright and emerging from the assigned lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate it.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "provider": "OpenAI built-in image_gen",
+      "model": null,
+      "model_note": "The built-in tool does not expose model selection or disclose a model name in its callable schema.",
+      "constraint_delivery": "main-prompt constraints",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\A2-carabao-lower-right.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1354843,
+      "sha256": "D2E38DA6540104200D3DFA95C38484DBE5C423501D19B29228941821EC786A31"
+    },
+    {
+      "id": "B1",
+      "direction": "Pawikan",
+      "rationale": "Calm, careful handling of treasured photos and dependable ready-to-print layouts.",
+      "corner": "lower-left",
+      "filename": "B1-pawikan-lower-left.png",
+      "colors": {
+        "primary": {
+          "name": "fresh leaf green",
+          "hex": "#71B87B"
+        },
+        "secondary": {
+          "name": "deep cutting-mat green",
+          "hex": "#24443B"
+        },
+        "background": {
+          "name": "muted apricot",
+          "hex": "#EAC2A9"
+        }
+      },
+      "subject": "baby Filipino sea turtle, pawikan, upright and front-facing, with one big soft rounded head, a compact oval shell mass behind it, and a pair of broad blunt front flippers that form one clear outer silhouette",
+      "treatment": "Use fresh leaf green for the large head and both broad rounded flippers, deep cutting-mat green for one continuous simple shell region and two tiny eyes. The plain oval shell is the sole species-defining feature; no shell plates, patterns, scales, rear feet, tail, or extra anatomy. Use at most five big masses, merging them into one continuous silhouette.",
+      "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted apricot (#EAC2A9). Keep muted apricot visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino sea turtle, pawikan, upright and front-facing, with one big soft rounded head, a compact oval shell mass behind it, and a pair of broad blunt front flippers that form one clear outer silhouette IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature. The personality should feel helpful, reliable, and friendly.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, fresh leaf green (#71B87B) and deep cutting-mat green (#24443B), plus the background color muted apricot (#EAC2A9). Organize both character colors into broad purposeful masses and reuse them for facial marks. Use fresh leaf green for the large head and both broad rounded flippers, deep cutting-mat green for one continuous simple shell region and two tiny eyes. The plain oval shell is the sole species-defining feature; no shell plates, patterns, scales, rear feet, tail, or extra anatomy. Use at most five big masses, merging them into one continuous silhouette. Keep the IP, facial marks, and background clearly separated. Treat the two character colors as semantic families.\nComposition: keep the character upright and emerging from the assigned lower-left, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate it.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "provider": "OpenAI built-in image_gen",
+      "model": null,
+      "model_note": "The built-in tool does not expose model selection or disclose a model name in its callable schema.",
+      "constraint_delivery": "main-prompt constraints",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\B1-pawikan-lower-left.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1320598,
+      "sha256": "B42CF41BEA409153F43BC0F00158C3F0B611919840CE405CABC5C376981D1B73"
+    },
+    {
+      "id": "B2",
+      "direction": "Pawikan",
+      "rationale": "Calm, careful handling of treasured photos and dependable ready-to-print layouts.",
+      "corner": "lower-right",
+      "filename": "B2-pawikan-lower-right.png",
+      "colors": {
+        "primary": {
+          "name": "buttery yellow",
+          "hex": "#F5D879"
+        },
+        "secondary": {
+          "name": "deep teal",
+          "hex": "#17665E"
+        },
+        "background": {
+          "name": "muted lilac",
+          "hex": "#C8BCD6"
+        }
+      },
+      "subject": "baby Filipino sea turtle, pawikan, upright and front-facing, with oversized softly squared cheeks and head, a squat rounded shell mass, and both wide rounded front flippers visibly tucked close in a calm helpful pose",
+      "treatment": "Use buttery yellow for the friendly oversized head and broad flippers, deep teal for one single uninterrupted shell region and tiny simple eyes. The shell is a smooth rounded superellipse without divisions. Keep the flippers short, chunky and clearly paired. No shell plates, scales, tail, rear feet, patterns, or other anatomical details.",
+      "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted lilac (#C8BCD6). Keep muted lilac visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino sea turtle, pawikan, upright and front-facing, with oversized softly squared cheeks and head, a squat rounded shell mass, and both wide rounded front flippers visibly tucked close in a calm helpful pose IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature. The personality should feel helpful, reliable, and friendly.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, buttery yellow (#F5D879) and deep teal (#17665E), plus the background color muted lilac (#C8BCD6). Organize both character colors into broad purposeful masses and reuse them for facial marks. Use buttery yellow for the friendly oversized head and broad flippers, deep teal for one single uninterrupted shell region and tiny simple eyes. The shell is a smooth rounded superellipse without divisions. Keep the flippers short, chunky and clearly paired. No shell plates, scales, tail, rear feet, patterns, or other anatomical details. Keep the IP, facial marks, and background clearly separated. Treat the two character colors as semantic families.\nComposition: keep the character upright and emerging from the assigned lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate it.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "provider": "OpenAI built-in image_gen",
+      "model": null,
+      "model_note": "The built-in tool does not expose model selection or disclose a model name in its callable schema.",
+      "constraint_delivery": "main-prompt constraints",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\B2-pawikan-lower-right.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1313699,
+      "sha256": "4D4CB61F5DF2297E9216CDE8E19DF032FF8AF4ADFF887711D7947BAEFA341A5B"
+    },
+    {
+      "id": "C1",
+      "direction": "Butanding",
+      "rationale": "Gentle service that makes a large formatting task feel easy and approachable.",
+      "corner": "lower-left",
+      "filename": "C1-butanding-lower-left.png",
+      "colors": {
+        "primary": {
+          "name": "ocean cyan",
+          "hex": "#4ABFD3"
+        },
+        "secondary": {
+          "name": "deep indigo",
+          "hex": "#303C7A"
+        },
+        "background": {
+          "name": "muted peach pink",
+          "hex": "#E6B9AF"
+        }
+      },
+      "subject": "baby Filipino whale shark, butanding, upright and front-facing, with a very broad blunt rounded-rectangle head flowing directly into a short rounded body and a pair of thick blunt rounded side fins, both fully visible",
+      "treatment": "Use ocean cyan for the dominant continuous head and body mass and both side fins. Use deep indigo for a single broad continuous rounded lower-face bib region and two tiny eyes set on the cyan area. The defining feature is the unusually wide, gently flattened whale-shark head. No spots, gill slits, teeth, nose, tail, dorsal fin, bubbles or other details. If a mouth is used, make only one tiny simple mark in the same indigo.",
+      "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted peach pink (#E6B9AF). Keep muted peach pink visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino whale shark, butanding, upright and front-facing, with a very broad blunt rounded-rectangle head flowing directly into a short rounded body and a pair of thick blunt rounded side fins, both fully visible IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature. The personality should feel helpful, reliable, and friendly.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, ocean cyan (#4ABFD3) and deep indigo (#303C7A), plus the background color muted peach pink (#E6B9AF). Organize both character colors into broad purposeful masses and reuse them for facial marks. Use ocean cyan for the dominant continuous head and body mass and both side fins. Use deep indigo for a single broad continuous rounded lower-face bib region and two tiny eyes set on the cyan area. The defining feature is the unusually wide, gently flattened whale-shark head. No spots, gill slits, teeth, nose, tail, dorsal fin, bubbles or other details. If a mouth is used, make only one tiny simple mark in the same indigo. Keep the IP, facial marks, and background clearly separated. Treat the two character colors as semantic families.\nComposition: keep the character upright and emerging from the assigned lower-left, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate it.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "provider": "OpenAI built-in image_gen",
+      "model": null,
+      "model_note": "The built-in tool does not expose model selection or disclose a model name in its callable schema.",
+      "constraint_delivery": "main-prompt constraints",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\C1-butanding-lower-left.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1415631,
+      "sha256": "70F7A0FC27AA921F4C6D74AA2BF06964B4E0950E96B70EFEF73040AAE7BB099B"
+    },
+    {
+      "id": "C2",
+      "direction": "Butanding",
+      "rationale": "Gentle service that makes a large formatting task feel easy and approachable.",
+      "corner": "lower-right",
+      "filename": "C2-butanding-lower-right.png",
+      "colors": {
+        "primary": {
+          "name": "process magenta pink",
+          "hex": "#DB5487"
+        },
+        "secondary": {
+          "name": "deep plum",
+          "hex": "#572E58"
+        },
+        "background": {
+          "name": "muted seafoam",
+          "hex": "#AED1C1"
+        }
+      },
+      "subject": "baby Filipino whale shark, butanding, upright and front-facing, with a broad pillowy rounded-square head merging into a squat compact body, soft cheeks and both broad rounded side fins visible",
+      "treatment": "Use process magenta pink for the wide head, compact body and paired blunt side fins. Use deep plum for one continuous soft lower-face region and two widely spaced simple eyes on the pink mass. Use the broad blunt head as the only species-defining feature. No spots, patterns, gill lines, teeth, nostrils, dorsal fin or tail; no extra objects. The quiet friendliness should come from the big simple shapes and eye spacing.",
+      "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 × 1536 pixels.\nBackground: fill the entire square with solid muted seafoam (#AED1C1). Keep muted seafoam visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing baby Filipino whale shark, butanding, upright and front-facing, with a broad pillowy rounded-square head merging into a squat compact body, soft cheeks and both broad rounded side fins visible IP character on the background, reduced to one soft rounded continuous silhouette and one defining feature. The personality should feel helpful, reliable, and friendly.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 × 32.\nColor behavior: use exactly three semantic colors in the complete image: exactly two IP base colors, process magenta pink (#DB5487) and deep plum (#572E58), plus the background color muted seafoam (#AED1C1). Organize both character colors into broad purposeful masses and reuse them for facial marks. Use process magenta pink for the wide head, compact body and paired blunt side fins. Use deep plum for one continuous soft lower-face region and two widely spaced simple eyes on the pink mass. Use the broad blunt head as the only species-defining feature. No spots, patterns, gill lines, teeth, nostrils, dorsal fin or tail; no extra objects. The quiet friendliness should come from the big simple shapes and eye spacing. Keep the IP, facial marks, and background clearly separated. Treat the two character colors as semantic families.\nComposition: keep the character upright and emerging from the assigned lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character. Do not tilt or rotate it.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "provider": "OpenAI built-in image_gen",
+      "model": null,
+      "model_note": "The built-in tool does not expose model selection or disclose a model name in its callable schema.",
+      "constraint_delivery": "main-prompt constraints",
+      "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+      "status": "saved",
+      "saved_path": "C:\\Users\\Dexter\\Documents\\'26 PROJECTS\\ricus\\assets\\mascot\\C2-butanding-lower-right.png",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "bytes": 1310445,
+      "sha256": "205AB68C3CC824ADD0DEA9B0C7A553478B705E06DC01DC916771A4EB07AB934D"
+    }
+  ]
+}
