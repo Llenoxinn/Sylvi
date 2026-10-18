@@ -269,6 +269,11 @@ a {
   text-decoration: none;
 }
 
+/* Paired with the tool's header logo for the page transition (transitions.css). */
+.nav > .nav-brand svg {
+  view-transition-name: sylvi-mark;
+}
+
 .nav-links {
   display: flex;
   flex: 1;
@@ -314,6 +319,7 @@ a {
   max-width: 720px;
 }
 
+/* Sets the size TechText draws the headline at; the text itself is screen-reader only. */
 .hero-title {
   max-width: 11.5em;
   font-family: var(--display);
@@ -322,6 +328,24 @@ a {
   line-height: 1.1;
   letter-spacing: -0.03em;
   color: #fff;
+}
+
+.hero-title-art {
+  display: block;
+}
+
+.hero-title-line {
+  position: relative;
+  display: block;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .hero-lede {
@@ -341,16 +365,88 @@ a {
 .hero-visual {
   position: relative;
   display: grid;
-  grid-template-rows: 1fr auto;
   place-items: center;
-  gap: 36px;
   min-height: 560px;
 }
 
-.hero-caption {
-  color: var(--mat-ink);
+/* Dimension lines, like a print measured on the mat. They sit in the sheet so they turn with it. */
+.dim {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  color: var(--mat-ink-strong);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.dim::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border: 0 solid rgb(255 255 255 / 0.55);
+}
+
+.dim > span {
+  padding: 0 6px;
+  background: var(--mat);
+  white-space: nowrap;
+}
+
+.dim--w {
+  top: -26px;
+  right: 0;
+  left: 0;
+  height: 12px;
+}
+
+.dim--w::before {
+  inset: 0;
+  border-width: 0 1px;
+  background: linear-gradient(rgb(255 255 255 / 0.55) 0 0) center / 100% 1px no-repeat;
+}
+
+.dim--h {
+  top: 0;
+  right: -26px;
+  bottom: 0;
+  width: 12px;
+}
+
+.dim--h::before {
+  inset: 0;
+  border-width: 1px 0;
+  background: linear-gradient(rgb(255 255 255 / 0.55) 0 0) center / 1px 100% no-repeat;
+}
+
+.dim--h > span {
+  padding: 4px 0;
+  writing-mode: vertical-rl;
+}
+
+/* A label clipped to the sheet's corner, the way the app names a package. */
+.sheet-tag {
+  position: absolute;
+  bottom: 22%;
+  left: -18px;
+  z-index: 3;
+  display: grid;
+  gap: 1px;
+  padding: 9px 14px 10px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: var(--shadow-pop);
+  color: #4c5852;
   font-size: var(--text-sm);
-  text-align: center;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.sheet-tag b {
+  color: #c2185b;
+  font-size: var(--text-md);
 }
 
 .sheet {
@@ -477,31 +573,23 @@ a {
 
 /* ---------- Feature grid ---------- */
 
-.bento {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-rows: minmax(250px, auto);
-  grid-auto-flow: dense;
-  gap: 16px;
+/* MagicBento draws the grid, surfaces, light and border glow; this styles what's inside each card. */
+.features-bento {
   margin-top: clamp(48px, 6vw, 80px);
+  font-feature-settings: normal;
 }
 
-.card {
-  position: relative;
+.feature {
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: space-between;
   gap: 24px;
-  overflow: hidden;
-  padding: 28px;
-  border: 1px solid transparent;
-  border-radius: 24px;
-  background: var(--surface);
-  box-shadow: var(--ring);
-  transition: box-shadow 300ms var(--ease-out);
+  min-height: 0;
+  color: var(--ink);
 }
 
-.card h3 {
+.feature h3 {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -518,29 +606,19 @@ a {
   color: var(--ink-2);
 }
 
-.card--face {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-.card--cuts {
-  grid-column: span 2;
-}
-
-.card--paper {
-  grid-column: span 4;
+.feature--paper {
   flex-direction: row;
   align-items: flex-end;
 }
 
-.card--paper .card-body {
+.feature--paper .card-body {
   max-width: 26em;
 }
 
 .card-media {
   position: relative;
   flex: 1;
-  min-height: 300px;
+  min-height: 220px;
   overflow: hidden;
   border-radius: 16px;
   background: var(--surface-2);
@@ -651,18 +729,13 @@ a {
   white-space: nowrap;
 }
 
-/* Hover motion only where a real pointer hovers, and only when motion is welcome. */
-@media (hover: hover) {
-  .card:hover {
-    box-shadow: var(--ring-raised);
-  }
-}
-
+/* Hover motion only where a real pointer hovers, and only when motion is welcome.
+   MagicBento already lights the hovered card, so there is no extra shadow change. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .card:hover .card-media img {
+  .magic-bento__card:hover .card-media img {
     scale: 1.05;
   }
-  .card--cuts:hover .cuts-lines line {
+  .magic-bento__card:hover .cuts-lines line {
     stroke-dashoffset: -20;
   }
   .papers li:hover .paper {
@@ -670,17 +743,8 @@ a {
   }
 }
 
-@media (max-width: 1000px) {
-  .bento {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .card--paper {
-    grid-column: span 2;
-  }
-}
-
 @media (max-width: 720px) {
-  .card--paper {
+  .feature--paper {
     flex-direction: column;
     align-items: stretch;
   }
@@ -690,17 +754,6 @@ a {
 }
 
 @media (max-width: 600px) {
-  .bento {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .card--face,
-  .card--cuts,
-  .card--paper {
-    grid-column: span 1;
-  }
-  .card--face {
-    grid-row: span 1;
-  }
   .paper {
     width: calc(var(--w) * 92px / 13);
     height: calc(var(--h) * 92px / 13);

@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import '@fontsource-variable/schibsted-grotesk';
 import './styles/tokens.css';
+import './styles/transitions.css';
 import './styles/base.css';
 import './styles/workspace.css';
 import App from './App';

@@ -1,9 +1,11 @@
-import { useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react';
 import gsap from 'gsap';
 import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { ArrowLeft, ArrowRight, Scissors, ShieldCheck } from 'lucide-react';
+import MagicBento from '../components/reactbits/MagicBento/MagicBento';
+import TechText from '../components/reactbits/TechText/TechText';
 import { BUILT_IN_PACKAGES, describePackage } from '../lib/packages';
 
 gsap.registerPlugin(ScrollTrigger, CustomEase, useGSAP);
@@ -31,8 +33,11 @@ export default function Landing() {
           return;
         }
 
-        // Title, description, actions: 100ms apart, each rising 12px out of a 4px blur.
-        gsap.from('.hero-title, .hero-lede, .hero-actions', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1 });
+        // The headline draws itself (TechText); the description and actions follow it,
+        // 100ms apart, each rising 12px out of a 4px blur.
+        gsap.from('.hero-lede, .hero-actions', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 0.5 });
+        // The sheet's measurements arrive once its photos have landed.
+        gsap.from('.dim, .sheet-tag', { opacity: 0, duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 1 });
         // Opacity only: tweening its transform would freeze the CSS offset in pixels and break resizing.
         gsap.from('.hero-sheet--back', { opacity: 0, duration: 0.6, ease: EASE_OUT, delay: 0.2 });
         // The photos land on the sheet one by one, the way the app fills it.
@@ -112,7 +117,7 @@ function Nav() {
 }
 
 /** A 4R sheet as Sylvi prints it: borderless, with crop marks where each cut starts. */
-function Sheet({ sample, layout, className = '' }: { sample: Portrait; layout: 'b' | 'fill'; className?: string }) {
+function Sheet({ sample, layout, className = '', children }: { sample: Portrait; layout: 'b' | 'fill'; className?: string; children?: ReactNode }) {
   const cells = layout === 'b' ? [2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1] : Array<number>(24).fill(1);
   // Cut positions in sheet units (the sheet is 40 × 60, one inch = 10).
   const cutsX = layout === 'b' ? [{ x: 20, top: true }, { x: 10, top: false }, { x: 30, top: false }] : [10, 20, 30].map(x => ({ x, top: true }));
@@ -136,7 +141,109 @@ function Sheet({ sample, layout, className = '' }: { sample: Portrait; layout: '
           </g>
         ))}
       </svg>
+      {children}
     </div>
+  );
+}
+
+// Non-breaking hyphen so "cut-ready" never splits.
+const HEADLINE = ['One photo in.', 'A cut‑ready', 'sheet out.'];
+const HEADLINE_FONT = "'Outfit Variable', ui-sans-serif, system-ui, sans-serif";
+const HEADLINE_TRACK = -0.03;
+// TechText fits a line's ink inside 90% of its box's width and 66% of its height,
+// inset 5% from the left. Boxes are 1.6em tall and overlap to a 1.1em line pitch.
+const LINE_BOX = 1.6;
+const LINE_PITCH = 1.1;
+
+/**
+ * The h1 drawn with TechText, one canvas per line. TechText only does single
+ * lines and shrinks each to fit on its own, so every line gets the same size
+ * here (set by the widest) and a box big enough that TechText never shrinks it.
+ * The real text stays in the h1 for screen readers and search.
+ */
+function HeroHeadline() {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const [fit, setFit] = useState<{ size: number; box: number; shifts: number[] } | null>(null);
+  const [lines, setLines] = useState(1);
+
+  useLayoutEffect(() => {
+    const el = ref.current!;
+    const ctx = document.createElement('canvas').getContext('2d')!;
+    const measure = () => {
+      const max = parseFloat(getComputedStyle(el).fontSize);
+      ctx.font = `600 100px ${HEADLINE_FONT}`;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = `${HEADLINE_TRACK * 100}px`;
+      const metrics = HEADLINE.map(line => ctx.measureText(line));
+      const widest = Math.max(...metrics.map(m => m.actualBoundingBoxLeft + m.actualBoundingBoxRight));
+      const box = el.clientWidth / 0.95;
+      const size = Math.min(max, ((0.9 * box * 100) / widest) * 0.98);
+      // TechText centres each line's ink vertically, so a line without descenders
+      // sits lower. Shift each box so the baselines keep an even pitch.
+      const skew = metrics.map(m => ((m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 200) * size);
+      const shifts = skew.map(s => skew[0] - s);
+      setFit(prev => (prev && prev.size === size && prev.box === box ? prev : { size, box, shifts }));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    document.fonts?.load(`600 100px ${HEADLINE_FONT}`).then(measure, () => {});
+    return () => observer.disconnect();
+  }, []);
+
+  // Lines start drawing one after another, like the photos landing on the sheet.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return setLines(HEADLINE.length);
+    const timers = [1, 2].map(n => window.setTimeout(() => setLines(n + 1), n * 220));
+    return () => timers.forEach(window.clearTimeout);
+  }, []);
+
+  return (
+    <h1 ref={ref} className="hero-title">
+      <span className="sr-only">One photo in. A cut-ready sheet out.</span>
+      <span className="hero-title-art" aria-hidden="true">
+        {fit
+          ? HEADLINE.map((line, i) => (
+              <span
+                key={line}
+                className="hero-title-line"
+                style={{
+                  width: fit.box,
+                  height: LINE_BOX * fit.size,
+                  marginLeft: -0.05 * fit.box,
+                  marginTop: (i ? LINE_PITCH - LINE_BOX : (LINE_PITCH - LINE_BOX) / 2) * fit.size,
+                  translate: `0 ${fit.shifts[i].toFixed(1)}px`
+                }}
+              >
+                {i < lines ? (
+                  <TechText
+                    text={line}
+                    fontFamily={HEADLINE_FONT}
+                    fontWeight={600}
+                    fontSize={fit.size}
+                    letterSpacing={HEADLINE_TRACK}
+                    align="left"
+                    color="#ffffff"
+                    accentColor="#f06a9b"
+                    reveal="letter"
+                    reach={Math.round(fit.size * 1.2)}
+                    dashLength={3}
+                    dashGap={2}
+                    strokeWidth={1.25}
+                    specks={8}
+                    selection={false}
+                    labels={false}
+                    draggable={false}
+                    guides={false}
+                    sweep={false}
+                    intro="metrics"
+                    introDuration={1.3}
+                  />
+                ) : null}
+              </span>
+            ))
+          : null}
+      </span>
+    </h1>
   );
 }
 
@@ -144,8 +251,7 @@ function Hero() {
   return (
     <header className="hero mat" id="top">
       <div className="hero-copy">
-        {/* Non-breaking hyphen so "cut-ready" never splits across lines. */}
-        <h1 className="hero-title">One photo in. A cut‑ready sheet out.</h1>
+        <HeroHeadline />
         <p className="hero-lede">
           Sylvi lays out 1x1, 2x2 and passport photos for print shops. It finds the face, packs every size onto the paper you load and marks
           each cut. No Word, no ruler, no guessing margins.
@@ -161,8 +267,19 @@ function Hero() {
       </div>
       <figure className="hero-visual" aria-label="Two finished 4R sheets: one with four 2x2 and eight 1x1 photos, one filled with 1x1 photos">
         <Sheet sample={5} layout="fill" className="hero-sheet hero-sheet--back" />
-        <Sheet sample={1} layout="b" className="hero-sheet hero-sheet--front" />
-        <figcaption className="hero-caption">4R, borderless. 4 × 2x2 and 8 × 1x1 on one sheet</figcaption>
+        <Sheet sample={1} layout="b" className="hero-sheet hero-sheet--front">
+          {/* Measured like a print on the cutting mat: the sheet is true 4R. */}
+          <span className="dim dim--w" aria-hidden="true">
+            <span>4 in</span>
+          </span>
+          <span className="dim dim--h" aria-hidden="true">
+            <span>6 in</span>
+          </span>
+          <span className="sheet-tag" aria-hidden="true">
+            <b>Package B</b>
+            <span>12 photos, one sheet</span>
+          </span>
+        </Sheet>
       </figure>
     </header>
   );
@@ -193,78 +310,141 @@ const PAPERS = [
   { name: 'Long bond', w: 8.5, h: 13 }
 ];
 
+const subscribe = (query: string) => (onChange: () => void) => {
+  const list = window.matchMedia(query);
+  list.addEventListener('change', onChange);
+  return () => list.removeEventListener('change', onChange);
+};
+const useMedia = (query: string) => useSyncExternalStore(subscribe(query), () => window.matchMedia(query).matches, () => false);
+
 function Features() {
+  const dark = useMedia('(prefers-color-scheme: dark)');
+  const wide = useMedia('(min-width: 1000px)');
+  const narrow = useMedia('(max-width: 599px)');
+  // The grid's own breakpoints switch at 150px cells, too small for this copy.
+  const columns = wide ? 4 : narrow ? 1 : 2;
+
+  const items = [
+    { id: 'face', colSpan: 2, rowSpan: 2, content: <FaceCard /> },
+    { id: 'cuts', colSpan: 2, content: <CutsCard /> },
+    { id: 'size', content: <SizeCard /> },
+    { id: 'private', content: <PrivateCard /> },
+    { id: 'paper', colSpan: 4, content: <PaperCard /> }
+  ];
+
   return (
     <section className="section features" id="features">
       <h2 className="section-title">Everything between the photo and the trimmer.</h2>
-      <div className="bento">
-        <article className="card card--face">
-          <div className="card-media">
-            <img src={photo(3)} alt="" loading="lazy" />
-            <div className="face-frame" aria-hidden="true">
-              <span className="face-oval" />
-            </div>
-          </div>
-          <div className="card-body">
-            <h3>Finds the face, frames the head</h3>
-            <p>Face detection runs right in the browser and sizes head and shoulders for each photo size. Drag or zoom if a customer wants it different.</p>
-          </div>
-        </article>
-
-        <article className="card card--cuts">
-          <svg className="cuts-art" viewBox="0 0 120 80" aria-hidden="true">
-            <rect x="34" y="4" width="48" height="72" rx="1.5" className="cuts-sheet" />
-            <g className="cuts-lines">
-              <line x1="58" y1="0" x2="58" y2="80" />
-              <line x1="30" y1="28" x2="86" y2="28" />
-              <line x1="30" y1="52" x2="86" y2="52" />
-              <line x1="30" y1="64" x2="86" y2="64" />
-              <line x1="46" y1="52" x2="46" y2="80" />
-              <line x1="70" y1="52" x2="70" y2="80" />
-            </g>
-          </svg>
-          <div className="card-body">
-            <h3>
-              <Scissors size={18} strokeWidth={STROKE} aria-hidden="true" /> Cuts in straight lines
-            </h3>
-            <p>Every layout splits edge to edge, so each pass on the trimmer goes straight across. No photo is boxed in by another.</p>
-          </div>
-        </article>
-
-        <article className="card card--size">
-          <p className="size-figure">
-            300<span>DPI</span>
-          </p>
-          <div className="card-body">
-            <h3>True size, every time</h3>
-            <p>PDFs are made at the exact paper size. Print at Actual size (100%) and a 2x2 measures two inches.</p>
-          </div>
-        </article>
-
-        <article className="card card--private">
-          <ShieldCheck className="private-icon" size={34} strokeWidth={1.75} aria-hidden="true" />
-          <div className="card-body">
-            <h3>Photos stay on this computer</h3>
-            <p>Customer photos are personal data under RA 10173, so Sylvi never uploads them. Recent jobs delete themselves after 24 hours.</p>
-          </div>
-        </article>
-
-        <article className="card card--paper">
-          <div className="card-body">
-            <h3>Whatever is loaded in the printer</h3>
-            <p>3R to long bond, or a custom size. Portrait, landscape, or let Sylvi pick whichever needs fewer sheets.</p>
-          </div>
-          <ul className="papers" aria-label="Paper sizes, drawn to scale">
-            {PAPERS.map(p => (
-              <li key={p.name}>
-                <span className="paper" style={{ '--w': p.w, '--h': p.h } as CSSProperties} />
-                <span className="paper-name">{p.name}</span>
-              </li>
-            ))}
-          </ul>
-        </article>
-      </div>
+      <MagicBento
+        className="features-bento"
+        items={items}
+        columns={columns}
+        rowHeight={260}
+        gap={16}
+        radius={24}
+        theme={dark ? 'dark' : 'light'}
+        glowColor={dark ? '#f06a9b' : '#c2185b'}
+        enableBorderGlow
+        enableSpotlight
+        spotlightRadius={300}
+        clickEffect
+        style={
+          {
+            '--mb-pad': '28px',
+            '--mb-surface': 'var(--surface)',
+            '--mb-ink': 'var(--ink)',
+            '--mb-muted': 'var(--ink-2)',
+            '--mb-shadow': 'var(--ring)'
+          } as CSSProperties
+        }
+      />
     </section>
+  );
+}
+
+function FaceCard() {
+  return (
+    <div className="feature feature--face">
+      <div className="card-media">
+        <img src={photo(3)} alt="" loading="lazy" />
+        <div className="face-frame" aria-hidden="true">
+          <span className="face-oval" />
+        </div>
+      </div>
+      <div className="card-body">
+        <h3>Finds the face, frames the head</h3>
+        <p>Face detection runs right in the browser and sizes head and shoulders for each photo size. Drag or zoom if a customer wants it different.</p>
+      </div>
+    </div>
+  );
+}
+
+function CutsCard() {
+  return (
+    <div className="feature feature--cuts">
+      <svg className="cuts-art" viewBox="0 0 120 80" aria-hidden="true">
+        <rect x="34" y="4" width="48" height="72" rx="1.5" className="cuts-sheet" />
+        <g className="cuts-lines">
+          <line x1="58" y1="0" x2="58" y2="80" />
+          <line x1="30" y1="28" x2="86" y2="28" />
+          <line x1="30" y1="52" x2="86" y2="52" />
+          <line x1="30" y1="64" x2="86" y2="64" />
+          <line x1="46" y1="52" x2="46" y2="80" />
+          <line x1="70" y1="52" x2="70" y2="80" />
+        </g>
+      </svg>
+      <div className="card-body">
+        <h3>
+          <Scissors size={18} strokeWidth={STROKE} aria-hidden="true" /> Cuts in straight lines
+        </h3>
+        <p>Every layout splits edge to edge, so each pass on the trimmer goes straight across. No photo is boxed in by another.</p>
+      </div>
+    </div>
+  );
+}
+
+function SizeCard() {
+  return (
+    <div className="feature feature--size">
+      <p className="size-figure">
+        300<span>DPI</span>
+      </p>
+      <div className="card-body">
+        <h3>True size, every time</h3>
+        <p>PDFs are made at the exact paper size. Print at Actual size (100%) and a 2x2 measures two inches.</p>
+      </div>
+    </div>
+  );
+}
+
+function PrivateCard() {
+  return (
+    <div className="feature feature--private">
+      <ShieldCheck className="private-icon" size={34} strokeWidth={1.75} aria-hidden="true" />
+      <div className="card-body">
+        <h3>Photos stay on this computer</h3>
+        <p>Customer photos are personal data under RA 10173, so Sylvi never uploads them. Recent jobs delete themselves after 24 hours.</p>
+      </div>
+    </div>
+  );
+}
+
+function PaperCard() {
+  return (
+    <div className="feature feature--paper">
+      <div className="card-body">
+        <h3>Whatever is loaded in the printer</h3>
+        <p>3R to long bond, or a custom size. Portrait, landscape, or let Sylvi pick whichever needs fewer sheets.</p>
+      </div>
+      <ul className="papers" aria-label="Paper sizes, drawn to scale">
+        {PAPERS.map(p => (
+          <li key={p.name}>
+            <span className="paper" style={{ '--w': p.w, '--h': p.h } as CSSProperties} />
+            <span className="paper-name">{p.name}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

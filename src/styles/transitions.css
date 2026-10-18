@@ -1,0 +1,52 @@
+/*
+ * Moving between the landing page (/) and the tool (/app/). Both pages load
+ * this file: the browser runs the transition with the arriving page's styles.
+ * Browsers without cross-document view transitions just navigate.
+ */
+
+@view-transition {
+  navigation: auto;
+}
+
+/* The old page steps back quickly; the new one rises in just behind it. */
+::view-transition-old(root) {
+  animation: sylvi-page-out 160ms var(--ease-out) both;
+}
+
+::view-transition-new(root) {
+  animation: sylvi-page-in 300ms var(--ease-out) 60ms both;
+}
+
+/* The logo travels from one page's header to the other's: on-screen movement, so ease-in-out. */
+::view-transition-group(sylvi-mark) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+@keyframes sylvi-page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sylvi-page-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+
+/* Reduced motion: pages cross-fade and the logo swaps in place, with nothing moving. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(sylvi-mark) {
+    animation-duration: 0s;
+  }
+  ::view-transition-new(root) {
+    animation-name: sylvi-page-fade;
+  }
+  @keyframes sylvi-page-fade {
+    from {
+      opacity: 0;
+    }
+  }
+}

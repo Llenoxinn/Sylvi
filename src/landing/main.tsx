@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import '@fontsource-variable/outfit';
 import '@fontsource-variable/schibsted-grotesk';
 import '../styles/tokens.css';
+import '../styles/transitions.css';
 import './landing.css';
 import Landing from './Landing';
 
