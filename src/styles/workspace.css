@@ -927,10 +927,12 @@
 
 /* ---------- Job done card ---------- */
 
+/* Sits above the centred dock (12px offset + 60px panel) so Print and
+   Download stay reachable while it's up. */
 .job-done {
   position: absolute;
   right: 16px;
-  bottom: 16px;
+  bottom: 92px;
   z-index: 11;
   display: flex;
   align-items: center;
@@ -977,10 +979,11 @@
   color: var(--accent);
 }
 
-/* Leave the centred dock clear on mid-size screens; sit above it on phones. */
-@media (max-width: 1280px) {
+/* Beside the dock only when the stage (window minus the 568px of side panels)
+   leaves room for the card next to the dock at full magnification. */
+@media (min-width: 1880px) {
   .job-done {
-    bottom: 92px;
+    bottom: 16px;
   }
 }
 
