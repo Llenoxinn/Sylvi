@@ -13,7 +13,9 @@ clientsClaim();
 // The app shell, so Sylvi opens offline after the first visit.
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')));
+// The tool lives under /app/ and the landing page at /, so each gets its own shell.
+registerRoute(new NavigationRoute(createHandlerBoundToURL('app/index.html'), { allowlist: [/^\/app(\/|$)/] }));
+registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), { denylist: [/^\/app(\/|$)/] }));
 
 // The face model and its WASM runtime are large, so they are cached the first
 // time they're used rather than downloaded on install.

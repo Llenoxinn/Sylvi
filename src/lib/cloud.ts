@@ -16,7 +16,7 @@ export const accountsEnabled = cloud !== null;
 
 export async function sendSignInLink(email: string): Promise<void> {
   if (!cloud) throw new Error('Accounts aren’t set up on this copy of Sylvi.');
-  const { error } = await cloud.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin } });
+  const { error } = await cloud.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/app/` } });
   if (error) throw new Error(error.message);
 }
 

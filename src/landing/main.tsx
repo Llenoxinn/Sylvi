@@ -1,0 +1,13 @@
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import '@fontsource-variable/outfit';
+import '@fontsource-variable/schibsted-grotesk';
+import '../styles/tokens.css';
+import './landing.css';
+import Landing from './Landing';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <Landing />
+  </StrictMode>
+);

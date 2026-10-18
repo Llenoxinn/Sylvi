@@ -8,7 +8,7 @@ Upload or paste a photo, pick a package on the wheel, pick the paper, and downlo
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # landing page at http://localhost:5173, the tool at /app/
 npm test           # layout engine, crop, DPI and guide tests
 npm run build      # production build in dist/
 ```

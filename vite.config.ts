@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -22,10 +23,23 @@ export default defineConfig({
         theme_color: '#24443b',
         background_color: '#f6f7f6',
         display: 'standalone',
+        // The installed app opens straight into the tool, not the landing page.
+        id: '/app/',
+        start_url: '/app/',
+        scope: '/app/',
         icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }]
       },
     })
   ],
+  build: {
+    // The landing page at / and the tool at /app/.
+    rolldownOptions: {
+      input: {
+        landing: fileURLToPath(new URL('./index.html', import.meta.url)),
+        app: fileURLToPath(new URL('./app/index.html', import.meta.url))
+      }
+    }
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts']
