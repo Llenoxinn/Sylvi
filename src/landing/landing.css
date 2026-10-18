@@ -5,7 +5,9 @@
  */
 
 :root {
-  --display: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
+  --display: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  /* The landing page sets everything in Geist; the tool keeps its own face. */
+  --font: var(--display);
 
   /* Type scale, by role. Each size carries its own line-height. */
   --t-display: clamp(3rem, 5.4vw, 5.5rem); /* h1, closing call to action */
@@ -110,8 +112,7 @@ a {
 
 /* Content photos get a hairline so light backdrops don't bleed into the page. */
 .card-media img,
-.scan img,
-.face {
+.scan img {
   outline: 1px solid var(--img-outline);
   outline-offset: -1px;
 }
@@ -153,15 +154,6 @@ a {
   height: 68px;
   padding: 0 34px;
   font-size: 1.25rem;
-}
-
-/* A trailing arrow looks heavier than text, so its side gets 2px less. */
-.btn-lg:has(> svg:last-child) {
-  padding-right: 22px;
-}
-
-.btn-xl:has(> svg:last-child) {
-  padding-right: 32px;
 }
 
 .btn-primary {
@@ -239,80 +231,49 @@ a {
 
 /* ---------- Nav ---------- */
 
-.nav {
+/* PillNav (logo bubble + links) on the left, the main action on the right. */
+.site-nav {
   position: fixed;
   top: 16px;
   left: 50%;
   z-index: 50;
   display: flex;
   align-items: center;
-  gap: 28px;
-  width: min(760px, calc(100% - 32px));
-  padding: 7px 7px 7px 16px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--surface) 82%, transparent);
-  box-shadow: var(--shadow-pop);
-  -webkit-backdrop-filter: blur(18px) saturate(1.5);
-  backdrop-filter: blur(18px) saturate(1.5);
+  gap: 8px;
+  width: min(600px, calc(100% - 32px));
+  font-family: var(--font);
   translate: -50% 0;
 }
 
-.nav-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--display);
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  text-decoration: none;
+.site-nav-pill {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.site-nav-cta {
+  flex: none;
+  height: 44px;
+  padding: 0 20px;
+  font-size: var(--text-md);
+  box-shadow: var(--shadow-pop);
 }
 
 /* Paired with the tool's header logo for the page transition (transitions.css). */
-.nav > .nav-brand svg {
+.site-nav .pill-nav__mark {
   view-transition-name: sylvi-mark;
-}
-
-.nav-links {
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  gap: 26px;
-}
-
-.nav-links a {
-  color: var(--ink-2);
-  font-size: var(--text-md);
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 150ms var(--ease-out);
-}
-
-@media (hover: hover) {
-  .nav-links a:hover {
-    color: var(--ink);
-  }
-}
-
-@media (max-width: 640px) {
-  .nav {
-    justify-content: space-between;
-  }
-  .nav-links {
-    display: none;
-  }
 }
 
 /* ---------- Hero ---------- */
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   gap: clamp(32px, 6vw, 96px);
-  min-height: max(720px, 100svh);
-  padding: 140px var(--gutter) 96px;
+  min-height: min(max(720px, 100svh), 980px);
+  padding: 132px max(var(--gutter), calc((100% - var(--page-max)) / 2)) 88px;
 }
 
 .hero-copy {
@@ -332,6 +293,7 @@ a {
 
 .hero-title-art {
   display: block;
+  margin-bottom: -0.22em;
 }
 
 .hero-title-line {
@@ -349,7 +311,7 @@ a {
 }
 
 .hero-lede {
-  max-width: 34em;
+  max-width: 30em;
   margin-top: 28px;
   color: var(--mat-ink);
   font-size: var(--t-intro);
@@ -359,7 +321,13 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 40px;
+  margin-top: 36px;
+}
+
+.hero-note {
+  margin-top: 18px;
+  color: var(--mat-ink);
+  font-size: var(--text-sm);
 }
 
 .hero-visual {
@@ -429,8 +397,8 @@ a {
 /* A label clipped to the sheet's corner, the way the app names a package. */
 .sheet-tag {
   position: absolute;
-  bottom: 22%;
-  left: -18px;
+  right: calc(100% + 18px);
+  bottom: 12%;
   z-index: 3;
   display: grid;
   gap: 1px;
@@ -442,6 +410,17 @@ a {
   font-size: var(--text-sm);
   line-height: 1.3;
   white-space: nowrap;
+}
+
+/* Leader line from the label to the sheet's edge. */
+.sheet-tag::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 18px;
+  height: 1px;
+  background: rgb(255 255 255 / 0.7);
 }
 
 .sheet-tag b {
@@ -457,7 +436,7 @@ a {
   grid-auto-flow: dense;
   gap: 1px;
   aspect-ratio: 2 / 3;
-  width: clamp(220px, 25vw, 360px);
+  width: clamp(220px, 25vw, 390px);
   background: #fff;
   box-shadow: var(--shadow-sheet);
 }
@@ -496,10 +475,10 @@ a {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: clamp(190px, 21vw, 300px);
+  width: clamp(190px, 20vw, 310px);
   translate: -112% -54%;
   rotate: -9deg;
-  filter: saturate(0.85) brightness(0.92);
+  filter: saturate(0.7) brightness(0.84);
 }
 
 /* ---------- Marquee ---------- */
@@ -572,6 +551,30 @@ a {
 }
 
 /* ---------- Feature grid ---------- */
+
+/* Title on the left, the one-line promise answering it on the right. */
+.section-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+  align-items: end;
+  gap: 24px 64px;
+}
+
+.section-lede {
+  justify-self: end;
+  max-width: 24em;
+  color: var(--ink-2);
+  font-size: var(--t-intro);
+}
+
+@media (max-width: 900px) {
+  .section-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .section-lede {
+    justify-self: start;
+  }
+}
 
 /* MagicBento draws the grid, surfaces, light and border glow; this styles what's inside each card. */
 .features-bento {
@@ -660,42 +663,130 @@ a {
   translate: -50% 0;
 }
 
-.cuts-art {
-  width: 100%;
-  max-height: 180px;
+/* Cuts: a mini Package B sheet with its cuts drawn edge to edge, in trimmer order. */
+.feature--cuts {
+  flex-direction: row;
+  align-items: flex-end;
 }
 
-.cuts-sheet {
-  fill: var(--surface-2);
-  stroke: var(--line-strong);
-  stroke-width: 0.6;
+.feature--cuts .card-body {
+  flex: 1;
+  max-width: 22em;
+}
+
+.cuts-art {
+  position: relative;
+  flex: none;
+  align-self: center;
+  width: 132px;
+  aspect-ratio: 56 / 76;
+}
+
+/* Scoped so the hero's responsive .sheet widths never resize it. */
+.cuts-art .mini-sheet {
+  position: absolute;
+  top: calc(8 / 76 * 100%);
+  left: calc(8 / 56 * 100%);
+  width: calc(40 / 56 * 100%);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), 0 10px 24px -12px rgb(0 0 0 / 0.3);
+}
+
+.cuts-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 .cuts-lines line {
   stroke: var(--accent);
-  stroke-width: 0.8;
-  stroke-dasharray: 3 2;
-  transition: stroke-dashoffset 900ms var(--ease-out);
+  stroke-width: 0.55;
+  /* One dash the length of the line, so offsetting it hides then draws it. */
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: 0;
 }
 
-.size-figure {
-  font-family: var(--display);
-  font-size: clamp(4.5rem, 7vw, 6.5rem);
-  font-weight: 600;
+/* True size: the number is the picture. */
+.feature--private h3 {
+  font-size: 1.375rem;
+}
+
+/* Sized from the card, not the window: the card is narrowest exactly when the window is widest. */
+.feature--size {
+  container-type: inline-size;
+}
+
+.feature .size-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 0.12em;
+  white-space: nowrap;
+  font-size: min(7rem, 37cqi);
+  font-weight: 650;
   line-height: 0.9;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
 }
 
 .size-figure span {
-  margin-left: 6px;
   color: var(--accent);
-  font-size: 0.32em;
+  font-size: 0.34em;
+  font-weight: 600;
   letter-spacing: 0;
 }
 
-.private-icon {
+.size-note {
+  max-width: 22em;
+  color: var(--ink-2);
+}
+
+/* Privacy: a recent job, kept on this computer and counting down. */
+.job-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
   color: var(--accent);
+}
+
+.job-row svg {
+  flex: none;
+}
+
+.job-name {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.job-name b {
+  color: var(--ink);
+  font-size: var(--text-md);
+}
+
+.job-name span {
+  overflow: hidden;
+  color: var(--ink-3);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-left {
+  flex: none;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--line);
+  color: var(--ink-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .papers {
@@ -735,11 +826,66 @@ a {
   .magic-bento__card:hover .card-media img {
     scale: 1.05;
   }
-  .magic-bento__card:hover .cuts-lines line {
-    stroke-dashoffset: -20;
-  }
   .papers li:hover .paper {
     translate: 0 -6px;
+  }
+}
+
+.papers li[data-on] .paper {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.papers li[data-on] .paper-name {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/*
+ * Each card's demo plays once as MagicBento brings it in, after its own
+ * entrance (--mb-delay). With reduced motion MagicBento drops data-motion,
+ * so everything simply sits at its end state.
+ */
+.magic-bento[data-motion] .magic-bento__cell[data-state='in'] .face-frame {
+  animation: frame-settle 700ms var(--ease-out) calc(var(--mb-delay) + 350ms) both;
+}
+
+.magic-bento[data-motion] .magic-bento__cell[data-state='in'] .cuts-lines line {
+  animation: cut-draw 380ms var(--ease-out) calc(var(--mb-delay) + 450ms + var(--i) * 120ms) both;
+}
+
+
+.magic-bento[data-motion] .magic-bento__cell[data-state='in'] .size-figure {
+  animation: rise-in 300ms var(--ease-out) calc(var(--mb-delay) + 350ms) both;
+}
+
+.magic-bento[data-motion] .magic-bento__cell[data-state='in'] .job-row {
+  animation: rise-in 300ms var(--ease-out) calc(var(--mb-delay) + 350ms) both;
+}
+
+.magic-bento[data-motion] .magic-bento__cell[data-state='in'] .papers li {
+  animation: rise-in 300ms var(--ease-out) calc(var(--mb-delay) + 300ms + var(--i) * 60ms) both;
+}
+
+/* The crop window starts loose and settles onto the head, as auto-crop does. */
+@keyframes frame-settle {
+  from {
+    opacity: 0;
+    scale: 1.3;
+  }
+}
+
+@keyframes cut-draw {
+  from {
+    stroke-dashoffset: var(--len);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    translate: 0 12px;
   }
 }
 
@@ -747,6 +893,14 @@ a {
   .feature--paper {
     flex-direction: column;
     align-items: stretch;
+  }
+  /* Too narrow to sit side by side: the sheet goes on top of its text. */
+  .feature--cuts {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .feature--cuts .cuts-art {
+    width: 112px;
   }
   .papers {
     justify-content: space-between;
@@ -851,8 +1005,30 @@ a {
   gap: clamp(64px, 9vw, 120px);
 }
 
-.step > h3 {
-  margin-top: 28px;
+/* Each step is a card; on wide screens they stick and stack as you scroll. */
+.step {
+  position: relative;
+  padding: 16px;
+  border: 1px solid transparent;
+  border-radius: 32px;
+  background: var(--surface);
+  box-shadow: var(--ring);
+  transform-origin: 50% 0;
+}
+
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .step {
+    position: sticky;
+    top: 128px;
+  }
+}
+
+.step-copy {
+  padding: 4px 12px 12px;
+}
+
+.step-copy > h3 {
+  margin-top: 24px;
   font-family: var(--display);
   font-size: var(--t-h3);
   font-weight: 600;
@@ -860,7 +1036,7 @@ a {
   letter-spacing: -0.015em;
 }
 
-.step > p {
+.step-copy > p {
   max-width: 34em;
   margin-top: 10px;
   color: var(--ink-2);
@@ -871,9 +1047,9 @@ a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 16px;
 }
 
 .scan {
@@ -1040,6 +1216,211 @@ a {
   }
 }
 
+/* ---------- Packages: horizontal accordion ---------- */
+
+.packages {
+  padding: var(--section-y) 0;
+}
+
+.packages-inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.packages .section-title {
+  color: #fff;
+}
+
+.packages .section-lede {
+  color: var(--mat-ink);
+}
+
+/* Six slices; the open one takes 5.5 shares of the width. */
+.pkg-list {
+  --open: 5.5;
+  display: flex;
+  gap: 10px;
+  height: clamp(440px, 44vw, 560px);
+  margin-top: clamp(48px, 6vw, 80px);
+  container-type: inline-size;
+}
+
+.pkg {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  transition:
+    flex-grow 520ms cubic-bezier(0.77, 0, 0.175, 1),
+    background-color 300ms var(--ease-out);
+}
+
+.pkg[data-open] {
+  flex-grow: var(--open);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.pkg:has(.pkg-tab:focus-visible) {
+  outline: 2px solid #f06a9b;
+  outline-offset: 3px;
+}
+
+.pkg-tab {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.pkg-short {
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.pkg-name {
+  color: var(--mat-ink);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+}
+
+.pkg[data-open] .pkg-tab {
+  opacity: 0;
+}
+
+/* Sized to the open slice from the start, so opening reveals it rather than squashing it. */
+.pkg-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 28px;
+  width: calc((100cqw - 50px) * var(--open) / (var(--open) + 5));
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease-out);
+}
+
+.pkg[data-open] .pkg-panel {
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 180ms;
+}
+
+.mini-layout {
+  position: relative;
+  flex: none;
+  height: 100%;
+  max-width: 62%;
+  background: #fff;
+  box-shadow: var(--shadow-sheet);
+}
+
+.mini-cell {
+  position: absolute;
+  background-position: center 22%;
+  background-size: cover;
+  box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.9);
+}
+
+.pkg-info {
+  display: grid;
+  align-content: end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pkg-info h3 {
+  color: #fff;
+  font-size: var(--t-h3);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.pkg-info p {
+  color: var(--mat-ink);
+}
+
+.pkg-info .pkg-meta {
+  color: #f06a9b;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pkg {
+    transition: background-color 300ms var(--ease-out);
+  }
+}
+
+/* Narrow screens: the slices stack and the open one drops down. */
+@media (max-width: 760px) {
+  .pkg-list {
+    flex-direction: column;
+    height: auto;
+  }
+  .pkg {
+    flex: none;
+    transition: background-color 300ms var(--ease-out);
+  }
+  .pkg-tab {
+    position: relative;
+    inset: auto;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 14px;
+    width: 100%;
+    padding: 18px 20px;
+  }
+  .pkg-short {
+    font-size: 1.75rem;
+  }
+  .pkg-name {
+    writing-mode: horizontal-tb;
+    rotate: none;
+  }
+  .pkg[data-open] .pkg-tab {
+    opacity: 1;
+  }
+  .pkg-panel {
+    position: static;
+    display: none;
+    width: auto;
+    height: 300px;
+    padding: 0 20px 20px;
+    opacity: 1;
+  }
+  .pkg[data-open] .pkg-panel {
+    display: flex;
+  }
+  .mini-layout {
+    max-width: 50%;
+  }
+}
+
 /* ---------- Requests ---------- */
 
 .requests {
@@ -1048,52 +1429,42 @@ a {
 
 .requests-body {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   align-items: center;
   gap: clamp(40px, 7vw, 112px);
   margin-top: clamp(48px, 6vw, 80px);
 }
 
-.faces {
+/* The slider fills this box; 4:5 like a portrait print. */
+.counter-slider {
   position: relative;
-  aspect-ratio: 1;
+  width: 100%;
   max-width: 440px;
+  aspect-ratio: 4 / 5;
+  border-radius: 24px;
+  box-shadow: var(--ring);
 }
 
-.face {
-  position: absolute;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-  object-position: center 20%;
-  border: 6px solid var(--surface);
-  border-radius: 22px;
-  box-shadow: var(--shadow-pop);
+.request-lede {
+  max-width: 26em;
+  margin-top: 16px;
+  color: var(--ink-2);
+  font-size: var(--t-intro);
 }
 
-/* One customer up front; the next two in line overlap its lower corner,
-   clear of its face. */
-.face--0 {
-  top: 0;
-  left: 0;
-  z-index: 1;
-  width: 60%;
-  rotate: -3deg;
+.request-live {
+  margin-top: clamp(32px, 4vw, 56px);
 }
 
-.face--1 {
-  top: 30%;
-  right: 4%;
-  z-index: 2;
-  width: 34%;
-  rotate: 5deg;
+.request-count {
+  color: var(--ink-3);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-.face--2 {
-  right: 30%;
-  bottom: 0;
-  z-index: 3;
-  width: 30%;
-  rotate: -4deg;
+.request-ask {
+  margin-top: 16px;
 }
 
 .request-ask p {
@@ -1107,7 +1478,7 @@ a {
 
 .request-answer {
   display: grid;
-  gap: 4px;
+  gap: 12px;
   margin-top: 28px;
   padding-left: 16px;
   border-left: 3px solid var(--accent);
@@ -1118,87 +1489,38 @@ a {
   font-size: 1.125rem;
 }
 
-.request-answer span {
-  color: var(--ink-2);
-}
-
-.request-nav {
+.request-chips {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 40px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.round-btn {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--line-strong);
-  border-radius: 50%;
+.request-chips li {
+  padding: 6px 12px;
+  border-radius: 999px;
   background: var(--surface);
-  color: var(--ink);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition-property: border-color, background-color, scale;
-  transition-duration: 150ms;
-  transition-timing-function: var(--ease-out);
-}
-
-.round-btn:active {
-  scale: 0.96;
-}
-
-@media (hover: hover) {
-  .round-btn:hover {
-    border-color: var(--ink-3);
-    background: var(--surface-2);
-  }
-}
-
-.request-count {
-  min-width: 3.5em;
-  color: var(--ink-3);
+  box-shadow: 0 0 0 1px var(--line);
+  color: var(--ink-2);
+  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
-  text-align: center;
+  white-space: nowrap;
 }
 
-/* Each request enters once: faces, quote and answer 100ms apart, rising 12px out of a 4px blur. */
-.face,
+/* Each request arrives with its customer: quote, then answer, rising 12px out of a 4px blur. */
 .request-ask,
 .request-answer {
-  animation: request-in 300ms var(--ease-out) both;
-}
-
-.face--1 {
-  animation-delay: 100ms;
-}
-
-.face--2 {
-  animation-delay: 200ms;
+  animation: rise-in 300ms var(--ease-out) both;
 }
 
 .request-answer {
   animation-delay: 100ms;
-}
-
-@keyframes request-in {
-  from {
-    opacity: 0;
-    filter: blur(4px);
-    translate: 0 12px;
-  }
 }
 
 /* Reduced motion keeps the cross-fade and drops the movement. */
 @media (prefers-reduced-motion: reduce) {
-  .face,
   .request-ask,
   .request-answer {
     animation-name: request-fade;
-  }
-  .round-btn:active {
-    scale: none;
   }
   @keyframes request-fade {
     from {
@@ -1211,8 +1533,8 @@ a {
   .requests-body {
     grid-template-columns: minmax(0, 1fr);
   }
-  .faces {
-    width: min(100%, 320px);
+  .counter-slider {
+    max-width: 380px;
   }
 }
 
@@ -1227,6 +1549,23 @@ a {
 }
 
 /* Same size as the h1: the closing heading should never outrank the page title. */
+.cta-frame {
+  position: absolute;
+  inset: clamp(20px, 4vw, 56px);
+  --c: rgb(240 106 155 / 0.85);
+  background:
+    linear-gradient(var(--c) 0 0) 0 0 / 44px 2px,
+    linear-gradient(var(--c) 0 0) 0 0 / 2px 44px,
+    linear-gradient(var(--c) 0 0) 100% 0 / 44px 2px,
+    linear-gradient(var(--c) 0 0) 100% 0 / 2px 44px,
+    linear-gradient(var(--c) 0 0) 0 100% / 44px 2px,
+    linear-gradient(var(--c) 0 0) 0 100% / 2px 44px,
+    linear-gradient(var(--c) 0 0) 100% 100% / 44px 2px,
+    linear-gradient(var(--c) 0 0) 100% 100% / 2px 44px;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
 .cta-title {
   max-width: 13em;
   font-family: var(--display);
@@ -1253,6 +1592,17 @@ a {
   max-width: var(--page-max);
   margin: 0 auto;
   padding: 40px var(--gutter);
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
 }
 
 .footer-links {
@@ -1304,6 +1654,14 @@ a {
 @media (max-width: 480px) {
   .hero-visual {
     min-height: 400px;
+  }
+  .sheet-tag {
+    right: auto;
+    bottom: -22px;
+    left: -12px;
+  }
+  .sheet-tag::after {
+    display: none;
   }
   .hero-sheet--back {
     translate: -84% -46%;

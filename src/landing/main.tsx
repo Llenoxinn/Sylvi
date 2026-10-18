@@ -1,7 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import '@fontsource-variable/outfit';
-import '@fontsource-variable/schibsted-grotesk';
+import '@fontsource-variable/geist';
 import '../styles/tokens.css';
 import '../styles/transitions.css';
 import './landing.css';

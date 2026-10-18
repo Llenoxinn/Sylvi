@@ -3,16 +3,20 @@ import gsap from 'gsap';
 import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
-import { ArrowLeft, ArrowRight, Scissors, ShieldCheck } from 'lucide-react';
+import { Scissors, ShieldCheck } from 'lucide-react';
 import MagicBento from '../components/reactbits/MagicBento/MagicBento';
+import MorphSlider from '../components/reactbits/MorphSlider/MorphSlider';
+import PillNav from '../components/reactbits/PillNav/PillNav';
 import TechText from '../components/reactbits/TechText/TechText';
+import { buildPackItems } from '../lib/layout/items';
+import { pack, type Sheet as PackedSheet } from '../lib/layout/pack';
 import { BUILT_IN_PACKAGES, describePackage } from '../lib/packages';
 
 gsap.registerPlugin(ScrollTrigger, CustomEase, useGSAP);
 
 // The app's --ease-out token, so the page moves like the tool.
 const EASE_OUT = CustomEase.create('sylvi-out', '0.2, 0, 0, 1');
-// Icons beside 600-weight button text.
+// Stroke for icons set beside 600-weight headings.
 const STROKE = 2.25;
 
 const APP_URL = '/app/';
@@ -29,13 +33,13 @@ export default function Landing() {
         const { motion, wide } = ctx.conditions as { motion: boolean; wide: boolean };
         if (!motion) {
           // Reduced motion: the hero still arrives, as a plain cross-fade. Nothing moves, scrubs or pins.
-          gsap.from('.hero-title, .hero-lede, .hero-actions, .hero-visual', { opacity: 0, duration: 0.3, ease: EASE_OUT, stagger: 0.1 });
+          gsap.from('.hero-title, .hero-lede, .hero-actions, .hero-note, .hero-visual', { opacity: 0, duration: 0.3, ease: EASE_OUT, stagger: 0.1 });
           return;
         }
 
         // The headline draws itself (TechText); the description and actions follow it,
         // 100ms apart, each rising 12px out of a 4px blur.
-        gsap.from('.hero-lede, .hero-actions', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 0.5 });
+        gsap.from('.hero-lede, .hero-actions, .hero-note', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 0.5 });
         // The sheet's measurements arrive once its photos have landed.
         gsap.from('.dim, .sheet-tag', { opacity: 0, duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 1 });
         // Opacity only: tweening its transform would freeze the CSS offset in pixels and break resizing.
@@ -62,6 +66,16 @@ export default function Landing() {
             pinSpacing: false,
             invalidateOnRefresh: true
           });
+
+          // Card stacking: each step settles back as the next slides over it.
+          const cards = gsap.utils.toArray<HTMLElement>('.step');
+          cards.slice(0, -1).forEach((card, i) => {
+            gsap.to(card, {
+              scale: 0.94,
+              ease: 'none',
+              scrollTrigger: { trigger: cards[i + 1], start: 'top bottom', end: 'top top+=128', scrub: true }
+            });
+          });
         }
       });
     },
@@ -77,6 +91,7 @@ export default function Landing() {
         <Features />
         <Statement />
         <HowItWorks />
+        <Packages />
         <Requests />
         <CallToAction />
       </main>
@@ -97,22 +112,65 @@ function Mark({ size = 28 }: { size?: number }) {
   );
 }
 
+const NAV_ITEMS = [
+  { label: 'Features', href: '#features' },
+  { label: 'How it works', href: '#how' },
+  { label: 'Packages', href: '#packages' },
+  { label: 'Get started', href: '#start' }
+];
+
+/** The section crossing the middle of the viewport, so the nav's dot follows the reader. */
+function useActiveSection(ids: string[]) {
+  const [active, setActive] = useState<string | null>(null);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        for (const entry of entries) if (entry.isIntersecting) setActive(entry.target.id);
+      },
+      { rootMargin: '-45% 0px -50% 0px' }
+    );
+    const sections = ids.map(id => document.getElementById(id)).filter((el): el is HTMLElement => Boolean(el));
+    sections.forEach(section => observer.observe(section));
+    // Back at the top, nothing is marked.
+    const hero = document.getElementById('top');
+    const top = new IntersectionObserver(([entry]) => entry.isIntersecting && setActive(null), { rootMargin: '-45% 0px -50% 0px' });
+    if (hero) top.observe(hero);
+    return () => {
+      observer.disconnect();
+      top.disconnect();
+    };
+  }, [ids]);
+  return active;
+}
+
+const NAV_IDS = NAV_ITEMS.map(item => item.href.slice(1));
+
 function Nav() {
+  const dark = useMedia('(prefers-color-scheme: dark)');
+  const active = useActiveSection(NAV_IDS);
   return (
-    <nav className="nav" aria-label="Main">
-      <a className="nav-brand" href="#top">
-        <Mark />
-        <span>Sylvi</span>
-      </a>
-      <div className="nav-links">
-        <a href="#features">Features</a>
-        <a href="#how">How it works</a>
-        <a href="#requests">Packages</a>
+    <header className="site-nav">
+      <div className="site-nav-pill">
+        <PillNav
+          logo={<Mark size={26} />}
+          logoAlt="Sylvi, back to top"
+          logoHref="#top"
+          items={NAV_ITEMS}
+          // A href no item has marks nothing, while the hero is in view.
+          activeHref={active ? `#${active}` : '#top'}
+          theme={dark ? 'dark' : 'light'}
+          itemStyle="plain"
+          hoverEffect="fill"
+          indicator="dot"
+          highlightColor={dark ? '#f06a9b' : '#c2185b'}
+          barColor={dark ? 'rgb(22 28 25 / 0.74)' : 'rgb(255 255 255 / 0.82)'}
+          ariaLabel="Main"
+        />
       </div>
-      <a className="btn btn-primary btn-sm" href={APP_URL}>
+      <a className="btn btn-primary site-nav-cta" href={APP_URL}>
         Open Sylvi
       </a>
-    </nav>
+    </header>
   );
 }
 
@@ -148,8 +206,8 @@ function Sheet({ sample, layout, className = '', children }: { sample: Portrait;
 
 // Non-breaking hyphen so "cut-ready" never splits.
 const HEADLINE = ['One photo in.', 'A cut‑ready', 'sheet out.'];
-const HEADLINE_FONT = "'Outfit Variable', ui-sans-serif, system-ui, sans-serif";
-const HEADLINE_TRACK = -0.03;
+const HEADLINE_FONT = "'Geist Variable', ui-sans-serif, system-ui, sans-serif";
+const HEADLINE_TRACK = -0.045;
 // TechText fits a line's ink inside 90% of its box's width and 66% of its height,
 // inset 5% from the left. Boxes are 1.6em tall and overlap to a 1.1em line pitch.
 const LINE_BOX = 1.6;
@@ -258,12 +316,13 @@ function Hero() {
         </p>
         <div className="hero-actions">
           <a className="btn btn-primary btn-lg" href={APP_URL}>
-            Open Sylvi <ArrowRight size={18} strokeWidth={STROKE} aria-hidden="true" />
+            Open Sylvi
           </a>
           <a className="btn btn-on-mat btn-lg" href="#how">
             See how it works
           </a>
         </div>
+        <p className="hero-note">No sign-up. Photos never leave the computer.</p>
       </div>
       <figure className="hero-visual" aria-label="Two finished 4R sheets: one with four 2x2 and eight 1x1 photos, one filled with 1x1 photos">
         <Sheet sample={5} layout="fill" className="hero-sheet hero-sheet--back" />
@@ -310,18 +369,28 @@ const PAPERS = [
   { name: 'Long bond', w: 8.5, h: 13 }
 ];
 
-const subscribe = (query: string) => (onChange: () => void) => {
-  const list = window.matchMedia(query);
-  list.addEventListener('change', onChange);
-  return () => list.removeEventListener('change', onChange);
+// One subscriber per query, so components don't resubscribe on every render.
+const subscribers = new Map<string, (onChange: () => void) => () => void>();
+const subscribe = (query: string) => {
+  let fn = subscribers.get(query);
+  if (!fn) {
+    fn = onChange => {
+      const list = window.matchMedia(query);
+      list.addEventListener('change', onChange);
+      return () => list.removeEventListener('change', onChange);
+    };
+    subscribers.set(query, fn);
+  }
+  return fn;
 };
 const useMedia = (query: string) => useSyncExternalStore(subscribe(query), () => window.matchMedia(query).matches, () => false);
 
 function Features() {
   const dark = useMedia('(prefers-color-scheme: dark)');
-  const wide = useMedia('(min-width: 1000px)');
+  const wide = useMedia('(min-width: 1180px)');
   const narrow = useMedia('(max-width: 599px)');
-  // The grid's own breakpoints switch at 150px cells, too small for this copy.
+  // The grid's own breakpoints switch at 150px cells, too small for this copy;
+  // below 1180px the four-column cards clip their text, so they pair up instead.
   const columns = wide ? 4 : narrow ? 1 : 2;
 
   const items = [
@@ -334,12 +403,17 @@ function Features() {
 
   return (
     <section className="section features" id="features">
-      <h2 className="section-title">Everything between the photo and the trimmer.</h2>
+      <div className="section-head">
+        <h2 className="section-title">Everything between the photo and the trimmer.</h2>
+        <p className="section-lede">
+          Cropping, packing, cut marks and true-size output happen the moment a photo lands. You check the sheet and print it.
+        </p>
+      </div>
       <MagicBento
         className="features-bento"
         items={items}
         columns={columns}
-        rowHeight={260}
+        rowHeight={280}
         gap={16}
         radius={24}
         theme={dark ? 'dark' : 'light'}
@@ -362,6 +436,9 @@ function Features() {
   );
 }
 
+// Each card shows its feature happening. The demos play once as the grid
+// scrolls in (MagicBento's intro) and stay still under reduced motion.
+
 function FaceCard() {
   return (
     <div className="feature feature--face">
@@ -379,25 +456,33 @@ function FaceCard() {
   );
 }
 
+// Package B's cuts in trimmer order, in a 56 × 76 box around a 40 × 60 sheet.
+const CUTS = [
+  { x1: 0, y1: 48, x2: 56, y2: 48 },
+  { x1: 0, y1: 28, x2: 56, y2: 28 },
+  { x1: 28, y1: 0, x2: 28, y2: 48 },
+  { x1: 0, y1: 58, x2: 56, y2: 58 },
+  { x1: 18, y1: 48, x2: 18, y2: 76 },
+  { x1: 28, y1: 48, x2: 28, y2: 76 },
+  { x1: 38, y1: 48, x2: 38, y2: 76 }
+];
+
 function CutsCard() {
   return (
     <div className="feature feature--cuts">
-      <svg className="cuts-art" viewBox="0 0 120 80" aria-hidden="true">
-        <rect x="34" y="4" width="48" height="72" rx="1.5" className="cuts-sheet" />
-        <g className="cuts-lines">
-          <line x1="58" y1="0" x2="58" y2="80" />
-          <line x1="30" y1="28" x2="86" y2="28" />
-          <line x1="30" y1="52" x2="86" y2="52" />
-          <line x1="30" y1="64" x2="86" y2="64" />
-          <line x1="46" y1="52" x2="46" y2="80" />
-          <line x1="70" y1="52" x2="70" y2="80" />
-        </g>
-      </svg>
       <div className="card-body">
         <h3>
           <Scissors size={18} strokeWidth={STROKE} aria-hidden="true" /> Cuts in straight lines
         </h3>
         <p>Every layout splits edge to edge, so each pass on the trimmer goes straight across. No photo is boxed in by another.</p>
+      </div>
+      <div className="cuts-art" aria-hidden="true">
+        <Sheet sample={4} layout="b" className="mini-sheet" />
+        <svg className="cuts-lines" viewBox="0 0 56 76">
+          {CUTS.map((c, i) => (
+            <line key={i} {...c} style={{ '--i': i, '--len': Math.hypot(c.x2 - c.x1, c.y2 - c.y1) } as CSSProperties} />
+          ))}
+        </svg>
       </div>
     </div>
   );
@@ -406,13 +491,10 @@ function CutsCard() {
 function SizeCard() {
   return (
     <div className="feature feature--size">
-      <p className="size-figure">
+      <h3 className="size-figure">
         300<span>DPI</span>
-      </p>
-      <div className="card-body">
-        <h3>True size, every time</h3>
-        <p>PDFs are made at the exact paper size. Print at Actual size (100%) and a 2x2 measures two inches.</p>
-      </div>
+      </h3>
+      <p className="size-note">True size, every time. Print at Actual size (100%) and a 2x2 measures two inches.</p>
     </div>
   );
 }
@@ -420,10 +502,17 @@ function SizeCard() {
 function PrivateCard() {
   return (
     <div className="feature feature--private">
-      <ShieldCheck className="private-icon" size={34} strokeWidth={1.75} aria-hidden="true" />
+      <div className="job-row" aria-hidden="true">
+        <ShieldCheck size={18} strokeWidth={2} />
+        <span className="job-name">
+          <b>Package B</b>
+          <span>Today, 9:41 AM</span>
+        </span>
+        <span className="job-left">23 h left</span>
+      </div>
       <div className="card-body">
         <h3>Photos stay on this computer</h3>
-        <p>Customer photos are personal data under RA 10173, so Sylvi never uploads them. Recent jobs delete themselves after 24 hours.</p>
+        <p>Never uploaded (RA 10173). Recent jobs delete themselves after 24 hours.</p>
       </div>
     </div>
   );
@@ -437,8 +526,8 @@ function PaperCard() {
         <p>3R to long bond, or a custom size. Portrait, landscape, or let Sylvi pick whichever needs fewer sheets.</p>
       </div>
       <ul className="papers" aria-label="Paper sizes, drawn to scale">
-        {PAPERS.map(p => (
-          <li key={p.name}>
+        {PAPERS.map((p, i) => (
+          <li key={p.name} data-on={p.name === '4R' ? '' : undefined} style={{ '--i': i } as CSSProperties}>
             <span className="paper" style={{ '--w': p.w, '--h': p.h } as CSSProperties} />
             <span className="paper-name">{p.name}</span>
           </li>
@@ -477,7 +566,7 @@ function HowItWorks() {
         <h2 className="section-title">Three moves at the counter.</h2>
         <p className="how-lede">The same three moves for the first customer of the day and the fiftieth. Shops can save their own packages too.</p>
         <a className="text-link" href={APP_URL}>
-          Try it with any photo <ArrowRight size={16} strokeWidth={STROKE} aria-hidden="true" />
+          Try it with any photo
         </a>
       </div>
 
@@ -490,8 +579,10 @@ function HowItWorks() {
               <span className="scan-corners" />
             </div>
           </div>
-          <h3>Drop the photo in</h3>
-          <p>Drag it onto the page, paste it with Ctrl+V or browse your files. Sylvi finds the face and crops it for you.</p>
+          <div className="step-copy">
+            <h3>Drop the photo in</h3>
+            <p>Drag it onto the page, paste it with Ctrl+V or browse your files. Sylvi finds the face and crops it for you.</p>
+          </div>
         </article>
 
         <article className="step">
@@ -505,8 +596,10 @@ function HowItWorks() {
             </ul>
             <p className="wheel-detail">{describePackage(BUILT_IN_PACKAGES[1])}</p>
           </div>
-          <h3>Spin to the package</h3>
-          <p>Packages A to D match the menus shops already post, plus whole-sheet fills. Sylvi packs them onto the paper and adds extra sheets when it runs out of room.</p>
+          <div className="step-copy">
+            <h3>Spin to the package</h3>
+            <p>Packages A to D match the menus shops already post, plus whole-sheet fills. Sylvi packs them onto the paper and adds extra sheets when it runs out of room.</p>
+          </div>
         </article>
 
         <article className="step">
@@ -528,55 +621,164 @@ function HowItWorks() {
               <p className="export-hint">Print at Actual size (100%)</p>
             </div>
           </div>
-          <h3>Download or print</h3>
-          <p>Save a PDF, PNG or JPG at 300 DPI, or print straight from the browser. Crop marks, cut lines or a white border, your call.</p>
+          <div className="step-copy">
+            <h3>Download or print</h3>
+            <p>Save a PDF, PNG or JPG at 300 DPI, or print straight from the browser. Crop marks, cut lines or a white border, your call.</p>
+          </div>
         </article>
       </div>
     </section>
   );
 }
 
-const REQUESTS: { ask: string; answer: string; detail: string; photos: Portrait[] }[] = [
-  { ask: 'Four 2x2 and eight 1x1, for my board exam.', answer: 'Package B', detail: '4 × 2x2 and 8 × 1x1, all on one 4R sheet', photos: [1, 3, 4] },
-  { ask: 'Passport size, please. And a few 1x1 too.', answer: 'Package C', detail: '4 × passport (35 × 45 mm) and 6 × 1x1', photos: [4, 5, 6] },
-  { ask: 'Just fill a whole sheet with 1x1.', answer: 'Whole sheet 1x1', detail: '24 photos on a borderless 4R', photos: [5, 2, 1] },
-  { ask: 'There are three of us. Can we share one sheet?', answer: 'Several customers, one sheet', detail: 'Each person keeps their own package and crop', photos: [6, 1, 3] },
-  { ask: 'All I have is this selfie.', answer: 'Auto-crop', detail: 'Finds the face, and warns you when a photo will print soft', photos: [2, 4, 5] }
+const FOUR_R = { w: 101.6, h: 152.4 };
+// Each built-in package laid out by Sylvi's own packer, exactly as it prints on 4R.
+const SHOWCASE = BUILT_IN_PACKAGES.map((pkg, i) => {
+  const { sheets } = pack(buildPackItems([{ personId: 'sample', pkg }], FOUR_R.w * FOUR_R.h), {
+    paperWidthMm: FOUR_R.w,
+    paperHeightMm: FOUR_R.h,
+    marginMm: 0,
+    gapMm: 0,
+    orientation: 'auto'
+  });
+  return {
+    pkg,
+    sheet: sheets[0],
+    sheets: sheets.length,
+    photos: sheets.reduce((total, sheet) => total + sheet.placements.length, 0),
+    short: pkg.name.startsWith('Package ') ? pkg.name.slice('Package '.length) : pkg.name.replace('Whole sheet ', ''),
+    portrait: ([1, 4, 5, 6, 2, 3] as Portrait[])[i]
+  };
+});
+
+function MiniLayout({ sheet, portrait }: { sheet: PackedSheet; portrait: Portrait }) {
+  return (
+    <div className="mini-layout" style={{ aspectRatio: `${sheet.widthMm} / ${sheet.heightMm}` }} aria-hidden="true">
+      {sheet.placements.map((p, i) => (
+        <span
+          key={i}
+          className="mini-cell"
+          style={{
+            left: `${(p.x / sheet.widthMm) * 100}%`,
+            top: `${(p.y / sheet.heightMm) * 100}%`,
+            width: `${(p.w / sheet.widthMm) * 100}%`,
+            height: `${(p.h / sheet.heightMm) * 100}%`,
+            backgroundImage: `url(${photo(portrait)})`
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The built-in packages as a horizontal accordion: each slice opens to the
+ * real sheet Sylvi prints for it. Hover or focus opens a slice; on narrow
+ * screens the slices stack and open downward.
+ */
+function Packages() {
+  const [open, setOpen] = useState(1);
+  return (
+    <section className="packages mat" id="packages">
+      <div className="packages-inner">
+        <div className="section-head">
+          <h2 className="section-title">The menu your counter already sells.</h2>
+          <p className="section-lede">
+            Packages A to D and whole-sheet fills come built in, shown here exactly as Sylvi lays them out on 4R. Shops can save their own.
+          </p>
+        </div>
+        <ul className="pkg-list">
+          {SHOWCASE.map((item, i) => {
+            const isOpen = i === open;
+            return (
+              <li key={item.pkg.id} className="pkg" data-open={isOpen ? '' : undefined} onMouseEnter={() => setOpen(i)}>
+                <button
+                  type="button"
+                  className="pkg-tab"
+                  aria-expanded={isOpen}
+                  aria-controls={`pkg-${item.pkg.id}`}
+                  onClick={() => setOpen(i)}
+                  onFocus={() => setOpen(i)}
+                >
+                  <span className="pkg-short">{item.short}</span>
+                  <span className="pkg-name">{item.pkg.name}</span>
+                </button>
+                <div className="pkg-panel" id={`pkg-${item.pkg.id}`} aria-hidden={!isOpen}>
+                  <MiniLayout sheet={item.sheet} portrait={item.portrait} />
+                  <div className="pkg-info">
+                    <h3>{item.pkg.name}</h3>
+                    <p>{describePackage(item.pkg)}</p>
+                    <p className="pkg-meta">
+                      {item.photos} photos on {item.sheets === 1 ? 'one 4R sheet' : `${item.sheets} 4R sheets`}, borderless
+                    </p>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+const REQUESTS = [
+  { ask: 'Four 2x2 and eight 1x1, for my board exam.', answer: 'Package B', chips: ['4 × 2x2', '8 × 1x1', 'One 4R sheet'] },
+  { ask: 'Passport size, please. And a few 1x1 too.', answer: 'Package C', chips: ['4 × passport', '6 × 1x1', '35 × 45 mm'] },
+  { ask: 'Just fill a whole sheet with 1x1.', answer: 'Whole sheet 1x1', chips: ['24 × 1x1', 'Borderless 4R'] },
+  { ask: 'There are three of us. Can we share one sheet?', answer: 'Several customers, one sheet', chips: ['Own package each', 'Own crop each'] },
+  { ask: 'All I have is this selfie.', answer: 'Auto-crop', chips: ['Finds the face', 'Warns if it will print soft'] }
 ];
 
+// Module-level so the slider keeps one WebGL context: it rebuilds whenever this array changes.
+const COUNTER_SLIDES = REQUESTS.map((_, i) => ({ image: `/landing/counter-${i + 1}.jpg` }));
+
+/**
+ * Customers at the counter, one at a time. The slider's shear transition cuts
+ * each photo into strips like a trimmer pass; the request beside it follows.
+ * No autoplay: people are reading the quote, so they move it on themselves.
+ */
 function Requests() {
   const [index, setIndex] = useState(0);
   const request = REQUESTS[index];
-  const go = (step: number) => setIndex(i => (i + step + REQUESTS.length) % REQUESTS.length);
 
   return (
-    <section className="section requests" id="requests" aria-roledescription="carousel" aria-label="What customers ask for">
-      <h2 className="section-title">What walks up to the counter.</h2>
+    <section className="section requests" id="requests">
       <div className="requests-body">
-        <div className="faces" aria-hidden="true">
-          {request.photos.map((n, i) => (
-            <img key={`${index}-${n}`} className={`face face--${i}`} src={photo(n)} alt="" loading="lazy" />
-          ))}
+        <div className="counter-slider">
+          <MorphSlider
+            items={COUNTER_SLIDES}
+            transition="shear"
+            duration={1}
+            intensity={0.45}
+            aberration={0.2}
+            drift={0.15}
+            radius={24}
+            overlayColor="#16201b"
+            showCaptions={false}
+            ariaLabel="Customers at the counter"
+            onIndexChange={setIndex}
+          />
         </div>
-        <div className="request" aria-live="polite">
-          {/* Keyed so each request enters fresh; the buttons below are not, so they keep focus. */}
+        <div className="request">
+          <h2 className="section-title">What walks up to the counter.</h2>
+          <p className="request-lede">Drag the photo or use the arrows to meet the next customer.</p>
+          <div className="request-live" aria-live="polite">
+            <p className="request-count">
+            Customer {index + 1} of {REQUESTS.length}
+          </p>
+          {/* Keyed so each request enters fresh as its customer arrives. */}
           <blockquote key={`ask-${index}`} className="request-ask">
             <p>“{request.ask}”</p>
           </blockquote>
-          <p key={`answer-${index}`} className="request-answer">
+          <div key={`answer-${index}`} className="request-answer">
             <b>{request.answer}</b>
-            <span>{request.detail}</span>
-          </p>
-          <div className="request-nav">
-            <button type="button" className="round-btn" onClick={() => go(-1)} aria-label="Previous request">
-              <ArrowLeft size={18} />
-            </button>
-            <span className="request-count">
-              {index + 1} / {REQUESTS.length}
-            </span>
-            <button type="button" className="round-btn" onClick={() => go(1)} aria-label="Next request">
-              <ArrowRight size={18} />
-            </button>
+            <ul className="request-chips" aria-label="What Sylvi lays out">
+              {request.chips.map(chip => (
+                <li key={chip}>{chip}</li>
+              ))}
+            </ul>
+          </div>
           </div>
         </div>
       </div>
@@ -586,10 +788,11 @@ function Requests() {
 
 function CallToAction() {
   return (
-    <section className="cta mat">
+    <section className="cta mat" id="start">
+      <span className="cta-frame" aria-hidden="true" />
       <h2 className="cta-title">Your next customer is already in line.</h2>
       <a className="btn btn-primary btn-xl" href={APP_URL}>
-        Open Sylvi <ArrowRight size={22} strokeWidth={STROKE} aria-hidden="true" />
+        Open Sylvi
       </a>
       <p className="cta-note">Runs in your browser with no sign-up. Works offline after the first visit, and photos never leave the computer.</p>
     </section>
@@ -599,7 +802,7 @@ function CallToAction() {
 function Footer() {
   return (
     <footer className="footer">
-      <a className="nav-brand" href="#top">
+      <a className="footer-brand" href="#top">
         <Mark size={24} />
         <span>Sylvi</span>
       </a>
@@ -607,7 +810,7 @@ function Footer() {
         <a href={APP_URL}>Open Sylvi</a>
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
-        <a href="#requests">Packages</a>
+        <a href="#packages">Packages</a>
       </nav>
       <p className="footer-note">
         Portraits from{' '}
