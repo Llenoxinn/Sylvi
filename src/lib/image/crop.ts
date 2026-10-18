@@ -34,28 +34,33 @@ export function autoCrop(face: FaceBox | null, imgW: number, imgH: number, aspec
   const headroomPx = idealHpx * (1 - headRatio) * 0.38;
   const idealTopPx = crownPx - headroomPx;
 
-  // Prefer framing inside the photo: zoom in a little rather than pad with
-  // white, but never so much that the head gets cut off. Close-ups that still
-  // don't fit keep a thin white edge, which the crop editor can fix.
+  // Prefer framing inside the photo: zoom in rather than pad, as far as the
+  // head still fits comfortably. Close-ups that still overhang get the gap
+  // split evenly left and right and put above the head, where headroom
+  // belongs, never under the shoulders. The renderer fills it with backdrop.
   const maxHpx = Math.min(imgH, imgW / aspect);
-  const hPx = Math.max(Math.min(idealHpx, maxHpx), idealHpx * MAX_AUTO_ZOOM);
+  const minHpx = Math.min(idealHpx, headHpx / Math.max(MAX_HEAD_SHARE, headRatio));
+  const hPx = Math.max(Math.min(idealHpx, maxHpx), minHpx);
   const headCenterPx = crownPx + headHpx / 2;
   const headAt = (headCenterPx - idealTopPx) / idealHpx;
   const wPx = hPx * aspect;
-  const cxPx = fitWithin((face.x + face.w / 2) * imgW, wPx, imgW);
+  const cxPx = fitWithin((face.x + face.w / 2) * imgW, wPx, imgW, imgW / 2);
   // Keeping the window inside the photo must never push it below the crown.
   const crownLimit = crownPx - hPx * 0.04 + hPx / 2;
-  const cyPx = Math.min(fitWithin(headCenterPx - headAt * hPx + hPx / 2, hPx, imgH), crownLimit);
+  const cyPx = Math.min(fitWithin(headCenterPx - headAt * hPx + hPx / 2, hPx, imgH, imgH - hPx / 2), crownLimit);
 
   return { cx: cxPx / imgW, cy: cyPx / imgH, h: hPx / imgH };
 }
 
-/** How much tighter than ideal the automatic crop may go to avoid white edges. */
-const MAX_AUTO_ZOOM = 0.85;
+/** The largest share of the photo height the head may take when zooming in to avoid an overhang. */
+const MAX_HEAD_SHARE = 0.8;
 
-/** Moves a window centre so the window stays inside [0, total], when it can fit at all. */
-function fitWithin(center: number, size: number, total: number): number {
-  if (size >= total) return center; // too big either way: keep it on the head
+/**
+ * Moves a window centre so the window stays inside [0, total]. A window too
+ * big to fit takes the `overflow` centre instead, which places the overhang.
+ */
+function fitWithin(center: number, size: number, total: number, overflow: number): number {
+  if (size >= total) return overflow;
   return Math.min(total - size / 2, Math.max(size / 2, center));
 }
 

@@ -1,4 +1,5 @@
 import { applyAdjust, type Adjust } from './image/adjust';
+import { backdropColor } from './image/backdrop';
 import { autoCrop, cropToRect, type Crop, type FaceBox } from './image/crop';
 import type { LoadedPhoto } from './image/load';
 import { aspectKey, type PhotoSize } from './sizes';
@@ -33,13 +34,14 @@ export function renderCell(person: Person, size: PhotoSize, dpi: number): HTMLCa
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, w, h);
-
   const { bitmap, width: iw, height: ih } = person.photo;
   const r = cropToRect(effectiveCrop(person, size), iw, ih, size.widthMm / size.heightMm);
+  const overhangs = r.sx < 0 || r.sy < 0 || r.sx + r.sw > iw || r.sy + r.sh > ih;
+  ctx.fillStyle = overhangs ? backdropColor(bitmap) : '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+
   // Clip the source rectangle to the image so browsers draw it consistently;
-  // anything outside the photo stays white.
+  // anything outside the photo keeps the backdrop fill.
   const sx = Math.max(0, r.sx);
   const sy = Math.max(0, r.sy);
   const ex = Math.min(iw, r.sx + r.sw);

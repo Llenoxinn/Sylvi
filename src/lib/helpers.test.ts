@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyAdjust, NO_ADJUST } from './image/adjust';
+import { plainBackdrop } from './image/backdrop';
 import { autoCrop, centerCrop, cropToRect } from './image/crop';
 import { crc32, setJpegDpi, setPngDpi } from './export/dpi';
 import { buildGuides, placeCalibration } from './layout/guides';
@@ -35,7 +36,7 @@ describe('crop', () => {
     expect(rect.sy + rect.sh).toBeLessThanOrEqual(3000 + 1e-6);
   });
 
-  it('never cuts off the head on a close-up, even if that leaves a white edge', () => {
+  it('zooms in on a close-up to stay inside the photo without cutting off the head', () => {
     // Face fills much of a narrow photo, so the ideal 2x2 frame is wider than the image.
     const face = { x: 0.2, y: 0.18, w: 0.6, h: 0.3 };
     const crop = autoCrop(face, 2000, 3000, 1, 0.6);
@@ -44,6 +45,41 @@ describe('crop', () => {
     const chin = 0.48 * 3000;
     expect(rect.sy).toBeLessThan(crown);
     expect(rect.sy + rect.sh).toBeGreaterThan(chin);
+    expect(rect.sx).toBeGreaterThanOrEqual(-1e-6);
+    expect(rect.sy).toBeGreaterThanOrEqual(-1e-6);
+    expect(rect.sx + rect.sw).toBeLessThanOrEqual(2000 + 1e-6);
+    expect(rect.sy + rect.sh).toBeLessThanOrEqual(3000 + 1e-6);
+  });
+
+  it('puts an unavoidable overhang evenly at the sides and above the head', () => {
+    // Off-centre face so tight its crown runs past the top of the photo.
+    const face = { x: 0.15, y: 0.25, w: 0.6, h: 0.55 };
+    const rect = cropToRect(autoCrop(face, 1000, 1000, 1, 0.6), 1000, 1000, 1);
+    const crown = 0.25 * 1000 - 0.55 * 1000 * 0.5;
+    expect(-rect.sx).toBeCloseTo(rect.sx + rect.sw - 1000);
+    expect(rect.sy + rect.sh).toBeCloseTo(1000);
+    expect(rect.sy).toBeLessThan(crown);
+    expect(0.55 * 1000 * 1.6 / rect.sh).toBeLessThanOrEqual(0.8 + 1e-6);
+  });
+});
+
+describe('backdrop', () => {
+  const patch = (rgb: [number, number, number], jitter = 0) => {
+    const px = new Uint8ClampedArray(16 * 4);
+    for (let i = 0; i < 16; i++) {
+      const d = i % 2 ? jitter : -jitter;
+      px.set([rgb[0] + d, rgb[1] + d, rgb[2] + d, 255], i * 4);
+    }
+    return px;
+  };
+
+  it('matches a plain wall behind the subject', () => {
+    expect(plainBackdrop(patch([200, 210, 220], 3), patch([204, 212, 224]))).toBe('rgb(202, 211, 222)');
+  });
+
+  it('falls back when the corners are busy or differ', () => {
+    expect(plainBackdrop(patch([120, 120, 120], 60), patch([120, 120, 120]))).toBeNull();
+    expect(plainBackdrop(patch([240, 240, 240]), patch([40, 60, 30]))).toBeNull();
   });
 });
 
