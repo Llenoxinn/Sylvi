@@ -13,6 +13,7 @@ import { Rulers } from './Rulers';
 import { useCanvasPaint } from './useCanvasPaint';
 
 const PAD = { top: 96, right: 40, bottom: 104, left: 52 };
+const MOD_KEY = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
 
 export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
   const layout = useLayout();
@@ -123,15 +124,21 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
       ) : null}
 
       {layout.sample && box.w > 0 ? (
-        <div className="empty-card" style={{ left: left + pxW / 2, top: top + pxH / 2 }}>
-          <span className="empty-icon" aria-hidden="true">
-            <ImagePlus size={22} strokeWidth={1.8} />
-          </span>
-          <h2>Add a customer’s photo</h2>
-          <p>Drop it anywhere, paste it with Ctrl+V, or browse your files. Sylvi crops it and fills this sheet.</p>
-          <button type="button" className="btn btn--primary" onClick={onBrowse}>
-            Browse photos
-          </button>
+        // The sample sheet is the drop target: crop-mark corners frame it, and a
+        // click anywhere on it browses. The button keeps it reachable by keyboard.
+        <div className="sheet-drop" style={{ left, top, width: pxW, height: pxH }} onClick={onBrowse}>
+          <span className="sheet-drop-corners" aria-hidden="true" />
+          <div className="sheet-drop-prompt" onClick={e => e.stopPropagation()}>
+            <h2>Drop a photo on the sheet</h2>
+            <button type="button" className="btn btn--primary" onClick={onBrowse}>
+              <ImagePlus size={16} aria-hidden="true" />
+              Browse files
+            </button>
+            <p className="sheet-drop-keys">
+              or paste <kbd>{MOD_KEY}</kbd>
+              <kbd>V</kbd>
+            </p>
+          </div>
         </div>
       ) : null}
 

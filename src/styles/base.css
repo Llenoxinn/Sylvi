@@ -87,6 +87,8 @@ p {
 
 .wordmark > svg {
   color: var(--accent);
+  /* Paired with the landing page's nav mark: the logo travels into the tool. */
+  view-transition-name: sylvi-mark;
 }
 
 /* TechText draws on a canvas sized by this box; leave room for its selection frame. */

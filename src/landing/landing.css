@@ -6,10 +6,33 @@
 
 :root {
   --display: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale, by role. Each size carries its own line-height. */
+  --t-display: clamp(3rem, 5.4vw, 5.5rem); /* h1, closing call to action */
+  --t-h2: clamp(2.25rem, 4.4vw, 4rem); /* section titles */
+  --t-quote: clamp(1.75rem, 3.4vw, 3rem); /* customer requests, marquee */
+  --t-lead: clamp(1.5rem, 2.6vw, 2.375rem); /* the scrubbed statement */
+  --t-h3: clamp(1.375rem, 1.9vw, 1.75rem); /* card and step titles */
+  --t-intro: clamp(1.0625rem, 1.2vw, 1.1875rem); /* the paragraph under a big title */
+
   --section-y: clamp(96px, 13vw, 192px);
   --gutter: clamp(16px, 5vw, 72px);
   --page-max: 1320px;
+
+  /* Elevation as layered shadow rings rather than borders. */
+  --ring: 0 0 0 1px rgb(22 32 27 / 0.07), 0 1px 2px rgb(22 32 27 / 0.05), 0 8px 24px -12px rgb(22 32 27 / 0.14);
+  --ring-raised: 0 0 0 1px rgb(22 32 27 / 0.09), 0 2px 4px rgb(22 32 27 / 0.06), 0 18px 40px -16px rgb(22 32 27 / 0.22);
+  --img-outline: oklch(0 0 0 / 0.1);
+
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ring: 0 0 0 1px rgb(255 255 255 / 0.07), 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+    --ring-raised: 0 0 0 1px rgb(255 255 255 / 0.11), 0 2px 4px rgb(0 0 0 / 0.35), 0 18px 40px -16px rgb(0 0 0 / 0.6);
+    --img-outline: oklch(1 0 0 / 0.1);
+  }
 }
 
 *,
@@ -21,6 +44,8 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 96px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -36,7 +61,6 @@ body {
   font-family: var(--font);
   font-size: 1rem;
   line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
 }
 
 img {
@@ -52,6 +76,16 @@ ul,
 blockquote,
 figure {
   margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 ul {
@@ -74,6 +108,14 @@ a {
   max-width: 100%;
 }
 
+/* Content photos get a hairline so light backdrops don't bleed into the page. */
+.card-media img,
+.scan img,
+.face {
+  outline: 1px solid var(--img-outline);
+  outline-offset: -1px;
+}
+
 /* ---------- Buttons ---------- */
 
 .btn {
@@ -86,14 +128,14 @@ a {
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
-  transition:
-    background-color 160ms var(--ease-out),
-    border-color 160ms var(--ease-out),
-    translate 160ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+  transition-property: background-color, border-color, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
 }
 
 .btn:active {
-  translate: 0 1px;
+  scale: 0.96;
 }
 
 .btn-sm {
@@ -113,23 +155,23 @@ a {
   font-size: 1.25rem;
 }
 
+/* A trailing arrow looks heavier than text, so its side gets 2px less. */
+.btn-lg:has(> svg:last-child) {
+  padding-right: 22px;
+}
+
+.btn-xl:has(> svg:last-child) {
+  padding-right: 32px;
+}
+
 .btn-primary {
   background: var(--accent);
   color: var(--accent-ink);
 }
 
-.btn-primary:hover {
-  background: var(--accent-hover);
-}
-
 .btn-on-mat {
   border-color: rgb(255 255 255 / 0.28);
   color: #fff;
-}
-
-.btn-on-mat:hover {
-  border-color: rgb(255 255 255 / 0.6);
-  background: rgb(255 255 255 / 0.06);
 }
 
 .text-link {
@@ -138,12 +180,29 @@ a {
   gap: 8px;
   color: var(--accent);
   font-weight: 600;
-  text-decoration: none;
+  text-decoration-line: none;
+  text-underline-position: from-font;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 4px;
 }
 
-.text-link:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+@media (hover: hover) {
+  .btn-primary:hover {
+    background: var(--accent-hover);
+  }
+  .btn-on-mat:hover {
+    border-color: rgb(255 255 255 / 0.6);
+    background: rgb(255 255 255 / 0.06);
+  }
+  .text-link:hover {
+    text-decoration-line: underline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:active {
+    scale: none;
+  }
 }
 
 /* ---------- Cutting mat surface ---------- */
@@ -190,6 +249,7 @@ a {
   gap: 28px;
   width: min(760px, calc(100% - 32px));
   padding: 7px 7px 7px 16px;
+  border: 1px solid transparent;
   border-radius: 999px;
   background: color-mix(in srgb, var(--surface) 82%, transparent);
   box-shadow: var(--shadow-pop);
@@ -203,8 +263,9 @@ a {
   align-items: center;
   gap: 10px;
   font-family: var(--display);
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
   text-decoration: none;
 }
 
@@ -220,10 +281,13 @@ a {
   font-size: var(--text-md);
   font-weight: 500;
   text-decoration: none;
+  transition: color 150ms var(--ease-out);
 }
 
-.nav-links a:hover {
-  color: var(--ink);
+@media (hover: hover) {
+  .nav-links a:hover {
+    color: var(--ink);
+  }
 }
 
 @media (max-width: 640px) {
@@ -253,19 +317,18 @@ a {
 .hero-title {
   max-width: 11.5em;
   font-family: var(--display);
-  font-size: clamp(3rem, 5.4vw, 5.5rem);
+  font-size: var(--t-display);
   font-weight: 600;
-  line-height: 0.98;
-  letter-spacing: -0.035em;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   color: #fff;
-  text-wrap: balance;
 }
 
 .hero-lede {
   max-width: 34em;
   margin-top: 28px;
   color: var(--mat-ink);
-  font-size: clamp(1.05rem, 1.3vw, 1.2rem);
+  font-size: var(--t-intro);
 }
 
 .hero-actions {
@@ -303,9 +366,10 @@ a {
   box-shadow: var(--shadow-sheet);
 }
 
+/* Square cells from tall ID photos: keep the crown in, like the app's crop. */
 .cell {
   background-color: #e9ecea;
-  background-position: center 30%;
+  background-position: center 18%;
   background-size: cover;
 }
 
@@ -363,8 +427,9 @@ a {
   gap: 40px;
   padding-right: 40px;
   font-family: var(--display);
-  font-size: clamp(1.75rem, 3.6vw, 3.25rem);
+  font-size: var(--t-quote);
   font-weight: 500;
+  line-height: 1.1;
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
@@ -404,11 +469,10 @@ a {
 .section-title {
   max-width: 16em;
   font-family: var(--display);
-  font-size: clamp(2.25rem, 4.4vw, 4rem);
+  font-size: var(--t-h2);
   font-weight: 600;
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-  text-wrap: balance;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
 }
 
 /* ---------- Feature grid ---------- */
@@ -430,17 +494,11 @@ a {
   gap: 24px;
   overflow: hidden;
   padding: 28px;
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   border-radius: 24px;
   background: var(--surface);
-  transition:
-    border-color 300ms var(--ease-out),
-    translate 500ms var(--ease-out);
-}
-
-.card:hover {
-  border-color: var(--line-strong);
-  translate: 0 -3px;
+  box-shadow: var(--ring);
+  transition: box-shadow 300ms var(--ease-out);
 }
 
 .card h3 {
@@ -448,13 +506,14 @@ a {
   align-items: center;
   gap: 8px;
   font-family: var(--display);
-  font-size: 1.375rem;
+  font-size: var(--t-h3);
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.015em;
 }
 
 .card-body p {
+  max-width: 34em;
   margin-top: 8px;
   color: var(--ink-2);
 }
@@ -492,13 +551,11 @@ a {
   inset: 0;
   width: 100%;
   height: 100%;
+  border-radius: inherit;
   object-fit: cover;
-  filter: contrast(1.05) saturate(0.9);
+  object-position: center 22%;
+  filter: contrast(1.04) saturate(0.92);
   transition: scale 700ms var(--ease-out);
-}
-
-.card:hover .card-media img {
-  scale: 1.05;
 }
 
 /* The crop window and head guide, like the crop editor draws them. */
@@ -543,16 +600,13 @@ a {
   transition: stroke-dashoffset 900ms var(--ease-out);
 }
 
-.card--cuts:hover .cuts-lines line {
-  stroke-dashoffset: -20;
-}
-
 .size-figure {
   font-family: var(--display);
   font-size: clamp(4.5rem, 7vw, 6.5rem);
   font-weight: 600;
   line-height: 0.9;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
 }
 
 .size-figure span {
@@ -591,14 +645,29 @@ a {
   transition: translate 500ms var(--ease-out);
 }
 
-.papers li:hover .paper {
-  translate: 0 -6px;
-}
-
 .paper-name {
   color: var(--ink-2);
   font-size: var(--text-xs);
   white-space: nowrap;
+}
+
+/* Hover motion only where a real pointer hovers, and only when motion is welcome. */
+@media (hover: hover) {
+  .card:hover {
+    box-shadow: var(--ring-raised);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card:hover .card-media img {
+    scale: 1.05;
+  }
+  .card--cuts:hover .cuts-lines line {
+    stroke-dashoffset: -20;
+  }
+  .papers li:hover .paper {
+    translate: 0 -6px;
+  }
 }
 
 @media (max-width: 1000px) {
@@ -636,9 +705,6 @@ a {
     width: calc(var(--w) * 92px / 13);
     height: calc(var(--h) * 92px / 13);
   }
-  .paper-name {
-    font-size: 0.6875rem;
-  }
 }
 
 /* ---------- Statement ---------- */
@@ -650,10 +716,11 @@ a {
 .statement-title {
   max-width: 19em;
   font-family: var(--display);
-  font-size: clamp(2.25rem, 4.8vw, 4.5rem);
+  font-size: var(--t-h2);
   font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: wrap;
 }
 
 .pill {
@@ -663,12 +730,12 @@ a {
   margin: 0 0.06em;
   border-radius: 999px;
   vertical-align: -0.06em;
-  background-position: center 30%;
+  background-position: center 22%;
   background-size: cover;
 }
 
 .pill--photo {
-  filter: grayscale(0.2) contrast(1.05);
+  filter: grayscale(0.15) contrast(1.04);
 }
 
 .pill--sheet {
@@ -700,7 +767,7 @@ a {
   margin-top: clamp(48px, 6vw, 80px);
   margin-left: auto;
   font-family: var(--display);
-  font-size: clamp(1.5rem, 2.6vw, 2.375rem);
+  font-size: var(--t-lead);
   font-weight: 450;
   line-height: 1.3;
   letter-spacing: -0.015em;
@@ -719,7 +786,7 @@ a {
   max-width: 24em;
   margin-top: 24px;
   color: var(--ink-2);
-  font-size: 1.125rem;
+  font-size: var(--t-intro);
 }
 
 .how-pin .text-link {
@@ -734,13 +801,14 @@ a {
 .step > h3 {
   margin-top: 28px;
   font-family: var(--display);
-  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  font-size: var(--t-h3);
   font-weight: 600;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
 }
 
 .step > p {
-  max-width: 30em;
+  max-width: 34em;
   margin-top: 10px;
   color: var(--ink-2);
 }
@@ -757,8 +825,8 @@ a {
 
 .scan {
   position: relative;
-  width: 46%;
-  aspect-ratio: 1;
+  width: 40%;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   box-shadow: var(--shadow-sheet);
 }
@@ -767,6 +835,7 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 20%;
 }
 
 .scan-line {
@@ -840,6 +909,7 @@ a {
   color: #fff;
   font-size: clamp(1.75rem, 3vw, 2.5rem);
   font-weight: 600;
+  letter-spacing: -0.015em;
   filter: none;
 }
 
@@ -864,12 +934,13 @@ a {
   font-weight: 600;
 }
 
+/* Outer radius = inner 10px + 14px padding. */
 .export {
   display: grid;
   gap: 6px;
   width: min(72%, 320px);
   padding: 14px;
-  border-radius: 16px;
+  border-radius: 24px;
   background: #fff;
   color: #16201b;
   box-shadow: var(--shadow-sheet);
@@ -885,7 +956,7 @@ a {
 }
 
 .export-row span {
-  color: #87918c;
+  color: #6b7671;
   font-size: var(--text-sm);
 }
 
@@ -938,12 +1009,12 @@ a {
 
 .face {
   position: absolute;
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 4;
   object-fit: cover;
+  object-position: center 20%;
   border: 6px solid var(--surface);
   border-radius: 22px;
   box-shadow: var(--shadow-pop);
-  animation: face-in 600ms var(--ease-out) both;
 }
 
 /* One customer up front; the next two in line overlap its lower corner,
@@ -952,43 +1023,33 @@ a {
   top: 0;
   left: 0;
   z-index: 1;
-  width: 70%;
+  width: 60%;
   rotate: -3deg;
 }
 
 .face--1 {
-  top: 40%;
-  right: 2%;
+  top: 30%;
+  right: 4%;
   z-index: 2;
-  width: 36%;
+  width: 34%;
   rotate: 5deg;
-  animation-delay: 70ms;
 }
 
 .face--2 {
-  right: 26%;
+  right: 30%;
   bottom: 0;
   z-index: 3;
-  width: 34%;
+  width: 30%;
   rotate: -4deg;
-  animation-delay: 140ms;
-}
-
-@keyframes face-in {
-  from {
-    opacity: 0;
-    translate: 0 14px;
-  }
 }
 
 .request-ask p {
   font-family: var(--display);
-  font-size: clamp(1.875rem, 3.6vw, 3.25rem);
+  font-size: var(--t-quote);
   font-weight: 500;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   text-wrap: balance;
-  animation: face-in 500ms var(--ease-out) both;
 }
 
 .request-answer {
@@ -1025,14 +1086,21 @@ a {
   background: var(--surface);
   color: var(--ink);
   cursor: pointer;
-  transition:
-    border-color 160ms var(--ease-out),
-    background-color 160ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+  transition-property: border-color, background-color, scale;
+  transition-duration: 150ms;
+  transition-timing-function: var(--ease-out);
 }
 
-.round-btn:hover {
-  border-color: var(--ink-3);
-  background: var(--surface-2);
+.round-btn:active {
+  scale: 0.96;
+}
+
+@media (hover: hover) {
+  .round-btn:hover {
+    border-color: var(--ink-3);
+    background: var(--surface-2);
+  }
 }
 
 .request-count {
@@ -1042,10 +1110,47 @@ a {
   text-align: center;
 }
 
+/* Each request enters once: faces, quote and answer 100ms apart, rising 12px out of a 4px blur. */
+.face,
+.request-ask,
+.request-answer {
+  animation: request-in 300ms var(--ease-out) both;
+}
+
+.face--1 {
+  animation-delay: 100ms;
+}
+
+.face--2 {
+  animation-delay: 200ms;
+}
+
+.request-answer {
+  animation-delay: 100ms;
+}
+
+@keyframes request-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    translate: 0 12px;
+  }
+}
+
+/* Reduced motion keeps the cross-fade and drops the movement. */
 @media (prefers-reduced-motion: reduce) {
   .face,
-  .request-ask p {
-    animation: none;
+  .request-ask,
+  .request-answer {
+    animation-name: request-fade;
+  }
+  .round-btn:active {
+    scale: none;
+  }
+  @keyframes request-fade {
+    from {
+      opacity: 0;
+    }
   }
 }
 
@@ -1068,15 +1173,15 @@ a {
   text-align: center;
 }
 
+/* Same size as the h1: the closing heading should never outrank the page title. */
 .cta-title {
   max-width: 13em;
   font-family: var(--display);
-  font-size: clamp(2.75rem, 7vw, 7rem);
+  font-size: var(--t-display);
   font-weight: 600;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   color: #fff;
-  text-wrap: balance;
 }
 
 .cta-note {
@@ -1103,17 +1208,20 @@ a {
   gap: 24px;
 }
 
-.footer-links a,
-.footer-note a {
+.footer-links a {
   color: var(--ink-2);
   font-size: var(--text-md);
-  text-decoration: none;
+  text-decoration-line: none;
+  text-underline-position: from-font;
+  text-decoration-thickness: from-font;
+  transition: color 150ms var(--ease-out);
 }
 
-.footer-links a:hover,
-.footer-note a:hover {
-  color: var(--ink);
-  text-decoration: underline;
+@media (hover: hover) {
+  .footer-links a:hover {
+    color: var(--ink);
+    text-decoration-line: underline;
+  }
 }
 
 .footer-note {

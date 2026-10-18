@@ -1,14 +1,21 @@
 import { useRef, useState, type CSSProperties } from 'react';
 import gsap from 'gsap';
+import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { ArrowLeft, ArrowRight, Scissors, ShieldCheck } from 'lucide-react';
 import { BUILT_IN_PACKAGES, describePackage } from '../lib/packages';
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+gsap.registerPlugin(ScrollTrigger, CustomEase, useGSAP);
+
+// The app's --ease-out token, so the page moves like the tool.
+const EASE_OUT = CustomEase.create('sylvi-out', '0.2, 0, 0, 1');
+// Icons beside 600-weight button text.
+const STROKE = 2.25;
 
 const APP_URL = '/app/';
-const portrait = (n: number) => `/landing/portrait-${n}.jpg`;
+type Portrait = 1 | 2 | 3 | 4 | 5 | 6;
+const photo = (n: Portrait) => `/landing/portrait-${n}.jpg`;
 
 export default function Landing() {
   const root = useRef<HTMLDivElement>(null);
@@ -16,15 +23,20 @@ export default function Landing() {
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
-      // Reduced motion gets the finished page: nothing fades, scrubs or pins.
       mm.add({ motion: '(prefers-reduced-motion: no-preference)', wide: '(min-width: 900px)' }, ctx => {
         const { motion, wide } = ctx.conditions as { motion: boolean; wide: boolean };
-        if (!motion) return;
+        if (!motion) {
+          // Reduced motion: the hero still arrives, as a plain cross-fade. Nothing moves, scrubs or pins.
+          gsap.from('.hero-title, .hero-lede, .hero-actions, .hero-visual', { opacity: 0, duration: 0.3, ease: EASE_OUT, stagger: 0.1 });
+          return;
+        }
 
-        gsap.from('.hero-title, .hero-lede, .hero-actions', { y: 28, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.08 });
+        // Title, description, actions: 100ms apart, each rising 12px out of a 4px blur.
+        gsap.from('.hero-title, .hero-lede, .hero-actions', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1 });
         // Opacity only: tweening its transform would freeze the CSS offset in pixels and break resizing.
-        gsap.from('.hero-sheet--back', { opacity: 0, duration: 1.1, ease: 'power2.out', delay: 0.15 });
-        gsap.from('.hero-sheet--front .cell', { opacity: 0, scale: 0.9, duration: 0.5, ease: 'power2.out', stagger: 0.035, delay: 0.3 });
+        gsap.from('.hero-sheet--back', { opacity: 0, duration: 0.6, ease: EASE_OUT, delay: 0.2 });
+        // The photos land on the sheet one by one, the way the app fills it.
+        gsap.from('.hero-sheet--front .cell', { opacity: 0, scale: 0.96, duration: 0.3, ease: EASE_OUT, stagger: 0.04, delay: 0.3 });
 
         // Each word of the statement lights up as it scrolls past.
         gsap.fromTo(
@@ -100,7 +112,7 @@ function Nav() {
 }
 
 /** A 4R sheet as Sylvi prints it: borderless, with crop marks where each cut starts. */
-function Sheet({ photo, layout, className = '' }: { photo: number; layout: 'b' | 'fill'; className?: string }) {
+function Sheet({ sample, layout, className = '' }: { sample: Portrait; layout: 'b' | 'fill'; className?: string }) {
   const cells = layout === 'b' ? [2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1] : Array<number>(24).fill(1);
   // Cut positions in sheet units (the sheet is 40 × 60, one inch = 10).
   const cutsX = layout === 'b' ? [{ x: 20, top: true }, { x: 10, top: false }, { x: 30, top: false }] : [10, 20, 30].map(x => ({ x, top: true }));
@@ -108,7 +120,7 @@ function Sheet({ photo, layout, className = '' }: { photo: number; layout: 'b' |
   return (
     <div className={`sheet ${className}`}>
       {cells.map((span, i) => (
-        <div key={i} className={`cell${span === 2 ? ' cell--2' : ''}`} style={{ backgroundImage: `url(${portrait(photo)})` }} />
+        <div key={i} className={`cell${span === 2 ? ' cell--2' : ''}`} style={{ backgroundImage: `url(${photo(sample)})` }} />
       ))}
       <svg className="sheet-marks" viewBox="0 0 40 60" preserveAspectRatio="none" aria-hidden="true">
         {cutsX.map(({ x, top }) => (
@@ -140,7 +152,7 @@ function Hero() {
         </p>
         <div className="hero-actions">
           <a className="btn btn-primary btn-lg" href={APP_URL}>
-            Open Sylvi <ArrowRight size={18} aria-hidden="true" />
+            Open Sylvi <ArrowRight size={18} strokeWidth={STROKE} aria-hidden="true" />
           </a>
           <a className="btn btn-on-mat btn-lg" href="#how">
             See how it works
@@ -148,8 +160,8 @@ function Hero() {
         </div>
       </div>
       <figure className="hero-visual" aria-label="Two finished 4R sheets: one with four 2x2 and eight 1x1 photos, one filled with 1x1 photos">
-        <Sheet photo={5} layout="fill" className="hero-sheet hero-sheet--back" />
-        <Sheet photo={1} layout="b" className="hero-sheet hero-sheet--front" />
+        <Sheet sample={5} layout="fill" className="hero-sheet hero-sheet--back" />
+        <Sheet sample={1} layout="b" className="hero-sheet hero-sheet--front" />
         <figcaption className="hero-caption">4R, borderless. 4 × 2x2 and 8 × 1x1 on one sheet</figcaption>
       </figure>
     </header>
@@ -188,7 +200,7 @@ function Features() {
       <div className="bento">
         <article className="card card--face">
           <div className="card-media">
-            <img src={portrait(3)} alt="" loading="lazy" />
+            <img src={photo(3)} alt="" loading="lazy" />
             <div className="face-frame" aria-hidden="true">
               <span className="face-oval" />
             </div>
@@ -213,7 +225,7 @@ function Features() {
           </svg>
           <div className="card-body">
             <h3>
-              <Scissors size={18} aria-hidden="true" /> Cuts in straight lines
+              <Scissors size={18} strokeWidth={STROKE} aria-hidden="true" /> Cuts in straight lines
             </h3>
             <p>Every layout splits edge to edge, so each pass on the trimmer goes straight across. No photo is boxed in by another.</p>
           </div>
@@ -230,7 +242,7 @@ function Features() {
         </article>
 
         <article className="card card--private">
-          <ShieldCheck className="private-icon" size={34} aria-hidden="true" />
+          <ShieldCheck className="private-icon" size={34} strokeWidth={1.75} aria-hidden="true" />
           <div className="card-body">
             <h3>Photos stay on this computer</h3>
             <p>Customer photos are personal data under RA 10173, so Sylvi never uploads them. Recent jobs delete themselves after 24 hours.</p>
@@ -263,7 +275,7 @@ function Statement() {
   return (
     <section className="section statement">
       <h2 className="statement-title">
-        Stop nudging <span className="pill pill--photo" style={{ backgroundImage: `url(${portrait(2)})` }} aria-hidden="true" /> photos around a{' '}
+        Stop nudging <span className="pill pill--photo" style={{ backgroundImage: `url(${photo(2)})` }} aria-hidden="true" /> photos around a{' '}
         <span className="pill pill--sheet" aria-hidden="true" /> page in Word.
       </h2>
       <p className="scrub">
@@ -285,7 +297,7 @@ function HowItWorks() {
         <h2 className="section-title">Three moves at the counter.</h2>
         <p className="how-lede">The same three moves for the first customer of the day and the fiftieth. Shops can save their own packages too.</p>
         <a className="text-link" href={APP_URL}>
-          Try it with any photo <ArrowRight size={16} aria-hidden="true" />
+          Try it with any photo <ArrowRight size={16} strokeWidth={STROKE} aria-hidden="true" />
         </a>
       </div>
 
@@ -293,7 +305,7 @@ function HowItWorks() {
         <article className="step">
           <div className="step-art mat" aria-hidden="true">
             <div className="scan">
-              <img src={portrait(6)} alt="" loading="lazy" />
+              <img src={photo(6)} alt="" loading="lazy" />
               <span className="scan-line" />
               <span className="scan-corners" />
             </div>
@@ -344,7 +356,7 @@ function HowItWorks() {
   );
 }
 
-const REQUESTS = [
+const REQUESTS: { ask: string; answer: string; detail: string; photos: Portrait[] }[] = [
   { ask: 'Four 2x2 and eight 1x1, for my board exam.', answer: 'Package B', detail: '4 × 2x2 and 8 × 1x1, all on one 4R sheet', photos: [1, 3, 4] },
   { ask: 'Passport size, please. And a few 1x1 too.', answer: 'Package C', detail: '4 × passport (35 × 45 mm) and 6 × 1x1', photos: [4, 5, 6] },
   { ask: 'Just fill a whole sheet with 1x1.', answer: 'Whole sheet 1x1', detail: '24 photos on a borderless 4R', photos: [5, 2, 1] },
@@ -363,14 +375,15 @@ function Requests() {
       <div className="requests-body">
         <div className="faces" aria-hidden="true">
           {request.photos.map((n, i) => (
-            <img key={`${index}-${n}`} className={`face face--${i}`} src={portrait(n)} alt="" loading="lazy" />
+            <img key={`${index}-${n}`} className={`face face--${i}`} src={photo(n)} alt="" loading="lazy" />
           ))}
         </div>
         <div className="request" aria-live="polite">
-          <blockquote key={index} className="request-ask">
+          {/* Keyed so each request enters fresh; the buttons below are not, so they keep focus. */}
+          <blockquote key={`ask-${index}`} className="request-ask">
             <p>“{request.ask}”</p>
           </blockquote>
-          <p className="request-answer">
+          <p key={`answer-${index}`} className="request-answer">
             <b>{request.answer}</b>
             <span>{request.detail}</span>
           </p>
@@ -396,7 +409,7 @@ function CallToAction() {
     <section className="cta mat">
       <h2 className="cta-title">Your next customer is already in line.</h2>
       <a className="btn btn-primary btn-xl" href={APP_URL}>
-        Open Sylvi <ArrowRight size={22} aria-hidden="true" />
+        Open Sylvi <ArrowRight size={22} strokeWidth={STROKE} aria-hidden="true" />
       </a>
       <p className="cta-note">Runs in your browser with no sign-up. Works offline after the first visit, and photos never leave the computer.</p>
     </section>
