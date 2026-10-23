@@ -17,8 +17,8 @@ export function RecentPanel() {
   return (
     <Dialog open={open} title="Recent jobs" onClose={close}>
       <p className="hint">
-        The last {MAX_RECENT} jobs you downloaded or printed stay on this computer for {windowLabel}, then delete themselves. Customer photos are never
-        uploaded.
+        The last {MAX_RECENT} jobs are available here for {windowLabel}. Expired copies are removed while Sylvi is open or when it next opens.
+        Original photos and downloads are kept. Customer photos are never uploaded. Recent jobs are shared by everyone using this browser profile.
       </p>
       {recent.length === 0 ? (
         <div className="empty-inline">
@@ -62,7 +62,7 @@ function RecentRow({ job, onReopen, onForget }: { job: RecentJob; onReopen: () =
         </p>
         <p className="hint">{job.summary}</p>
         <p className="recent-meta">
-          {timeAgo(job.createdAt)}. Deletes itself {timeLeft(job.expiresAt)}.
+          {timeAgo(job.createdAt)}. Expires {timeLeft(job.expiresAt)}.
         </p>
       </div>
       <div className="recent-actions">

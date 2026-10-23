@@ -20,7 +20,7 @@ export function CropEditor() {
   const shapes = useMemo(() => {
     if (!person) return [] as PhotoSize[];
     const seen = new Map<string, PhotoSize>();
-    for (const item of findPackage(custom, person.packageId).items) {
+    for (const item of findPackage(custom, person.packageId, person.packageSnapshot).items) {
       const key = aspectKey(item.size);
       if (!seen.has(key)) seen.set(key, item.size);
     }
@@ -71,7 +71,7 @@ export function CropEditor() {
             onChange={crop => setCrop(person.id, aspectKey(size), crop)}
           />
           <p className="hint">
-            Drag the photo to move it and scroll to zoom. Line up the head with the oval, chin near its bottom. Every {sizesFor(size, findPackage(custom, person.packageId).items.map(i => i.size))} photo uses this crop.
+            Drag the photo to move it and scroll to zoom. Line up the head with the oval, chin near its bottom. Every {sizesFor(size, findPackage(custom, person.packageId, person.packageSnapshot).items.map(i => i.size))} photo uses this crop.
           </p>
         </>
       ) : null}

@@ -1,6 +1,6 @@
 import { createClient, type Session, type SupabaseClient } from '@supabase/supabase-js';
-import type { PhotoPackage } from './packages';
-import type { Settings } from './storage/settings';
+import { isPhotoPackage, type PhotoPackage } from './packages';
+import { sanitizeSettings, type Settings } from './storage/settings';
 
 /**
  * Optional shop accounts. Only packages and settings are synced — never
@@ -28,14 +28,25 @@ export async function sendSignInLink(email: string): Promise<void> {
 }
 
 export async function signOut(): Promise<void> {
-  await cloud?.auth.signOut();
+  const result = await cloud?.auth.signOut();
+  if (result?.error) throw result.error;
 }
 
 export function onSession(callback: (session: Session | null) => void): () => void {
   if (!cloud) return () => {};
-  cloud.auth.getSession().then(({ data }) => callback(data.session));
-  const { data } = cloud.auth.onAuthStateChange((_event, session) => callback(session));
-  return () => data.subscription.unsubscribe();
+  let revision = 0;
+  let active = true;
+  const { data } = cloud.auth.onAuthStateChange((_event, session) => {
+    revision++;
+    if (active) callback(session);
+  });
+  const initialRevision = revision;
+  void cloud.auth.getSession().then(({ data, error }) => {
+    if (active && revision === initialRevision) callback(error ? null : data.session);
+  }).catch(() => {
+    if (active && revision === initialRevision) callback(null);
+  });
+  return () => { active = false; data.subscription.unsubscribe(); };
 }
 
 interface PackageRow {
@@ -43,67 +54,51 @@ interface PackageRow {
   name: string;
   items: PhotoPackage['items'];
   updated_at: string;
+  deleted_at: string | null;
 }
 
-export async function fetchPackages(): Promise<PhotoPackage[]> {
+export async function fetchPackages(userId: string): Promise<PhotoPackage[]> {
   if (!cloud) return [];
-  const { data, error } = await cloud.from('shop_packages').select('id, name, items, updated_at').order('created_at');
+  const { data, error } = await cloud.from('shop_packages').select('id, name, items, updated_at, deleted_at').eq('user_id', userId).order('created_at');
   if (error) throw new Error(error.message);
-  return (data as PackageRow[]).map(row => ({
+  return ((data ?? []) as PackageRow[]).map(row => ({
     id: row.id,
     name: row.name,
     items: row.items,
-    updatedAt: Date.parse(row.updated_at)
-  }));
+    updatedAt: Date.parse(row.updated_at),
+    ...(row.deleted_at ? { deletedAt: Date.parse(row.deleted_at) } : {})
+  })).filter(isPhotoPackage);
 }
 
-export async function upsertPackage(pkg: PhotoPackage): Promise<void> {
+export async function upsertPackage(pkg: PhotoPackage, userId: string): Promise<void> {
   if (!cloud) return;
+  if (!isPhotoPackage(pkg)) throw new Error('Invalid package.');
   const { error } = await cloud.from('shop_packages').upsert({
     id: pkg.id,
+    user_id: userId,
     name: pkg.name,
     items: pkg.items,
-    updated_at: new Date(pkg.updatedAt).toISOString()
+    updated_at: new Date(pkg.updatedAt).toISOString(),
+    deleted_at: pkg.deletedAt ? new Date(pkg.deletedAt).toISOString() : null
   });
   if (error) throw new Error(error.message);
 }
-
-export async function deletePackage(id: string): Promise<void> {
-  if (!cloud) return;
-  const { error } = await cloud.from('shop_packages').delete().eq('id', id);
-  if (error) throw new Error(error.message);
-}
-
 type SyncedSettings = Omit<Settings, 'theme'>;
 
-export async function fetchSettings(): Promise<SyncedSettings | null> {
+export async function fetchSettings(userId: string): Promise<SyncedSettings | null> {
   if (!cloud) return null;
-  const { data, error } = await cloud.from('shop_settings').select('settings').maybeSingle();
+  const { data, error } = await cloud.from('shop_settings').select('settings').eq('user_id', userId).maybeSingle();
   if (error) throw new Error(error.message);
-  return (data?.settings as SyncedSettings | undefined) ?? null;
+  if (!data?.settings || typeof data.settings !== 'object' || Array.isArray(data.settings)) return null;
+  const { theme: _theme, ...settings } = sanitizeSettings(data.settings);
+  return settings;
 }
 
-export async function pushSettings(settings: Settings): Promise<void> {
+export async function pushSettings(settings: Settings, userId: string): Promise<void> {
   if (!cloud) return;
   const { theme: _theme, ...synced } = settings;
-  const { data: auth } = await cloud.auth.getUser();
-  if (!auth.user) return;
   const { error } = await cloud
     .from('shop_settings')
-    .upsert({ user_id: auth.user.id, settings: synced, updated_at: new Date(settings.updatedAt || Date.now()).toISOString() });
+    .upsert({ user_id: userId, settings: synced, updated_at: new Date(settings.updatedAt || Date.now()).toISOString() });
   if (error) throw new Error(error.message);
-}
-
-/** Newest copy of each package wins; packages that exist on one side only are kept. */
-export function mergePackages(local: PhotoPackage[], remote: PhotoPackage[]): { merged: PhotoPackage[]; toUpload: PhotoPackage[] } {
-  const byId = new Map(remote.map(p => [p.id, p]));
-  const toUpload: PhotoPackage[] = [];
-  for (const pkg of local) {
-    const other = byId.get(pkg.id);
-    if (!other || pkg.updatedAt > other.updatedAt) {
-      byId.set(pkg.id, pkg);
-      toUpload.push(pkg);
-    }
-  }
-  return { merged: [...byId.values()], toUpload };
 }

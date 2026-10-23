@@ -39,6 +39,7 @@ function cellCache(people: Person[], dpi: number) {
 }
 
 export async function exportPdf(job: ExportJob): Promise<Uint8Array> {
+  if (!job.sheets.length) throw new Error('There are no sheets to export.');
   const pdf = await PDFDocument.create();
   pdf.setTitle('Sylvi print sheet');
   pdf.setCreator('Sylvi');
@@ -139,6 +140,7 @@ function drawGuides(ctx: CanvasRenderingContext2D, guides: Guides, px: (mm: numb
 }
 
 export async function exportFiles(job: ExportJob, format: ExportFormat, baseName: string): Promise<ExportFile> {
+  if (!job.sheets.length) throw new Error('There are no sheets to export.');
   if (format === 'pdf') {
     const bytes = await exportPdf(job);
     return { name: `${baseName}.pdf`, blob: new Blob([bytes as BlobPart], { type: 'application/pdf' }) };

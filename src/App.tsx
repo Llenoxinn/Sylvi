@@ -52,7 +52,23 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => onSession(session => void useStore.getState().setAccount(session?.user.email ?? null)), []);
+  useEffect(() => onSession(session => void useStore.getState().setAccount(session ? { id: session.user.id, email: session.user.email ?? '' } : null)), []);
+
+  useEffect(() => {
+    const resume = () => {
+      if (document.visibilityState === 'hidden') return;
+      void useStore.getState().refreshRecent();
+      void useStore.getState().syncAccount();
+    };
+    window.addEventListener('online', resume);
+    window.addEventListener('focus', resume);
+    document.addEventListener('visibilitychange', resume);
+    return () => {
+      window.removeEventListener('online', resume);
+      window.removeEventListener('focus', resume);
+      document.removeEventListener('visibilitychange', resume);
+    };
+  }, []);
 
   // Paste from Messenger or any app, anywhere on the page.
   useEffect(() => {
@@ -193,7 +209,7 @@ export default function App() {
       <input
         ref={fileInput}
         type="file"
-        accept="image/*,.heic,.heif"
+        accept="image/jpeg,image/png,image/webp,.heic,.heif"
         multiple
         hidden
         onChange={e => {

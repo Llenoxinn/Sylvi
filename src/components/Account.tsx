@@ -32,7 +32,9 @@ export function AccountButton() {
 export function AccountForm() {
   const account = useStore(s => s.account);
   const syncing = useStore(s => s.syncing);
-  const custom = useStore(s => s.customPackages.length);
+  const syncError = useStore(s => s.syncError);
+  const busy = useStore(s => s.busy);
+  const custom = useStore(s => s.customPackages.filter(p => !p.deletedAt).length);
   const [method, setMethod] = useState<'google' | 'email'>('google');
   const [email, setEmail] = useState('');
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
@@ -52,14 +54,20 @@ export function AccountForm() {
               <>
                 <LoaderCircle size={13} className="spin" /> Syncing packages…
               </>
-            ) : (
+            ) : syncError ? 'Changes haven’t synced.' : (
               <>
                 <CircleCheck size={13} /> {custom} custom package{custom === 1 ? '' : 's'} synced
               </>
             )}
           </p>
+          {syncError ? (
+            <>
+              <p className="hint hint--danger">{syncError}</p>
+              <button type="button" className="btn btn--sm" onClick={() => void useStore.getState().syncAccount()}>Retry sync</button>
+            </>
+          ) : null}
         </div>
-        <button type="button" className="btn btn--sm btn--ghost" onClick={() => void signOut()}>
+        <button type="button" className="btn btn--sm btn--ghost" disabled={busy !== null} onClick={() => void signOut().catch(() => useStore.getState().toast('Sign-out failed. You are still signed in. Try again.', 'error'))}>
           <LogOut size={14} />
           Sign out
         </button>
@@ -102,7 +110,7 @@ export function AccountForm() {
   if (method === 'google') {
     return (
       <div className="account-form">
-        <p className="hint">Sign in to keep your custom packages and settings on every computer in your shop. Customer photos stay on each computer.</p>
+        <p className="hint">Sign in to use your shop’s packages and settings across computers. Guest packages stay in this browser. Customer photos stay on each computer.</p>
         <button type="button" className="btn btn--block google-btn" disabled={state === 'sending'} onClick={() => void continueWithGoogle()}>
           {state === 'sending' ? <LoaderCircle size={16} className="spin" /> : <GoogleMark />}
           Continue with Google

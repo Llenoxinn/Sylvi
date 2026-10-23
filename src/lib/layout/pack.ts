@@ -55,6 +55,7 @@ export interface PackOptions {
 
 export interface PackResult {
   sheets: Sheet[];
+  error?: string;
   /** Photos too large for the printable area of this paper. */
   unplaced: PackItem[];
 }
@@ -96,7 +97,8 @@ function packAll(
   };
   const fits = (it: PackItem) => it.size.widthMm <= printable.w + EPS && it.size.heightMm <= printable.h + EPS;
 
-  const unplaced = items.filter(it => !fits(it) && !it.optional);
+  const hasRequired = items.some(it => !it.optional);
+  const unplaced = items.filter(it => !fits(it) && (!it.optional || !hasRequired));
   let required = sortForPacking(items.filter(it => fits(it) && !it.optional));
   const optional = sortForPacking(items.filter(it => fits(it) && it.optional));
   const sheets: Sheet[] = [];

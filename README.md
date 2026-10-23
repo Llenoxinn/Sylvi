@@ -21,7 +21,8 @@ Requires Node 20 or newer.
 - **Auto-crop** uses MediaPipe's face detector, loaded the first time a photo is added (about 4 MB compressed, then cached for offline use). If no face is found, the photo is centered.
 - **True size.** PDFs are created at the exact paper size in points; PNG and JPG files carry 300 DPI metadata. Remind customers and staff to print at **Actual size (100%)**.
 - **Straight cuts.** The packer only makes layouts that can be separated with edge-to-edge cuts on a trimmer.
-- **Recent jobs.** The last 2 downloaded or printed jobs stay in this browser (IndexedDB) for 24 hours by default, then delete themselves.
+- **Recent jobs.** The last 2 downloaded or printed jobs stay in this browser (IndexedDB) for 24 hours by default. Expired copies are removed while Sylvi runs or when it next opens. Original photos and downloads are kept. Recent jobs are shared by everyone using this browser profile.
+- **Input limits.** JPG, PNG and WebP photos up to 25 MB and 40 megapixels; up to 20 photos and 2,000 layout copies per job. Dimensions are checked before decoding and photos are decoded at a maximum edge of 3,200 pixels.
 - **Works offline** after the first visit (installable as an app).
 
 ## Shop accounts (optional)
@@ -29,7 +30,7 @@ Requires Node 20 or newer.
 Without configuration Sylvi runs as a guest app and the sign-in button is hidden. Signed-in shops sync their custom packages, settings and shop details (name, mobile number, city) across computers. Shops sign in with Google, or with an emailed link.
 
 1. Create a [Supabase](https://supabase.com) project.
-2. Run `supabase/migrations/0001_shop_accounts.sql`, then `0002_grant_api_access.sql`, in its SQL editor.
+2. Run `supabase/migrations/0001_shop_accounts.sql`, then `0002_grant_api_access.sql`, then `0003_safe_package_sync.sql`, in its SQL editor. Existing projects need only the migrations they have not already applied. Apply `0003` before deploying this version.
 3. In Authentication → URL Configuration, set the Site URL to your domain and add `http://localhost:5173/app/` and `https://<your-domain>/app/` to the redirect URLs.
 4. Copy `.env.example` to `.env.local` and fill in the project URL and the publishable key (`sb_publishable_…`, or the legacy anon key), both shown under the dashboard's Connect button. Never use the secret or service_role key: `VITE_` variables are visible to every visitor.
 
@@ -41,6 +42,10 @@ Google sign-in:
 4. While the Google app is in Testing, only the test users you list can sign in. Publish it to let any shop sign in. Google asks for a home page and privacy policy link.
 
 Only packages, settings and shop details are synced. Customer photos stay on each computer.
+
+Account caches are separated by the authenticated user ID. Guest packages stay in their own browser cache and are not automatically uploaded into a shop account. Sync failures remain visible in Settings; reconnecting, returning to Sylvi, or **Retry sync** retries pending changes, including package deletions.
+
+Earlier versions used unscoped `sylvi:settings` and `sylvi:packages` browser-storage keys. These have no reliable owner, so this version leaves them intact for manual recovery and never assigns them to a signed-in account. Synced packages return from the shop account. Recent jobs created by this version store their package contents so reprints are unaffected by later package edits; older jobs show a warning or refuse to reopen if their original package was deleted.
 
 ## Deploy
 

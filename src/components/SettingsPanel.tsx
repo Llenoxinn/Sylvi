@@ -97,7 +97,7 @@ export function SettingsPanel() {
             </option>
           ))}
         </select>
-        <p className="hint">After this, a job and its customer photos are deleted from this computer automatically.</p>
+        <p className="hint">Expired jobs and their saved photo copies are removed while Sylvi is open, or when it next opens. Original photos and downloaded files are kept.</p>
       </div>
 
       {accountsEnabled ? (

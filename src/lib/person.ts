@@ -2,6 +2,7 @@ import { applyAdjust, type Adjust } from './image/adjust';
 import { backdropColor } from './image/backdrop';
 import { autoCrop, cropToRect, type Crop, type FaceBox } from './image/crop';
 import type { LoadedPhoto } from './image/load';
+import type { PhotoPackage } from './packages';
 import { aspectKey, type PhotoSize } from './sizes';
 import { mmToPx } from './units';
 
@@ -17,6 +18,7 @@ export interface Person {
   crops: Record<string, Crop>;
   adjust: Adjust;
   packageId: string;
+  packageSnapshot?: PhotoPackage;
 }
 
 export function effectiveCrop(person: Person, size: PhotoSize): Crop {

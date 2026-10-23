@@ -179,7 +179,7 @@ function PhotoSection() {
     failed: { icon: <ScanFace size={14} />, text: 'Face detection isn’t available offline yet, so the photo is centered.' }
   }[person.faceStatus];
   const adjusted = person.adjust.brightness || person.adjust.contrast || person.adjust.sharpen;
-  const dpi = printDpi(person, findPackage(custom, person.packageId).items.map(i => i.size));
+  const dpi = printDpi(person, findPackage(custom, person.packageId, person.packageSnapshot).items.map(i => i.size));
 
   return (
     <section className="section" aria-label="Photo">

@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useState } from 'react';
 import { Copy, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { describePackage, type PackageItem, type PhotoPackage } from '../lib/packages';
 import { customSize, PHOTO_SIZES } from '../lib/sizes';
+import { MAX_PACKAGE_ITEMS } from '../lib/limits';
 import { formatSize, inToMm, mmToIn } from '../lib/units';
 import { allPackages, findPackage, useStore } from '../state/store';
 import { computeLayout } from '../state/useLayout';
@@ -53,7 +54,7 @@ function PackageList({ onIntent }: { onIntent: (i: PackagesIntent) => void }) {
     <>
       <div className="row row--split">
         <p className="hint">
-          {account ? 'Your packages sync to every computer you sign in on.' : 'Your packages are saved on this computer. Sign in to use them on others.'}
+          {account ? 'Your packages sync to your shop account.' : 'Guest packages stay in this browser. Sign in to use your shop’s separate packages.'}
         </p>
         <button type="button" className="btn btn--primary btn--sm" onClick={() => onIntent({ mode: 'new' })}>
           <Plus size={15} />
@@ -100,11 +101,12 @@ function PackageEditor({ initial, onDone }: { initial: PhotoPackage; onDone: () 
   const toast = useStore(s => s.toast);
   const [name, setName] = useState(initial.name);
   const [items, setItems] = useState<PackageItem[]>(initial.items);
+  const [saveError, setSaveError] = useState('');
   const nameId = useId();
 
   const preview = computeLayout([{ personId: 'preview', pkg: { ...initial, items } }], settings);
   const sheet = preview.sheets[0];
-  const valid = name.trim().length > 0 && items.length > 0 && items.every(i => i.count === 'fill' || i.count > 0);
+  const valid = name.trim().length > 0 && items.length > 0 && !preview.error && items.every(i => i.count === 'fill' || i.count > 0);
 
   const patch = (index: number, next: Partial<PackageItem>) => setItems(list => list.map((it, i) => (i === index ? { ...it, ...next } : it)));
 
@@ -125,7 +127,7 @@ function PackageEditor({ initial, onDone }: { initial: PhotoPackage; onDone: () 
               <ItemRow key={i} item={item} unit={unit} onChange={next => patch(i, next)} onRemove={items.length > 1 ? () => setItems(l => l.filter((_, j) => j !== i)) : undefined} />
             ))}
           </ul>
-          <button type="button" className="btn btn--sm btn--ghost" onClick={() => setItems(l => [...l, { size: PHOTO_SIZES[1], count: 2 }])}>
+          <button type="button" className="btn btn--sm btn--ghost" disabled={items.length >= MAX_PACKAGE_ITEMS} onClick={() => setItems(l => [...l, { size: PHOTO_SIZES[1], count: 2 }])}>
             <Plus size={14} />
             Add a size
           </button>
@@ -140,14 +142,16 @@ function PackageEditor({ initial, onDone }: { initial: PhotoPackage; onDone: () 
             className="btn btn--primary"
             disabled={!valid}
             onClick={() => {
-              savePackage({ ...initial, name: name.trim(), items });
-              toast(`Saved ${name.trim()}.`, 'success');
-              onDone();
+              if (savePackage({ ...initial, name: name.trim(), items })) {
+                toast(`Saved ${name.trim()}.`, 'success');
+                onDone();
+              } else setSaveError('Browser storage couldn’t save this package. Free some space and try again.');
             }}
           >
             Save package
           </button>
         </div>
+        {saveError ? <p className="hint" role="alert">{saveError}</p> : null}
       </div>
 
       <figure className="editor-preview">
@@ -160,7 +164,7 @@ function PackageEditor({ initial, onDone }: { initial: PhotoPackage; onDone: () 
           </svg>
         ) : null}
         <figcaption className="hint">
-          {preview.unplaced.length
+          {preview.error ? preview.error : preview.unplaced.length
             ? `${preview.unplaced.length} photo${preview.unplaced.length === 1 ? ' doesn’t' : 's don’t'} fit this paper.`
             : `${preview.sheets.length} sheet${preview.sheets.length === 1 ? '' : 's'} on your current paper.`}
         </figcaption>
@@ -183,6 +187,7 @@ function ItemRow({
   const isCustom = !PHOTO_SIZES.some(s => s.key === item.size.key);
   const [w, setW] = useState(display(item.size.widthMm, unit));
   const [h, setH] = useState(display(item.size.heightMm, unit));
+  const [sizeError, setSizeError] = useState('');
   useEffect(() => {
     setW(display(item.size.widthMm, unit));
     setH(display(item.size.heightMm, unit));
@@ -190,7 +195,14 @@ function ItemRow({
 
   const applyCustom = (wv: number, hv: number) => {
     const toMm = (v: number) => (unit === 'in' ? inToMm(v) : v);
-    if (wv > 0 && hv > 0) onChange({ size: customSize(toMm(wv), toMm(hv), formatSize(toMm(wv), toMm(hv), unit).replace(` ${unit}`, '')) });
+    try {
+      onChange({ size: customSize(toMm(wv), toMm(hv), formatSize(toMm(wv), toMm(hv), unit).replace(` ${unit}`, '')) });
+      setSizeError('');
+    } catch (error) {
+      setSizeError(error instanceof Error ? error.message : 'Choose a valid photo size.');
+      setW(display(item.size.widthMm, unit));
+      setH(display(item.size.heightMm, unit));
+    }
   };
 
   return (
@@ -200,6 +212,7 @@ function ItemRow({
         aria-label="Photo size"
         value={isCustom ? 'custom' : item.size.key}
         onChange={e => {
+          setSizeError('');
           if (e.target.value === 'custom') applyCustom(Number(w) || 1, Number(h) || 1);
           else onChange({ size: PHOTO_SIZES.find(s => s.key === e.target.value)! });
         }}
@@ -220,6 +233,7 @@ function ItemRow({
           <span className="hint">{unit}</span>
         </div>
       ) : null}
+      {sizeError ? <p className="hint" role="alert">{sizeError}</p> : null}
 
       <div className="row">
         <input

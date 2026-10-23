@@ -142,12 +142,11 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
         </div>
       ) : null}
 
-      {unplaced > 0 ? (
+      {layout.error || unplaced > 0 ? (
         <div className="stage-alert" role="alert">
           <TriangleAlert size={16} />
           <p>
-            {unplaced} photo{unplaced === 1 ? ' is' : 's are'} bigger than the printable area of {paper.label}. Choose bigger paper or
-            a smaller margin.
+            {layout.error ?? `${unplaced} photo${unplaced === 1 ? ' is' : 's are'} bigger than the printable area of ${paper.label}. Choose bigger paper or a smaller margin.`}
           </p>
         </div>
       ) : null}

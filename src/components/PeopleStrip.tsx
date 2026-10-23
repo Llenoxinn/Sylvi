@@ -18,7 +18,7 @@ export function PeopleStrip({ onBrowse }: { onBrowse: () => void }) {
   return (
     <div className="people" role="list" aria-label="Customers on this sheet">
       {people.map(person => {
-        const pkg = findPackage(custom, person.packageId);
+        const pkg = findPackage(custom, person.packageId, person.packageSnapshot);
         const active = person.id === activeId;
         return (
           <div key={person.id} role="listitem" className={`person${active ? ' person--active' : ''}`}>

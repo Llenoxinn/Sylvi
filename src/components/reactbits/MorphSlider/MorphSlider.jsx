@@ -217,11 +217,12 @@ function hexToRgb(hex) {
 }
 
 class MorphEngine {
-  constructor(container, { items, startIndex, reducedMotion, getOptions, onIndexChange, dprCap }) {
+  constructor(container, { items, startIndex, reducedMotion, getOptions, onIndexChange, onLost, dprCap }) {
     this.container = container;
     this.items = items;
     this.getOptions = getOptions;
     this.onIndexChange = onIndexChange;
+    this.onLost = onLost;
     this.reducedMotion = reducedMotion;
 
     this.current = startIndex;
@@ -468,6 +469,7 @@ class MorphEngine {
   onContextLost(e) {
     e.preventDefault();
     cancelAnimationFrame(this.raf);
+    if (this.onLost) this.onLost();
   }
 
   destroy() {
@@ -515,25 +517,35 @@ export default function MorphSlider({
   onIndexChangeRef.current = onIndexChange;
   const [index, setIndex] = useState(startIndex);
   const [hovering, setHovering] = useState(false);
+  // Sylvi: without WebGL (switched off, or an old GPU) the slider shows plain photos
+  // instead of throwing, which used to blank the whole page.
+  const [flat, setFlat] = useState(false);
 
   const optsRef = useRef();
   optsRef.current = { transition, duration, ease, intensity, scale, aberration, drift, overlayColor, loop };
 
   useEffect(() => {
-    if (!containerRef.current) return undefined;
+    if (!containerRef.current || flat) return undefined;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const engine = new MorphEngine(containerRef.current, {
-      items,
-      startIndex,
-      reducedMotion,
-      dprCap: 2,
-      getOptions: () => optsRef.current,
-      onIndexChange: next => {
-        setIndex(next);
-        onIndexChangeRef.current?.(next);
-      }
-    });
+    let engine;
+    try {
+      engine = new MorphEngine(containerRef.current, {
+        items,
+        startIndex,
+        reducedMotion,
+        dprCap: 2,
+        getOptions: () => optsRef.current,
+        onIndexChange: next => {
+          setIndex(next);
+          onIndexChangeRef.current?.(next);
+        },
+        onLost: () => setFlat(true)
+      });
+    } catch {
+      setFlat(true);
+      return undefined;
+    }
     engineRef.current = engine;
     setIndex(startIndex);
 
@@ -542,10 +554,23 @@ export default function MorphSlider({
       engineRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, startIndex]);
+  }, [items, startIndex, flat]);
 
-  const handleNext = useCallback(() => engineRef.current?.next(), []);
-  const handlePrev = useCallback(() => engineRef.current?.prev(), []);
+  // Plain photos step straight to the next one.
+  const step = useCallback(
+    dir => {
+      const n = items.length;
+      const raw = index + dir;
+      if (n < 2 || (!loop && (raw < 0 || raw > n - 1))) return;
+      const next = ((raw % n) + n) % n;
+      setIndex(next);
+      onIndexChangeRef.current?.(next);
+    },
+    [index, items.length, loop]
+  );
+
+  const handleNext = useCallback(() => (engineRef.current ? engineRef.current.next() : step(1)), [step]);
+  const handlePrev = useCallback(() => (engineRef.current ? engineRef.current.prev() : step(-1)), [step]);
 
   useEffect(() => {
     if (!autoplay || hovering) return undefined;
@@ -633,7 +658,9 @@ export default function MorphSlider({
         aria-label={ariaLabel}
         tabIndex={0}
         onKeyDown={onKeyDown}
-      />
+      >
+        {flat && items[index] ? <img className="morph-slider-flat" src={items[index].image} alt="" draggable={false} /> : null}
+      </div>
 
       {showCaptions && hasCaptions && (
         <div className="morph-slider-caption" aria-live="polite">
@@ -692,8 +719,9 @@ export default function MorphSlider({
               className={`morph-slider-dot ${i === index ? 'is-active' : ''}`}
               onClick={() => {
                 const engine = engineRef.current;
-                if (!engine || i === index) return;
-                engine.goTo(i > index ? 1 : -1);
+                if (i === index) return;
+                if (engine) engine.goTo(i > index ? 1 : -1);
+                else step(i - index);
               }}
             />
           ))}

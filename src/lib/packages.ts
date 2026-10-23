@@ -1,4 +1,5 @@
-import { PHOTO_SIZES, type PhotoSize } from './sizes';
+import { isPhotoSize, PHOTO_SIZES, type PhotoSize } from './sizes';
+import { MAX_COPIES, MAX_PACKAGE_ITEMS } from './limits';
 
 export interface PackageItem {
   size: PhotoSize;
@@ -12,6 +13,23 @@ export interface PhotoPackage {
   items: PackageItem[];
   builtIn?: boolean;
   updatedAt: number;
+  deletedAt?: number;
+}
+
+export function isPhotoPackage(value: unknown): value is PhotoPackage {
+  if (!value || typeof value !== 'object') return false;
+  const p = value as PhotoPackage;
+  return typeof p.id === 'string' && p.id.length > 0 && p.id.length <= 100 &&
+    typeof p.name === 'string' && p.name.trim().length > 0 && p.name.length <= 60 && !p.name.includes('\0') &&
+    Number.isFinite(p.updatedAt) && p.updatedAt >= 0 &&
+    (p.deletedAt === undefined || (Number.isFinite(p.deletedAt) && p.deletedAt > 0)) &&
+    isPackageItems(p.items);
+}
+
+export function isPackageItems(value: unknown): value is PackageItem[] {
+  return Array.isArray(value) && value.length > 0 && value.length <= MAX_PACKAGE_ITEMS &&
+    value.every(i => i && isPhotoSize(i.size) &&
+      (i.count === 'fill' || (Number.isInteger(i.count) && i.count >= 1 && i.count <= MAX_COPIES)));
 }
 
 const size = (key: string) => PHOTO_SIZES.find(s => s.key === key)!;
@@ -29,4 +47,19 @@ export const BUILT_IN_PACKAGES: PhotoPackage[] = [
 /** "4 × 2x2, 8 × 1x1" */
 export function describePackage(pkg: PhotoPackage): string {
   return pkg.items.map(i => (i.count === 'fill' ? `${i.size.label} to fill the sheet` : `${i.count} × ${i.size.label}`)).join(', ');
+}
+
+/** A deletion wins over any live copy, including stale uploads from another computer. */
+export function mergePackages(local: PhotoPackage[], remote: PhotoPackage[]): { merged: PhotoPackage[]; toUpload: PhotoPackage[] } {
+  const byId = new Map(remote.map(p => [p.id, p]));
+  const toUpload: PhotoPackage[] = [];
+  for (const pkg of local) {
+    const other = byId.get(pkg.id);
+    if (other?.deletedAt && !pkg.deletedAt) continue;
+    if (!other || (pkg.deletedAt && !other.deletedAt) || pkg.updatedAt > other.updatedAt) {
+      byId.set(pkg.id, pkg);
+      toUpload.push(pkg);
+    }
+  }
+  return { merged: [...byId.values()], toUpload };
 }

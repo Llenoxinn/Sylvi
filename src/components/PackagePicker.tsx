@@ -21,8 +21,10 @@ export function PackagePicker({ onEdit, onCreate }: { onEdit: (id: string) => vo
 
   const active = people.find(p => p.id === activeId) ?? null;
   const packages = allPackages(custom);
-  const currentId = active ? active.packageId : defaultPackageId;
-  const current = findPackage(custom, currentId);
+  const savedId = active?.packageSnapshot ? `saved:${active.id}` : null;
+  if (savedId && active?.packageSnapshot) packages.push({ ...active.packageSnapshot, id: savedId, name: `${active.packageSnapshot.name} (saved job)` });
+  const currentId = savedId ?? (active ? active.packageId : defaultPackageId);
+  const current = packages.find(p => p.id === currentId) ?? findPackage(custom, currentId);
   const index = Math.max(0, packages.findIndex(p => p.id === current.id));
   const namesKey = packages.map(p => p.name).join('\u0000');
   const names = useMemo(() => namesKey.split('\u0000'), [namesKey]);
@@ -44,7 +46,7 @@ export function PackagePicker({ onEdit, onCreate }: { onEdit: (id: string) => vo
       <div className="wheel-wrap">
         <OptionWheel
           // Remount when the list or the person changes so the wheel starts on their package.
-          key={`${active?.id ?? 'none'}|${names.length}`}
+          key={`${active?.id ?? 'none'}|${names.length}|${currentId}`}
           items={names}
           defaultSelected={index}
           onChange={choose}
@@ -74,9 +76,9 @@ export function PackagePicker({ onEdit, onCreate }: { onEdit: (id: string) => vo
           ))}
         </ul>
         <div className="row">
-          <button type="button" className="btn btn--sm" onClick={() => onEdit(current.id)}>
+          <button type="button" className="btn btn--sm" disabled={!!savedId} onClick={() => onEdit(current.id)}>
             <Pencil size={14} />
-            {current.builtIn ? 'Copy and edit' : 'Edit'}
+            {savedId ? 'Saved job package' : current.builtIn ? 'Copy and edit' : 'Edit'}
           </button>
           <button type="button" className="btn btn--sm btn--ghost" onClick={onCreate}>
             <Plus size={14} />

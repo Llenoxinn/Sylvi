@@ -10,15 +10,19 @@ import { findPackage, useStore } from './store';
 export const SAMPLE_PERSON = '__sample__';
 
 export function computeLayout(people: PersonPackage[], settings: Settings): PackResult {
-  const paper = resolvePaper(settings.paper);
-  const items = buildPackItems(people, paper.widthMm * paper.heightMm);
-  return pack(items, {
-    paperWidthMm: paper.widthMm,
-    paperHeightMm: paper.heightMm,
-    marginMm: settings.paper.marginMm,
-    gapMm: gapFor(settings.cutStyle),
-    orientation: settings.paper.orientation
-  });
+  try {
+    const paper = resolvePaper(settings.paper);
+    const items = buildPackItems(people, paper.widthMm * paper.heightMm);
+    return pack(items, {
+      paperWidthMm: paper.widthMm,
+      paperHeightMm: paper.heightMm,
+      marginMm: settings.paper.marginMm,
+      gapMm: gapFor(settings.cutStyle),
+      orientation: settings.paper.orientation
+    });
+  } catch (error) {
+    return { sheets: [], unplaced: [], error: error instanceof Error ? error.message : 'This layout couldn’t be created.' };
+  }
 }
 
 /** The current sheets. With no photos yet, lays out the default package with placeholders. */
@@ -27,13 +31,13 @@ export function useLayout(): PackResult & { sample: boolean } {
   const settings = useStore(s => s.settings);
   const custom = useStore(s => s.customPackages);
   // Only the package choices affect the layout, not crops or adjustments.
-  const signature = people.map(p => `${p.id}:${p.packageId}`).join('|');
+  const signature = people.map(p => `${p.id}:${p.packageId}:${JSON.stringify(p.packageSnapshot)}`).join('|');
 
   return useMemo(() => {
     const sample = people.length === 0;
     const entries: PersonPackage[] = sample
       ? [{ personId: SAMPLE_PERSON, pkg: findPackage(custom, settings.defaultPackageId) }]
-      : people.map(p => ({ personId: p.id, pkg: findPackage(custom, p.packageId) }));
+      : people.map(p => ({ personId: p.id, pkg: findPackage(custom, p.packageId, p.packageSnapshot) }));
     return { ...computeLayout(entries, settings), sample };
   }, [signature, settings.paper, settings.cutStyle, settings.defaultPackageId, custom]);
 }

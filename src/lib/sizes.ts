@@ -1,4 +1,5 @@
 import { inToMm } from './units';
+import { MAX_PHOTO_MM } from './limits';
 
 /** A printable photo size. `headRatio` is the share of the photo height the
  *  head (chin to crown) should fill when auto-cropping. */
@@ -21,7 +22,19 @@ export const PHOTO_SIZES: PhotoSize[] = [
 export function customSize(widthMm: number, heightMm: number, label?: string): PhotoSize {
   const w = round(widthMm);
   const h = round(heightMm);
+  if (![w, h].every(v => Number.isFinite(v) && v >= 1 && v <= MAX_PHOTO_MM)) {
+    throw new Error(`Photo dimensions must be between 1 and ${MAX_PHOTO_MM} mm.`);
+  }
   return { key: `custom-${w}x${h}`, label: label?.trim() || `${w}×${h} mm`, widthMm: w, heightMm: h, headRatio: 0.6 };
+}
+
+export function isPhotoSize(value: unknown): value is PhotoSize {
+  if (!value || typeof value !== 'object') return false;
+  const s = value as PhotoSize;
+  return typeof s.key === 'string' && s.key.length > 0 && s.key.length <= 80 &&
+    typeof s.label === 'string' && s.label.length > 0 && s.label.length <= 80 &&
+    [s.widthMm, s.heightMm].every(v => Number.isFinite(v) && v >= 1 && v <= MAX_PHOTO_MM) &&
+    Number.isFinite(s.headRatio) && s.headRatio >= 0.1 && s.headRatio <= 0.95;
 }
 
 /** Photos with the same proportions share one crop, so a person's 1x1 and

@@ -14,6 +14,10 @@ export function useExport() {
       const state = useStore.getState();
       const { people, settings, customPackages } = state;
       if (!people.length || state.busy) return;
+      if (layout.error || !layout.sheets.length) {
+        state.toast(layout.error ?? 'No photos fit this paper. Choose bigger paper or a smaller margin.', 'error');
+        return;
+      }
       if (layout.unplaced.length) {
         state.toast('Some photos don’t fit this paper. Choose bigger paper or a smaller margin first.', 'error');
         return;
@@ -49,7 +53,7 @@ export function useExport() {
   return {
     download: () => run('download'),
     print: () => run('print'),
-    canExport: !layout.sample && layout.sheets.length > 0
+    canExport: !layout.sample && layout.sheets.length > 0 && !layout.unplaced.length && !layout.error
   };
 }
 
@@ -68,7 +72,10 @@ async function recentFrom(
     createdAt: now,
     expiresAt: now + settings.recentHours * 3_600_000,
     title: names.length <= 2 ? names.join(' and ') : `${names[0]} and ${names.length - 1} others`,
-    summary: job.people.map(p => `${findPackage(custom, p.packageId).name} (${describePackage(findPackage(custom, p.packageId))})`).join('; '),
+    summary: job.people.map(p => {
+      const pkg = findPackage(custom, p.packageId, p.packageSnapshot);
+      return `${pkg.name} (${describePackage(pkg)})`;
+    }).join('; '),
     thumbnail,
     people: job.people.map(p => ({
       name: p.name,
@@ -76,7 +83,8 @@ async function recentFrom(
       face: p.face,
       crops: p.crops,
       adjust: p.adjust,
-      packageId: p.packageId
+      packageId: p.packageId,
+      packageSnapshot: structuredClone(findPackage(custom, p.packageId, p.packageSnapshot))
     })),
     settings: {
       paper: settings.paper,
