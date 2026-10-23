@@ -26,14 +26,21 @@ Requires Node 20 or newer.
 
 ## Shop accounts (optional)
 
-Without configuration Sylvi runs as a guest app and the sign-in button is hidden. To let shops sync their custom packages and settings across computers:
+Without configuration Sylvi runs as a guest app and the sign-in button is hidden. Signed-in shops sync their custom packages, settings and shop details (name, mobile number, city) across computers. Shops sign in with Google, or with an emailed link.
 
 1. Create a [Supabase](https://supabase.com) project.
-2. Run `supabase/migrations/0001_shop_accounts.sql` in its SQL editor.
-3. In Authentication, enable email sign-in (magic link) and add your site URL to the redirect URLs.
-4. Copy `.env.example` to `.env.local` and fill in the project URL and anon key.
+2. Run `supabase/migrations/0001_shop_accounts.sql`, then `0002_grant_api_access.sql`, in its SQL editor.
+3. In Authentication → URL Configuration, set the Site URL to your domain and add `http://localhost:5173/app/` and `https://<your-domain>/app/` to the redirect URLs.
+4. Copy `.env.example` to `.env.local` and fill in the project URL and the publishable key (`sb_publishable_…`, or the legacy anon key), both shown under the dashboard's Connect button. Never use the secret or service_role key: `VITE_` variables are visible to every visitor.
 
-Only packages and settings are synced. Customer photos stay on each computer.
+Google sign-in:
+
+1. In [Google Cloud Console](https://console.cloud.google.com), create a project, then set up Google Auth Platform (the OAuth consent screen): External audience, app name Sylvi, your support email. Only the default `email`, `profile` and `openid` scopes are needed.
+2. Create an OAuth client of type Web application. Add `http://localhost:5173` and your domain to Authorized JavaScript origins, and `https://<project-ref>.supabase.co/auth/v1/callback` to Authorized redirect URIs (Supabase shows this exact URL on its Google provider page).
+3. In Supabase, go to Authentication → Sign In / Providers → Google, turn it on, and paste the client ID and secret.
+4. While the Google app is in Testing, only the test users you list can sign in. Publish it to let any shop sign in. Google asks for a home page and privacy policy link.
+
+Only packages, settings and shop details are synced. Customer photos stay on each computer.
 
 ## Deploy
 

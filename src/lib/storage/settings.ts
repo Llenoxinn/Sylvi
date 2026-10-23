@@ -17,6 +17,8 @@ export interface Settings {
   theme: Theme;
   defaultPackageId: string;
   shopName: string;
+  shopPhone: string;
+  shopCity: string;
   updatedAt: number;
 }
 
@@ -30,6 +32,8 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
   defaultPackageId: 'pkg-b',
   shopName: '',
+  shopPhone: '',
+  shopCity: '',
   updatedAt: 0
 };
 

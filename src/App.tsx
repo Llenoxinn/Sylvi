@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } fro
 import { CircleCheck, CircleX, Download, History, ImagePlus, Info, LayoutGrid, Printer, Settings, X } from 'lucide-react';
 import { onSession } from './lib/cloud';
 import { imageFilesFrom } from './lib/image/load';
-import { AccountButton } from './components/Account';
+import { AccountButton, ShopSetup } from './components/Account';
 import { CropEditor } from './components/CropEditor';
 import { Inspector } from './components/Inspector';
 import { PackagePicker } from './components/PackagePicker';
@@ -206,6 +206,7 @@ export default function App() {
       <RecentPanel />
       <PackagesPanel intent={packagesIntent} onIntent={setPackagesIntent} />
       <SettingsPanel />
+      <ShopSetup />
       <CropEditor />
       <Toasts />
 

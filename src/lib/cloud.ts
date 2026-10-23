@@ -14,6 +14,13 @@ const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 export const cloud: SupabaseClient | null = url && key ? createClient(url, key) : null;
 export const accountsEnabled = cloud !== null;
 
+/** Leaves the page for Google's sign-in and comes back to /app/ signed in. */
+export async function signInWithGoogle(): Promise<void> {
+  if (!cloud) throw new Error('Accounts aren’t set up on this copy of Sylvi.');
+  const { error } = await cloud.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/app/` } });
+  if (error) throw new Error(error.message);
+}
+
 export async function sendSignInLink(email: string): Promise<void> {
   if (!cloud) throw new Error('Accounts aren’t set up on this copy of Sylvi.');
   const { error } = await cloud.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/app/` } });

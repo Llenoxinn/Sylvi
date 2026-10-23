@@ -281,9 +281,19 @@ export const useStore = create<Store>((set, get) => ({
         set({ settings });
         saveSettings(settings);
       } else {
-        await cloud.pushSettings(local);
+        // A newer guest copy on this computer shouldn't blank out the shop details saved on another one.
+        const settings =
+          remoteSettings?.shopName && !local.shopName
+            ? { ...local, shopName: remoteSettings.shopName, shopPhone: remoteSettings.shopPhone ?? '', shopCity: remoteSettings.shopCity ?? '' }
+            : local;
+        if (settings !== local) {
+          set({ settings });
+          saveSettings(settings);
+        }
+        await cloud.pushSettings(settings);
       }
-    } catch {
+    } catch (error) {
+      console.error(error);
       get().toast('Signed in, but your packages couldn’t sync right now. They’re still saved on this computer.', 'error');
     } finally {
       set({ syncing: false });

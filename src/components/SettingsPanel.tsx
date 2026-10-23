@@ -21,6 +21,7 @@ export function SettingsPanel() {
   const open = useStore(s => s.panel === 'settings');
   const settings = useStore(s => s.settings);
   const update = useStore(s => s.updateSettings);
+  const signedIn = useStore(s => s.account !== null);
   const shopId = useId();
   const recentId = useId();
   const close = () => useStore.getState().openPanel(null);
@@ -40,6 +41,40 @@ export function SettingsPanel() {
           onChange={e => update({ shopName: e.target.value })}
         />
       </div>
+
+      {signedIn ? (
+        <div className="settings-shop">
+          <div className="field">
+            <label className="field-label" htmlFor={`${shopId}-phone`}>
+              Mobile number
+            </label>
+            <input
+              id={`${shopId}-phone`}
+              className="input"
+              type="tel"
+              maxLength={20}
+              autoComplete="tel"
+              placeholder="0917 123 4567"
+              value={settings.shopPhone}
+              onChange={e => update({ shopPhone: e.target.value })}
+            />
+          </div>
+          <div className="field">
+            <label className="field-label" htmlFor={`${shopId}-city`}>
+              City or town
+            </label>
+            <input
+              id={`${shopId}-city`}
+              className="input"
+              maxLength={60}
+              autoComplete="address-level2"
+              placeholder="e.g. Quezon City"
+              value={settings.shopCity}
+              onChange={e => update({ shopCity: e.target.value })}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="field">
         <span className="field-label">Measure in</span>

@@ -997,9 +997,23 @@
   gap: 10px;
 }
 
+.google-btn {
+  min-height: 40px;
+}
+
+.account-switch {
+  justify-self: center;
+}
+
 .settings-account {
   padding-top: 16px;
   border-top: 1px solid var(--line);
+}
+
+.settings-shop {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
 }
 
 /* ---------- Job done card ---------- */
