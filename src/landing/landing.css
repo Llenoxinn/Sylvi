@@ -234,37 +234,84 @@ a {
 /* ---------- Nav ---------- */
 
 /* PillNav (logo bubble + links) on the left, the main action on the right. */
+/*
+ * Three pills on one line, aligned to the page: the brand on the left, the
+ * section links in the middle, the main action on the right. They share the
+ * links' glass, so they read on the green mat and on the paper alike.
+ */
 .site-nav {
   position: fixed;
-  top: 16px;
-  left: 50%;
+  top: 14px;
+  right: 0;
+  left: 0;
   z-index: 50;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 8px;
-  width: min(600px, calc(100% - 32px));
+  gap: 12px;
+  width: min(var(--page-max), calc(100% - 2 * var(--gutter)));
+  margin: 0 auto;
   font-family: var(--font);
-  translate: -50% 0;
+  pointer-events: none;
+}
+
+.site-nav > * {
+  pointer-events: auto;
+}
+
+.site-brand {
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  gap: 9px;
+  height: 44px;
+  padding: 0 18px 0 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.82);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 1.125rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  .site-brand {
+    background: rgb(22 28 25 / 0.74);
+  }
+}
+
+/* Paired with the tool's header logo for the page transition (transitions.css). */
+.site-brand svg {
+  view-transition-name: sylvi-mark;
 }
 
 .site-nav-pill {
   display: flex;
-  flex: 1;
-  justify-content: flex-end;
+  justify-self: center;
   min-width: 0;
 }
 
 .site-nav-cta {
-  flex: none;
+  justify-self: end;
   height: 44px;
   padding: 0 20px;
   font-size: var(--text-md);
   box-shadow: var(--shadow-pop);
 }
 
-/* Paired with the tool's header logo for the page transition (transitions.css). */
-.site-nav .pill-nav__mark {
-  view-transition-name: sylvi-mark;
+@media (max-width: 760px) {
+  .site-nav {
+    grid-template-columns: auto 1fr auto;
+  }
+  .site-nav-pill {
+    justify-self: end;
+  }
 }
 
 /* ---------- Hero ---------- */
@@ -293,14 +340,49 @@ a {
   color: #fff;
 }
 
+/*
+ * TechText's drawn lines lie over the real text while they draw in, then fade
+ * out through a slight blur as the real text (VariableProximity) fades up.
+ */
+.hero-title {
+  position: relative;
+}
+
 .hero-title-art {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
-  margin-bottom: -0.22em;
+  pointer-events: none;
+  transition-property: opacity, filter;
+  transition-duration: 450ms;
+  transition-timing-function: var(--ease-out);
 }
 
 .hero-title-line {
   position: relative;
   display: block;
+}
+
+.hero-live-line {
+  display: block;
+}
+
+.hero-title-live {
+  display: block;
+  transition-property: opacity, filter;
+  transition-duration: 450ms;
+  transition-timing-function: var(--ease-out);
+}
+
+.hero-title[data-phase='drawing'] .hero-title-live {
+  opacity: 0;
+  filter: blur(4px);
+}
+
+.hero-title[data-phase='live'] .hero-title-art {
+  opacity: 0;
+  filter: blur(4px);
 }
 
 .sr-only {
@@ -615,59 +697,121 @@ a {
   margin-top: clamp(40px, 5vw, 64px);
 }
 
-.screen-shot {
-  width: 100%;
-  height: auto;
+/*
+ * The screenshot with one part lit at a time: everything else dims through a
+ * soft cut-out, and crop marks frame the part, as in the app's own guide.
+ */
+.screen-stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
   border-radius: 14px;
   box-shadow: var(--ring-raised);
 }
 
-/*
- * The workspace's three bands, top to bottom. Each caption carries a small map
- * of the screen with its band lit, so it reads without pointing at the shot.
- */
+.screen-shot {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.screen-spot {
+  position: absolute;
+  border-radius: 6px;
+  box-shadow: 0 0 0 100vmax rgb(8 16 13 / 0.5);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .screen-spot {
+    transition-property: left, top, width, height;
+    transition-duration: 450ms;
+    transition-timing-function: var(--ease-out);
+  }
+}
+
+.screen-mark {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 0 solid #f06a9b;
+}
+
+.screen-mark--tl {
+  top: 3px;
+  left: 3px;
+  border-width: 2px 0 0 2px;
+}
+
+.screen-mark--tr {
+  top: 3px;
+  right: 3px;
+  border-width: 2px 2px 0 0;
+}
+
+.screen-mark--bl {
+  bottom: 3px;
+  left: 3px;
+  border-width: 0 0 2px 2px;
+}
+
+.screen-mark--br {
+  right: 3px;
+  bottom: 3px;
+  border-width: 0 2px 2px 0;
+}
+
+/* The three parts, named under the shot; the one lit above is at full strength. */
 .screen-parts {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px clamp(24px, 4vw, 48px);
+  gap: 24px clamp(24px, 4vw, 56px);
   margin-top: 32px;
 }
 
 .screen-part {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  column-gap: 14px;
+  align-content: start;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.5;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 200ms var(--ease-out);
 }
 
-.screen-part::before {
-  content: '';
-  grid-row: span 2;
-  width: 44px;
-  height: 34px;
-  margin-top: 2px;
-  border: 1px solid var(--line-strong);
-  border-radius: 5px;
-  background: linear-gradient(
-    180deg,
-    transparent calc(var(--from) * 100%),
-    var(--accent-soft) calc(var(--from) * 100%) calc(var(--to) * 100%),
-    transparent calc(var(--to) * 100%)
-  );
-  box-shadow: inset 0 0 0 1px var(--surface);
+.screen-part[aria-pressed='true'] {
+  opacity: 1;
 }
 
-.screen-part h3 {
+.screen-part:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+
+.screen-part-title {
   font-family: var(--display);
-  font-size: var(--text-lg);
+  font-size: var(--t-h3);
   font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
 }
 
-.screen-part p {
+.screen-part-text {
   max-width: 30em;
-  margin-top: 4px;
   color: var(--ink-2);
+}
+
+@media (hover: hover) {
+  .screen-part:not([aria-pressed='true']):hover {
+    opacity: 0.75;
+  }
 }
 
 @media (max-width: 900px) {
@@ -737,36 +881,52 @@ a {
   align-content: start;
 }
 
-/* A rail down the left; the step being shown takes the magenta. */
+/*
+ * The steps as a list of big titles. While the sequence plays, the step being
+ * shown is bright with its line of detail open; the others dim to their titles.
+ * Without motion, all four sit open.
+ */
 .press-step {
-  padding: 14px 0 14px 22px;
-  border-left: 2px solid var(--mat-line-strong);
-  transition-property: border-color, opacity;
-  transition-duration: 200ms;
-  transition-timing-function: var(--ease-out);
+  padding: 10px 0;
+  transition: opacity 250ms var(--ease-out);
 }
 
 .press-step h3 {
   color: #fff;
   font-family: var(--display);
-  font-size: var(--text-lg);
+  font-size: clamp(1.5rem, 2.3vw, 2.125rem);
   font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.press-step-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition-property: grid-template-rows, opacity;
+  transition-duration: 300ms;
+  transition-timing-function: var(--ease-out);
 }
 
 .press-step p {
   max-width: 30em;
-  margin-top: 6px;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: 8px;
   color: var(--mat-ink);
+  font-size: var(--t-intro);
 }
 
 .press[data-motion] .press-step {
-  opacity: 0.42;
+  opacity: 0.32;
+}
+
+.press[data-motion] .press-step:not([data-active]) .press-step-body {
+  grid-template-rows: 0fr;
+  opacity: 0;
 }
 
 .press[data-motion] .press-step[data-active] {
-  border-left-color: #f06a9b;
   opacity: 1;
 }
 
@@ -1612,6 +1772,18 @@ a {
   text-align: center;
 }
 
+/* The mist sits under the grid's grain and everything in the section, and lets the grid show through. */
+/* Scoped under .cta so it outranks the component's own in-flow rules, which load later. */
+.cta > .cta-mist {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  opacity: 0.62;
+}
+
 /* Same size as the h1: the closing heading should never outrank the page title. */
 .cta-frame {
   position: absolute;
@@ -1647,15 +1819,46 @@ a {
 
 /* ---------- Footer ---------- */
 
+/* The page ends at the edge of the cutting mat: a ruler in true inches (a CSS inch is 96px). */
 .footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px 40px;
+  border-top: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.footer-ruler {
+  position: relative;
+  height: 30px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(90deg, var(--ink-2) 1px, transparent 1px) 0 0 / 1in 13px repeat-x,
+    linear-gradient(90deg, var(--ink-3) 1px, transparent 1px) 0 0 / 0.5in 9px repeat-x,
+    linear-gradient(90deg, var(--line-strong) 1px, transparent 1px) 0 0 / 0.125in 5px repeat-x;
+}
+
+.footer-ruler span {
+  position: absolute;
+  top: 13px;
+  padding-left: 4px;
+  color: var(--ink-3);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 1fr);
+  align-items: start;
+  gap: 32px clamp(32px, 6vw, 96px);
   max-width: var(--page-max);
   margin: 0 auto;
-  padding: 40px var(--gutter);
+  padding: 48px var(--gutter) 32px;
+}
+
+.footer-about {
+  display: grid;
+  gap: 10px;
 }
 
 .footer-brand {
@@ -1663,25 +1866,52 @@ a {
   align-items: center;
   gap: 10px;
   font-family: var(--display);
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.375rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
   text-decoration: none;
 }
 
+.footer-tagline {
+  max-width: 24em;
+  color: var(--ink-2);
+}
+
 .footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
+  display: grid;
+  gap: 10px;
 }
 
 .footer-links a {
   color: var(--ink-2);
-  font-size: var(--text-md);
   text-decoration-line: none;
   text-underline-position: from-font;
   text-decoration-thickness: from-font;
   transition: color 150ms var(--ease-out);
+}
+
+.footer-cta {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.footer-cta .btn {
+  height: 44px;
+  padding: 0 20px;
+}
+
+.footer-note {
+  color: var(--ink-3);
+  font-size: var(--text-sm);
+}
+
+.footer-legal {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 0 var(--gutter) 32px;
+  color: var(--ink-3);
+  font-size: var(--text-sm);
 }
 
 @media (hover: hover) {
@@ -1691,9 +1921,13 @@ a {
   }
 }
 
-.footer-note {
-  color: var(--ink-3);
-  font-size: var(--text-sm);
+@media (max-width: 760px) {
+  .footer-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .footer-cta {
+    justify-items: start;
+  }
 }
 
 /* ---------- Hero on smaller screens ---------- */

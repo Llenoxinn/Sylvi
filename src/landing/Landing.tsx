@@ -4,7 +4,9 @@ import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import Carousel from '../components/reactbits/Carousel/Carousel';
+import CloudShader from '../components/CloudShader';
 import PillNav from '../components/reactbits/PillNav/PillNav';
+import TechText from '../components/reactbits/TechText/TechText';
 import VariableProximity from '../components/reactbits/VariableProximity/VariableProximity';
 import { buildPackItems } from '../lib/layout/items';
 import { pack, type Sheet as PackedSheet } from '../lib/layout/pack';
@@ -35,9 +37,9 @@ export default function Landing() {
           return;
         }
 
-        // The headline's lines, then the description and actions, 100ms apart,
-        // each rising 12px out of a 4px blur.
-        gsap.from('.hero-title-line, .hero-lede, .hero-actions, .hero-note', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 0.1 });
+        // The headline draws itself (TechText); the description and actions follow it,
+        // 100ms apart, each rising 12px out of a 4px blur.
+        gsap.from('.hero-lede, .hero-actions, .hero-note', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 0.5 });
         // The customer's message comes in first: her photo, then what she wants.
         gsap.from('.hero-chat > *', { opacity: 0, y: 8, duration: 0.3, ease: EASE_OUT, stagger: 0.12, delay: 0.2 });
         // Then the photos land on the sheet one by one, the way the app fills it.
@@ -158,11 +160,12 @@ function Nav() {
   const active = useActiveSection(NAV_IDS);
   return (
     <header className="site-nav">
+      <a className="site-brand" href="#top" aria-label="Sylvi, back to top">
+        <Mark size={24} />
+        <span>Sylvi</span>
+      </a>
       <div className="site-nav-pill">
         <PillNav
-          logo={<Mark size={26} />}
-          logoAlt="Sylvi, back to top"
-          logoHref="#top"
           items={NAV_ITEMS}
           // A href no item has marks nothing, while the hero is in view.
           activeHref={active ? `#${active}` : '#top'}
@@ -173,6 +176,20 @@ function Nav() {
           highlightColor={dark ? '#f06a9b' : '#c2185b'}
           barColor={dark ? 'rgb(22 28 25 / 0.74)' : 'rgb(255 255 255 / 0.82)'}
           ariaLabel="Main"
+          // Sylvi's own neutrals instead of the component's zinc; hover fills with the mat green.
+          style={
+            {
+              '--pn-solid': 'var(--surface)',
+              '--pn-edge': 'var(--line)',
+              '--pn-text': 'var(--ink-2)',
+              '--pn-strong': 'var(--ink)',
+              '--pn-tile': 'var(--surface-2)',
+              '--pn-row-hover': 'var(--surface-2)',
+              '--pn-pill': 'var(--mat)',
+              '--pn-pill-ink': '#fff',
+              '--pn-ring': 'var(--line-strong)'
+            } as CSSProperties
+          }
         />
       </div>
       <a className="btn btn-primary site-nav-cta" href={APP_URL}>
@@ -215,27 +232,129 @@ function Sheet({ sample, layout, className = '', children }: { sample: Portrait;
 // Non-breaking hyphen so "cut-ready" never splits.
 const HEADLINE = ['One photo in.', 'A cut‑ready', 'sheet out.'];
 
+const HEADLINE_FONT = "'Geist Variable', ui-sans-serif, system-ui, sans-serif";
+const HEADLINE_TRACK = -0.045;
+// TechText fits a line's ink inside 90% of its box's width and 66% of its height,
+// inset 5% from the left. Boxes are 1.6em tall and overlap to a 1.1em line pitch.
+const LINE_BOX = 1.6;
+const LINE_PITCH = 1.1;
+// Each line starts drawing 220ms after the last and takes 1.3s; the handoff follows.
+const DRAWN_AFTER = 2 * 220 + 1300 + 150;
+
 /**
- * The h1, one line per VariableProximity: letters near the pointer get heavier
- * on Geist's weight axis, anywhere over the hero. Each line keeps its own
- * break, and the component carries the text for screen readers.
+ * The h1 in two acts. First TechText draws each line on a canvas, the way it
+ * always has. Then it cross-fades through a slight blur into real text set
+ * with VariableProximity, whose letters get heavier near the pointer anywhere
+ * over the hero. Under reduced motion the real text is there from the start.
  */
 function HeroHeadline({ area }: { area: RefObject<HTMLElement | null> }) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const [fit, setFit] = useState<{ size: number; box: number; shifts: number[] } | null>(null);
+  const [lines, setLines] = useState(1);
+  // drawing: TechText on show; live: real text fading in; done: canvases gone.
+  const [phase, setPhase] = useState<'drawing' | 'live' | 'done'>(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'done' : 'drawing'
+  );
+
+  useLayoutEffect(() => {
+    if (phase === 'done') return;
+    const el = ref.current!;
+    const ctx = document.createElement('canvas').getContext('2d')!;
+    const measure = () => {
+      const max = parseFloat(getComputedStyle(el).fontSize);
+      ctx.font = `600 100px ${HEADLINE_FONT}`;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = `${HEADLINE_TRACK * 100}px`;
+      const metrics = HEADLINE.map(line => ctx.measureText(line));
+      const widest = Math.max(...metrics.map(m => m.actualBoundingBoxLeft + m.actualBoundingBoxRight));
+      const box = el.clientWidth / 0.95;
+      const size = Math.min(max, ((0.9 * box * 100) / widest) * 0.98);
+      // TechText centres each line's ink vertically, so a line without descenders
+      // sits lower. Shift each box so the baselines keep an even pitch.
+      const skew = metrics.map(m => ((m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 200) * size);
+      const shifts = skew.map(s => skew[0] - s);
+      setFit(prev => (prev && prev.size === size && prev.box === box ? prev : { size, box, shifts }));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    document.fonts?.load(`600 100px ${HEADLINE_FONT}`).then(measure, () => {});
+    return () => observer.disconnect();
+    // Measured once per drawing; the phase only ever moves forward.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Lines start drawing one after another, like the photos landing on the sheet; then the handoff.
+  useEffect(() => {
+    if (phase !== 'drawing') return;
+    const timers = [
+      ...[1, 2].map(n => window.setTimeout(() => setLines(n + 1), n * 220)),
+      window.setTimeout(() => setPhase('live'), DRAWN_AFTER),
+      window.setTimeout(() => setPhase('done'), DRAWN_AFTER + 500)
+    ];
+    return () => timers.forEach(window.clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <h1 className="hero-title">
-      {HEADLINE.map(line => (
-        <span key={line} className="hero-title-line">
-          <VariableProximity
-            label={line}
-            fromFontVariationSettings="'wght' 600"
-            toFontVariationSettings="'wght' 900"
-            containerRef={area}
-            radius={170}
-            falloff="gaussian"
-            smoothing={0.25}
-          />
+    <h1 ref={ref} className="hero-title" data-phase={phase}>
+      {phase !== 'done' && fit ? (
+        <span className="hero-title-art" aria-hidden="true">
+          {HEADLINE.map((line, i) => (
+            <span
+              key={line}
+              className="hero-title-line"
+              style={{
+                width: fit.box,
+                height: LINE_BOX * fit.size,
+                marginLeft: -0.05 * fit.box,
+                marginTop: (i ? LINE_PITCH - LINE_BOX : (LINE_PITCH - LINE_BOX) / 2) * fit.size,
+                translate: `0 ${fit.shifts[i].toFixed(1)}px`
+              }}
+            >
+              {i < lines ? (
+                <TechText
+                  text={line}
+                  fontFamily={HEADLINE_FONT}
+                  fontWeight={600}
+                  fontSize={fit.size}
+                  letterSpacing={HEADLINE_TRACK}
+                  align="left"
+                  color="#ffffff"
+                  accentColor="#f06a9b"
+                  reveal="letter"
+                  reach={Math.round(fit.size * 1.2)}
+                  dashLength={3}
+                  dashGap={2}
+                  strokeWidth={1.25}
+                  specks={8}
+                  selection={false}
+                  labels={false}
+                  draggable={false}
+                  guides={false}
+                  sweep={false}
+                  intro="metrics"
+                  introDuration={1.3}
+                />
+              ) : null}
+            </span>
+          ))}
         </span>
-      ))}
+      ) : null}
+      <span className="hero-title-live">
+        {HEADLINE.map(line => (
+          <span key={line} className="hero-live-line">
+            <VariableProximity
+              label={line}
+              fromFontVariationSettings="'wght' 600"
+              toFontVariationSettings="'wght' 900"
+              containerRef={area}
+              radius={170}
+              falloff="gaussian"
+              smoothing={0.25}
+            />
+          </span>
+        ))}
+      </span>
     </h1>
   );
 }
@@ -292,14 +411,33 @@ function Hero() {
   );
 }
 
-// The workspace from top to bottom. from/to mark each part's band on the small screen map beside it.
+// The workspace top to bottom, with where each part sits on the 1440 × 900 screenshot, in percent.
 const SCREEN_PARTS = [
-  { title: 'Package board', text: 'Every package across the top, each showing how it fits the paper. Pick what the customer asked for.', from: 0, to: 0.24 },
-  { title: 'The sheet', text: 'At true size on a ruler, every cut marked. Click a photo for Adjustments: crop, light and color.', from: 0.24, to: 0.8 },
-  { title: 'Print bar', text: 'Paper, cut guides and file type in one strip, then Print or Download a 300 DPI file.', from: 0.8, to: 1 }
+  {
+    title: 'Package board',
+    text: 'Every package across the top, drawn as the prints the customer takes home. Pick what they asked for.',
+    area: { x: 0, y: 5.8, w: 100, h: 8.6 }
+  },
+  {
+    title: 'The sheet',
+    text: 'At true size on a ruler, every cut marked. Click a photo for Adjustments: crop, light and color.',
+    area: { x: 35.5, y: 20.5, w: 64, h: 72 }
+  },
+  {
+    title: 'Print bar',
+    text: 'Paper, cut guides and file type in one strip, then Print or Download a 300 DPI file.',
+    area: { x: 0, y: 94.2, w: 100, h: 5.8 }
+  }
 ];
 
+/**
+ * The real workspace with its three parts named underneath. Pointing at a
+ * part, or tabbing to it, lights that area of the screenshot and frames it
+ * with crop marks, the way the in-app guide does.
+ */
 function AppScreen() {
+  const [shown, setShown] = useState(0);
+  const area = SCREEN_PARTS[shown].area;
   return (
     <section className="section screen" id="screen">
       <div className="section-head">
@@ -307,24 +445,40 @@ function AppScreen() {
         <p className="section-lede">No menus to dig through. Add the customer’s photo and the sheet is ready to check.</p>
       </div>
       <figure className="screen-figure">
-        <img
-          className="screen-shot"
-          src="/landing/app-screen.jpg"
-          width={1440}
-          height={900}
-          loading="lazy"
-          alt="Sylvi with one customer, Bea Santos, on Package B: the package board across the top, her 4R sheet of 2x2 and 1x1 photos in the middle with the Adjustments panel beside it, and the print bar along the bottom."
-        />
+        <div className="screen-stage">
+          <img
+            className="screen-shot"
+            src="/landing/app-screen.jpg"
+            width={1440}
+            height={900}
+            loading="lazy"
+            alt="Sylvi with one customer, Bea Santos, on Package B: the package board across the top, her 4R sheet of 2x2 and 1x1 photos in the middle with the Adjustments panel beside it, and the print bar along the bottom."
+          />
+          <span
+            className="screen-spot"
+            style={{ left: `${area.x}%`, top: `${area.y}%`, width: `${area.w}%`, height: `${area.h}%` }}
+            aria-hidden="true"
+          >
+            <span className="screen-mark screen-mark--tl" />
+            <span className="screen-mark screen-mark--tr" />
+            <span className="screen-mark screen-mark--bl" />
+            <span className="screen-mark screen-mark--br" />
+          </span>
+        </div>
         <figcaption className="screen-parts">
-          {SCREEN_PARTS.map(part => (
-            <div
+          {SCREEN_PARTS.map((part, i) => (
+            <button
               key={part.title}
+              type="button"
               className="screen-part"
-              style={{ '--from': part.from, '--to': part.to } as CSSProperties}
+              aria-pressed={i === shown}
+              onMouseEnter={() => setShown(i)}
+              onFocus={() => setShown(i)}
+              onClick={() => setShown(i)}
             >
-              <h3>{part.title}</h3>
-              <p>{part.text}</p>
-            </div>
+              <span className="screen-part-title">{part.title}</span>
+              <span className="screen-part-text">{part.text}</span>
+            </button>
           ))}
         </figcaption>
       </figure>
@@ -412,7 +566,10 @@ function Features() {
           {PRESS_STEPS.map(step => (
             <li key={step.title} className="press-step">
               <h3>{step.title}</h3>
-              <p>{step.text}</p>
+              {/* Collapses while another step plays; landing.css opens it for the one being shown. */}
+              <div className="press-step-body">
+                <p>{step.text}</p>
+              </div>
             </li>
           ))}
         </ol>
@@ -791,6 +948,24 @@ function Requests() {
             arrows
             theme={dark ? 'dark' : 'light'}
             onChange={setIndex}
+            // The page's surfaces and ink, so the frame matches the cards and panels around it.
+            style={
+              {
+                '--carousel-frame': 'var(--surface)',
+                '--carousel-frame-edge': 'var(--line)',
+                '--carousel-frame-highlight': 'transparent',
+                '--carousel-frame-shadow': 'var(--ring)',
+                '--carousel-tile': 'var(--surface-2)',
+                '--carousel-tile-edge': 'var(--line)',
+                '--carousel-tile-highlight': 'transparent',
+                '--carousel-tile-shadow': 'none',
+                '--carousel-ink': 'var(--ink)',
+                '--carousel-muted': 'var(--ink-2)',
+                '--carousel-faint': 'var(--line-strong)',
+                '--carousel-soft': 'var(--ink-3)',
+                '--carousel-badge': 'var(--surface-2)'
+              } as CSSProperties
+            }
           />
         </div>
         <div className="request">
@@ -876,6 +1051,8 @@ function CallToAction() {
   const section = useRef<HTMLElement>(null);
   return (
     <section ref={section} className="cta mat" id="start">
+      {/* Slow mist over the mat, tinted to its greens; nothing shows without WebGL. */}
+      <CloudShader className="cta-mist" count={4} speed={0.45} maxDpr={1} cloudColor="#5f8075" skyTopColor="#1c372f" skyBottomColor="#24443b" />
       <span className="cta-frame" aria-hidden="true" />
       {/* The letters near the pointer get heavier, on the page's own Geist weight axis. */}
       <h2 className="cta-title">
@@ -900,18 +1077,36 @@ function CallToAction() {
 function Footer() {
   return (
     <footer className="footer">
-      <a className="footer-brand" href="#top">
-        <Mark size={24} />
-        <span>Sylvi</span>
-      </a>
-      <nav className="footer-links" aria-label="Footer">
-        <a href={APP_URL}>Open Sylvi</a>
-        <a href="#features">Features</a>
-        <a href="#how">How it works</a>
-        <a href="#packages">Packages</a>
-        <a href="#questions">Questions</a>
-      </nav>
-      <p className="footer-note">© 2026 Sylvi</p>
+      {/* The edge of the cutting mat: a true-inch ruler, as on Sylvi's own sheets. */}
+      <div className="footer-ruler" aria-hidden="true">
+        {Array.from({ length: 24 }, (_, inch) => (
+          <span key={inch} style={{ left: `${inch}in` }}>
+            {inch}
+          </span>
+        ))}
+      </div>
+      <div className="footer-inner">
+        <div className="footer-about">
+          <a className="footer-brand" href="#top">
+            <Mark size={28} />
+            <span>Sylvi</span>
+          </a>
+          <p className="footer-tagline">ID photo sheets for print shops. Free, in your browser.</p>
+        </div>
+        <nav className="footer-links" aria-label="Footer">
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#packages">Packages</a>
+          <a href="#questions">Questions</a>
+        </nav>
+        <div className="footer-cta">
+          <a className="btn btn-primary" href={APP_URL}>
+            Open Sylvi
+          </a>
+          <p className="footer-note">Photos never leave the computer.</p>
+        </div>
+      </div>
+      <p className="footer-legal">© 2026 Sylvi</p>
     </footer>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState } from 'react';
-import { Copy, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Copy, Pencil, Plus, X } from 'lucide-react';
 import { describePackage, type PackageItem, type PhotoPackage } from '../lib/packages';
 import { customSize, PHOTO_SIZES } from '../lib/sizes';
 import { MAX_PACKAGE_ITEMS } from '../lib/limits';
@@ -7,6 +7,7 @@ import { formatSize, inToMm, mmToIn } from '../lib/units';
 import { allPackages, findPackage, useStore } from '../state/store';
 import { computeLayout } from '../state/useLayout';
 import { Dialog } from './ui';
+import { DeleteButton } from './DeleteButton';
 
 export type PackagesIntent = { mode: 'list' } | { mode: 'edit'; id: string } | { mode: 'new' };
 
@@ -76,16 +77,7 @@ function PackageList({ onIntent }: { onIntent: (i: PackagesIntent) => void }) {
                 {pkg.builtIn ? <Copy size={14} /> : <Pencil size={14} />}
                 {pkg.builtIn ? 'Copy' : 'Edit'}
               </button>
-              {!pkg.builtIn ? (
-                <button
-                  type="button"
-                  className="btn btn--sm btn--ghost btn--icon btn--danger"
-                  aria-label={`Delete ${pkg.name}`}
-                  onClick={() => confirm(`Delete “${pkg.name}”?`) && deletePackage(pkg.id)}
-                >
-                  <Trash2 size={15} />
-                </button>
-              ) : null}
+              {!pkg.builtIn ? <DeleteButton iconOnly label={`Delete ${pkg.name}`} confirmLabel="Delete" onDelete={() => deletePackage(pkg.id)} /> : null}
             </div>
           </li>
         ))}

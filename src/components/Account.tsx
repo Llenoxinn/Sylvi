@@ -247,6 +247,22 @@ export function ShopSetup() {
         completeButtonText="Save shop"
         nextButtonProps={{ disabled: step === 2 && !name.trim() }}
         className="shop-stepper"
+        // The app's own surfaces and ink in place of the component's zinc palette.
+        style={
+          {
+            '--stepper-tile': 'var(--surface)',
+            '--stepper-tile-edge': 'var(--line)',
+            '--stepper-tile-highlight': 'transparent',
+            '--stepper-tile-shadow': 'var(--shadow-control)',
+            '--stepper-well': 'var(--surface-2)',
+            '--stepper-track': 'var(--line)',
+            '--stepper-ink': 'var(--ink)',
+            '--stepper-muted': 'var(--ink-2)',
+            '--stepper-faint': 'var(--line-strong)',
+            '--stepper-ring': 'var(--line-strong)',
+            '--stepper-hover-fill': 'var(--surface-2)'
+          } as React.CSSProperties
+        }
       >
         <Step title="Welcome">
           <div className="account-form">

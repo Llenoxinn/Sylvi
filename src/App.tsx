@@ -14,8 +14,10 @@ import { Tour, tourSeen } from './components/Tour';
 import { Logo } from './components/ui';
 import TechText from './components/reactbits/TechText/TechText';
 import Dock from './components/reactbits/Dock/Dock';
+import { resolvePaper } from './lib/papers';
 import { useStore } from './state/store';
 import { useExport } from './state/useExport';
+import { useLayout } from './state/useLayout';
 
 // Only needed after a job, so the physics library loads then.
 const JobDone = lazy(() => import('./components/JobDone'));
@@ -187,6 +189,8 @@ export default function App() {
         </a>
         {shopName ? <span className="topbar-shop">{shopName}</span> : null}
         <span className="topbar-spacer" />
+        <JobSummary />
+        <span className="topbar-spacer" />
         <AccountButton />
       </header>
 
@@ -210,7 +214,17 @@ export default function App() {
             distance={160}
             accentColor="var(--accent)"
             badgeColor="var(--accent)"
-            style={{ '--dock-panel': 'rgba(14, 26, 22, 0.72)', '--dock-tile': 'linear-gradient(180deg, #2f3f39 0%, #1f2b27 100%)' }}
+            // Mat greens throughout, including the name labels and menus, instead of the component's purple-grey.
+            style={{
+              '--dock-panel': 'rgba(14, 26, 22, 0.72)',
+              '--dock-tile': 'linear-gradient(180deg, #2f3f39 0%, #1f2b27 100%)',
+              '--dock-ink': '#eef5f1',
+              '--dock-label': '#1c372f',
+              '--dock-label-ink': '#eef5f1',
+              '--dock-menu': 'rgba(20, 38, 32, 0.88)',
+              '--dock-menu-ink': '#eef5f1',
+              '--dock-menu-muted': 'rgba(238, 245, 241, 0.5)'
+            }}
           />
         </div>
       </main>
@@ -255,6 +269,41 @@ const subscribeCompact = (cb: () => void) => {
   query.addEventListener('change', cb);
   return () => query.removeEventListener('change', cb);
 };
+
+/** The job at a glance, in the middle of the top bar: who, how many photos, on how many sheets. */
+function JobSummary() {
+  const customers = useStore(s => s.people.length);
+  const paper = resolvePaper(useStore(s => s.settings.paper)).label;
+  const layout = useLayout();
+  const photos = layout.sheets.reduce((n, sheet) => n + sheet.placements.length, 0);
+  const sheets = layout.sheets.length;
+
+  return (
+    <p className="job-summary" aria-live="polite">
+      {layout.sample ? (
+        <span>No photos yet</span>
+      ) : (
+        <>
+          <span>
+            <b>{customers}</b> customer{customers === 1 ? '' : 's'}
+          </span>
+          <span>
+            <b>{photos}</b> photo{photos === 1 ? '' : 's'}
+          </span>
+        </>
+      )}
+      <span>
+        {layout.sample ? (
+          <>{paper} loaded</>
+        ) : (
+          <>
+            <b>{sheets}</b> sheet{sheets === 1 ? '' : 's'} of {paper}
+          </>
+        )}
+      </span>
+    </p>
+  );
+}
 
 function Toasts() {
   const toasts = useStore(s => s.toasts);

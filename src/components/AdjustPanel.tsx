@@ -1,8 +1,9 @@
 import { useEffect, useId, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
-import { ChevronsRight, Crop, GripVertical, LoaderCircle, RotateCcw, ScanFace, SlidersHorizontal, Trash2, TriangleAlert, X } from 'lucide-react';
+import { ChevronsRight, Crop, GripVertical, LoaderCircle, RotateCcw, ScanFace, SlidersHorizontal, TriangleAlert, X } from 'lucide-react';
 import { isNeutral } from '../lib/image/adjust';
 import { printDpi, type Person } from '../lib/person';
 import { findPackage, useStore } from '../state/store';
+import { DeleteButton } from './DeleteButton';
 import { Slider } from './ui';
 
 export type PanelState = 'open' | 'collapsed' | 'closed';
@@ -159,10 +160,7 @@ export function AdjustPanel({
             <RotateCcw size={14} />
             Reset
           </button>
-          <button type="button" className="btn btn--sm btn--ghost btn--danger" onClick={() => removePerson(person.id)}>
-            <Trash2 size={14} />
-            Remove photo
-          </button>
+          <DeleteButton label="Remove photo" confirmLabel="Remove" onDelete={() => removePerson(person.id)} />
         </div>
       </div>
     </section>

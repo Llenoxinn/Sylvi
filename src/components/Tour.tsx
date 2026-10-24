@@ -16,7 +16,7 @@ const STEPS = [
   {
     targets: ['.board'],
     title: 'Pick the package',
-    text: 'Choose what the customer asked for. Each tile shows how it fits on the paper that’s loaded.'
+    text: 'Choose what the customer asked for. Each tile shows the prints they take home.'
   },
   {
     targets: ['.sheet-frame'],
@@ -114,12 +114,33 @@ export function Tour({ open, onClose }: { open: boolean; onClose: () => void }) 
             ? { left: rect.left - CARD.gap - CARD.w, top: y }
             : { left: (vw - CARD.w) / 2, top: (vh - CARD.h) / 2 };
 
+  // The frame stays inside the window, so a full-width target still shows all four crop marks.
+  const spotLeft = Math.max(14, rect.left - 6);
+  const spotTop = Math.max(14, rect.top - 6);
+  const spot: CSSProperties = {
+    left: spotLeft,
+    top: spotTop,
+    width: Math.min(vw - 14, rect.right + 6) - spotLeft,
+    height: Math.min(vh - 14, rect.bottom + 6) - spotTop
+  };
+
   return (
     <div className="tour" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-      <span className="tour-spot" style={{ left: rect.left - 6, top: rect.top - 6, width: rect.width + 12, height: rect.height + 12 }} aria-hidden="true" />
+      {/* The lit area, framed by crop marks like the Sylvi logo, as if marked for cutting. */}
+      <span className="tour-spot" style={spot} aria-hidden="true">
+        <span className="tour-mark tour-mark--tl" />
+        <span className="tour-mark tour-mark--tr" />
+        <span className="tour-mark tour-mark--bl" />
+        <span className="tour-mark tour-mark--br" />
+      </span>
       <div className="tour-card" style={{ ...card, width: CARD.w }}>
+        <div className="tour-progress" aria-hidden="true">
+          {STEPS.map((_, i) => (
+            <span key={i} data-done={i <= index ? '' : undefined} />
+          ))}
+        </div>
         <p className="tour-count">
-          {index + 1} of {STEPS.length}
+          Step {index + 1} of {STEPS.length}
         </p>
         <h2 id={titleId} className="tour-title">
           {step.title}
