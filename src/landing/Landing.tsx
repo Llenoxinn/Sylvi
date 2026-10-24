@@ -1,11 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode, type RefObject } from 'react';
 import gsap from 'gsap';
 import { CustomEase } from 'gsap/CustomEase';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import Carousel from '../components/reactbits/Carousel/Carousel';
 import PillNav from '../components/reactbits/PillNav/PillNav';
-import TechText from '../components/reactbits/TechText/TechText';
 import VariableProximity from '../components/reactbits/VariableProximity/VariableProximity';
 import { buildPackItems } from '../lib/layout/items';
 import { pack, type Sheet as PackedSheet } from '../lib/layout/pack';
@@ -36,9 +35,9 @@ export default function Landing() {
           return;
         }
 
-        // The headline draws itself (TechText); the description and actions follow it,
-        // 100ms apart, each rising 12px out of a 4px blur.
-        gsap.from('.hero-lede, .hero-actions, .hero-note', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 0.5 });
+        // The headline's lines, then the description and actions, 100ms apart,
+        // each rising 12px out of a 4px blur.
+        gsap.from('.hero-title-line, .hero-lede, .hero-actions, .hero-note', { opacity: 0, y: 12, filter: 'blur(4px)', duration: 0.3, ease: EASE_OUT, stagger: 0.1, delay: 0.1 });
         // The customer's message comes in first: her photo, then what she wants.
         gsap.from('.hero-chat > *', { opacity: 0, y: 8, duration: 0.3, ease: EASE_OUT, stagger: 0.12, delay: 0.2 });
         // Then the photos land on the sheet one by one, the way the app fills it.
@@ -215,110 +214,38 @@ function Sheet({ sample, layout, className = '', children }: { sample: Portrait;
 
 // Non-breaking hyphen so "cut-ready" never splits.
 const HEADLINE = ['One photo in.', 'A cut‑ready', 'sheet out.'];
-const HEADLINE_FONT = "'Geist Variable', ui-sans-serif, system-ui, sans-serif";
-const HEADLINE_TRACK = -0.045;
-// TechText fits a line's ink inside 90% of its box's width and 66% of its height,
-// inset 5% from the left. Boxes are 1.6em tall and overlap to a 1.1em line pitch.
-const LINE_BOX = 1.6;
-const LINE_PITCH = 1.1;
 
 /**
- * The h1 drawn with TechText, one canvas per line. TechText only does single
- * lines and shrinks each to fit on its own, so every line gets the same size
- * here (set by the widest) and a box big enough that TechText never shrinks it.
- * The real text stays in the h1 for screen readers and search.
+ * The h1, one line per VariableProximity: letters near the pointer get heavier
+ * on Geist's weight axis, anywhere over the hero. Each line keeps its own
+ * break, and the component carries the text for screen readers.
  */
-function HeroHeadline() {
-  const ref = useRef<HTMLHeadingElement>(null);
-  const [fit, setFit] = useState<{ size: number; box: number; shifts: number[] } | null>(null);
-  const [lines, setLines] = useState(1);
-
-  useLayoutEffect(() => {
-    const el = ref.current!;
-    const ctx = document.createElement('canvas').getContext('2d')!;
-    const measure = () => {
-      const max = parseFloat(getComputedStyle(el).fontSize);
-      ctx.font = `600 100px ${HEADLINE_FONT}`;
-      if ('letterSpacing' in ctx) ctx.letterSpacing = `${HEADLINE_TRACK * 100}px`;
-      const metrics = HEADLINE.map(line => ctx.measureText(line));
-      const widest = Math.max(...metrics.map(m => m.actualBoundingBoxLeft + m.actualBoundingBoxRight));
-      const box = el.clientWidth / 0.95;
-      const size = Math.min(max, ((0.9 * box * 100) / widest) * 0.98);
-      // TechText centres each line's ink vertically, so a line without descenders
-      // sits lower. Shift each box so the baselines keep an even pitch.
-      const skew = metrics.map(m => ((m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 200) * size);
-      const shifts = skew.map(s => skew[0] - s);
-      setFit(prev => (prev && prev.size === size && prev.box === box ? prev : { size, box, shifts }));
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    document.fonts?.load(`600 100px ${HEADLINE_FONT}`).then(measure, () => {});
-    return () => observer.disconnect();
-  }, []);
-
-  // Lines start drawing one after another, like the photos landing on the sheet.
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return setLines(HEADLINE.length);
-    const timers = [1, 2].map(n => window.setTimeout(() => setLines(n + 1), n * 220));
-    return () => timers.forEach(window.clearTimeout);
-  }, []);
-
+function HeroHeadline({ area }: { area: RefObject<HTMLElement | null> }) {
   return (
-    <h1 ref={ref} className="hero-title">
-      <span className="sr-only">One photo in. A cut-ready sheet out.</span>
-      <span className="hero-title-art" aria-hidden="true">
-        {fit
-          ? HEADLINE.map((line, i) => (
-              <span
-                key={line}
-                className="hero-title-line"
-                style={{
-                  width: fit.box,
-                  height: LINE_BOX * fit.size,
-                  marginLeft: -0.05 * fit.box,
-                  marginTop: (i ? LINE_PITCH - LINE_BOX : (LINE_PITCH - LINE_BOX) / 2) * fit.size,
-                  translate: `0 ${fit.shifts[i].toFixed(1)}px`
-                }}
-              >
-                {i < lines ? (
-                  <TechText
-                    text={line}
-                    fontFamily={HEADLINE_FONT}
-                    fontWeight={600}
-                    fontSize={fit.size}
-                    letterSpacing={HEADLINE_TRACK}
-                    align="left"
-                    color="#ffffff"
-                    accentColor="#f06a9b"
-                    reveal="letter"
-                    reach={Math.round(fit.size * 1.2)}
-                    dashLength={3}
-                    dashGap={2}
-                    strokeWidth={1.25}
-                    specks={8}
-                    selection={false}
-                    labels={false}
-                    draggable={false}
-                    guides={false}
-                    sweep={false}
-                    intro="metrics"
-                    introDuration={1.3}
-                  />
-                ) : null}
-              </span>
-            ))
-          : null}
-      </span>
+    <h1 className="hero-title">
+      {HEADLINE.map(line => (
+        <span key={line} className="hero-title-line">
+          <VariableProximity
+            label={line}
+            fromFontVariationSettings="'wght' 600"
+            toFontVariationSettings="'wght' 900"
+            containerRef={area}
+            radius={170}
+            falloff="gaussian"
+            smoothing={0.25}
+          />
+        </span>
+      ))}
     </h1>
   );
 }
 
 function Hero() {
+  const area = useRef<HTMLElement>(null);
   return (
-    <header className="hero mat" id="top">
+    <header ref={area} className="hero mat" id="top">
       <div className="hero-copy">
-        <HeroHeadline />
+        <HeroHeadline area={area} />
         <p className="hero-lede">
           Sylvi lays out 1x1, 2x2 and passport photos for print shops. It finds the face, packs every size onto the paper you load and marks
           each cut. No Word, no ruler, no guessing margins.
@@ -827,12 +754,14 @@ function Packages() {
   );
 }
 
-const REQUESTS = [
-  { ask: 'Four 2x2 and eight 1x1, for my board exam.', answer: 'Package B', chips: ['4 × 2x2', '8 × 1x1', 'One 4R sheet'] },
-  { ask: 'Passport size, please. And a few 1x1 too.', answer: 'Package C', chips: ['4 × passport', '6 × 1x1', '35 × 45 mm'] },
-  { ask: 'Just fill a whole sheet with 1x1.', answer: 'Whole sheet 1x1', chips: ['24 × 1x1', 'Borderless 4R'] },
-  { ask: 'There are three of us. Can we share one sheet?', answer: 'Several customers, one sheet', chips: ['Own package each', 'Own crop each'] },
-  { ask: 'All I have is this selfie.', answer: 'Auto-crop', chips: ['Finds the face', 'Warns if it will print soft'] }
+// What Sylvi answers each customer with: the package tile, previewing that customer's own sheet.
+// A package answer shows the real packed layout; the other two show their photo instead.
+const REQUESTS: { ask: string; answer: string; detail: string; preview: { pkg: string; portrait: Portrait } | { image: string } }[] = [
+  { ask: 'Four 2x2 and eight 1x1, for my board exam.', answer: 'Package B', detail: '4 × 2x2 and 8 × 1x1 on one 4R sheet', preview: { pkg: 'pkg-b', portrait: 2 } },
+  { ask: 'Passport size, please. And a few 1x1 too.', answer: 'Package C', detail: '4 passport (35 × 45 mm) and 6 × 1x1', preview: { pkg: 'pkg-c', portrait: 4 } },
+  { ask: 'Just fill a whole sheet with 1x1.', answer: 'Whole sheet 1x1', detail: 'As many 1x1 as fit, borderless on 4R', preview: { pkg: 'pkg-full-1x1', portrait: 3 } },
+  { ask: 'There are three of us. Can we share one sheet?', answer: 'Several customers, one sheet', detail: 'Each keeps their own package and crop', preview: { image: '/landing/counter-4.jpg' } },
+  { ask: 'All I have is this selfie.', answer: 'Auto-crop', detail: 'Finds the face, and warns if the photo will print soft', preview: { image: photo(1) } }
 ];
 
 // The photo each customer brings. The quote beside the carousel says what they want, so the cards carry no text.
@@ -876,12 +805,11 @@ function Requests() {
             <p>“{request.ask}”</p>
           </blockquote>
           <div key={`answer-${index}`} className="request-answer">
-            <b>{request.answer}</b>
-            <ul className="request-chips" aria-label="What Sylvi lays out">
-              {request.chips.map(chip => (
-                <li key={chip}>{chip}</li>
-              ))}
-            </ul>
+            <AnswerPreview preview={request.preview} />
+            <span className="request-answer-text">
+              <b>{request.answer}</b>
+              <span>{request.detail}</span>
+            </span>
           </div>
           </div>
         </div>
@@ -929,6 +857,18 @@ function Questions() {
         ))}
       </div>
     </section>
+  );
+}
+
+/** The small sheet on the answer tile, like the previews on Sylvi's package board. */
+function AnswerPreview({ preview }: { preview: (typeof REQUESTS)[number]['preview'] }) {
+  if ('image' in preview) return <img className="request-answer-image" src={preview.image} alt="" width={44} height={55} />;
+  const item = SHOWCASE.find(s => s.pkg.id === preview.pkg);
+  if (!item) return null;
+  return (
+    <span className="request-answer-sheet">
+      <MiniLayout sheet={item.sheet} portrait={preview.portrait} />
+    </span>
   );
 }
 

@@ -664,35 +664,66 @@
   transition-timing-function: ease-out;
 }
 
-/* The chosen package takes the magenta, underlined like a highlighted line on the board. */
+/* The chosen package takes the magenta. */
 .board-item[aria-checked='true'] {
   border-color: var(--accent);
   background: var(--accent-soft);
-  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
-.board-preview {
+/*
+ * The package's prints, fanned. Prints stay paper-light in both themes, like
+ * real photos on the counter; the figures take the magenta when chosen.
+ */
+.board-icon {
+  --print: #f3f6f4;
+  --print-edge: rgb(22 32 27 / 0.34);
+  --figure: #9eaba5;
   flex: none;
-  width: 30px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
 }
 
-.board-preview-paper {
-  fill: #fff;
-  stroke: var(--line-strong);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
+.board-icon-print {
+  fill: var(--print);
+  stroke: var(--print-edge);
+  stroke-width: 0.6;
 }
 
-.board-preview-cell {
-  fill: var(--surface-3);
-  stroke: #fff;
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
+.board-icon-figure {
+  fill: var(--figure);
+  transition: fill 150ms ease-out;
 }
 
-.board-item[aria-checked='true'] .board-preview-cell {
-  fill: color-mix(in oklab, var(--accent) 38%, #fff);
+.board-icon-gap {
+  fill: var(--surface);
+}
+
+.board-item[aria-checked='true'] .board-icon {
+  --figure: color-mix(in oklab, var(--accent) 70%, #fff);
+}
+
+.board-item[aria-checked='true'] .board-icon-gap {
+  fill: color-mix(in oklab, var(--accent-soft), var(--surface));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .board-icon {
+    --print: #e9eeeb;
+    --print-edge: transparent;
+    --figure: #97a59f;
+  }
+}
+
+:root[data-theme='dark'] .board-icon {
+  --print: #e9eeeb;
+  --print-edge: transparent;
+  --figure: #97a59f;
+}
+
+@media (hover: hover) {
+  .board-item:not([aria-checked='true']):hover .board-icon-gap {
+    fill: var(--surface-2);
+  }
 }
 
 .board-text {
@@ -718,6 +749,15 @@
   margin-top: 2px;
   color: var(--ink-2);
   font-size: var(--text-xs);
+}
+
+.board-count {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.board-times {
+  color: var(--ink-3);
 }
 
 .board-actions {

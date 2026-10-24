@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
+import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { Pencil, Plus } from 'lucide-react';
 import type { PhotoPackage } from '../lib/packages';
+import type { PhotoSize } from '../lib/sizes';
 import { allPackages, findPackage, useStore } from '../state/store';
-import { computeLayout } from '../state/useLayout';
 
 /** "Package B" reads as B and "Whole sheet 1x1" as 1x1, the way a shop's price board lists them. */
 const shortName = (name: string) => (name.startsWith('Package ') ? name.slice('Package '.length) : name.replace(/^Whole sheet /, ''));
@@ -12,8 +12,7 @@ const contents = (pkg: PhotoPackage) =>
 
 /**
  * The packages across the top of the workspace, like the price board on a
- * shop's wall. Each tile previews the sheet it makes on the paper that's
- * loaded. Picking one sets it for the selected customer, or for the next
+ * shop's wall. Each tile draws the prints the customer walks away with. Picking one sets it for the selected customer, or for the next
  * photo when there's none.
  */
 export function PackageBoard({ onEdit, onCreate }: { onEdit: (id: string) => void; onCreate: () => void }) {
@@ -76,10 +75,10 @@ export function PackageBoard({ onEdit, onCreate }: { onEdit: (id: string) => voi
               onClick={() => choose(pkg)}
               title={`${pkg.name}: ${contents(pkg)}`}
             >
-              <BoardPreview pkg={pkg} />
+              <PackageIcon pkg={pkg} />
               <span className="board-text">
                 <span className="board-name">{shortName(pkg.name)}</span>
-                <span className="board-items">{contents(pkg)}</span>
+                <Contents pkg={pkg} />
               </span>
             </button>
           );
@@ -100,24 +99,91 @@ export function PackageBoard({ onEdit, onCreate }: { onEdit: (id: string) => voi
   );
 }
 
-/** The first sheet this package makes on the loaded paper, drawn as blank cells. */
-function BoardPreview({ pkg }: { pkg: PhotoPackage }) {
-  const paper = useStore(s => s.settings.paper);
-  const cutStyle = useStore(s => s.settings.cutStyle);
-  const settings = useStore(s => s.settings);
-  const sheet = useMemo(
-    () => computeLayout([{ personId: 'board', pkg }], settings).sheets[0],
-    // Only the paper and gaps change the preview.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pkg, paper, cutStyle]
-  );
-  if (!sheet) return <span className="board-preview" aria-hidden="true" />;
+/** "2 × 2x2, 7 × 1x1", with the counts in ink, the × faint and the sizes quieter, so it doesn't read as arithmetic. */
+function Contents({ pkg }: { pkg: PhotoPackage }) {
   return (
-    <svg className="board-preview" viewBox={`0 0 ${sheet.widthMm} ${sheet.heightMm}`} aria-hidden="true">
-      <rect width={sheet.widthMm} height={sheet.heightMm} className="board-preview-paper" />
-      {sheet.placements.map((p, i) => (
-        <rect key={i} x={p.x} y={p.y} width={p.w} height={p.h} className="board-preview-cell" />
+    <span className="board-items">
+      {pkg.items.map((item, i) => (
+        <span key={i} className="board-item-part">
+          {i > 0 ? ', ' : null}
+          {item.count === 'fill' ? (
+            <>
+              <span className="board-size">{item.size.label}</span> <span className="board-times">fill</span>
+            </>
+          ) : (
+            <>
+              <span className="board-count">{item.count}</span>
+              <span className="board-times"> × </span>
+              <span className="board-size">{item.size.label}</span>
+            </>
+          )}
+        </span>
       ))}
+    </span>
+  );
+}
+
+// Each icon is 40 units square; its biggest print stands 20 units tall or wide, and the rest keep their true size against it.
+const BOX = 40;
+const BIGGEST = 20;
+
+type Print = { size: PhotoSize; x: number; y: number; turn: number; pivot?: [number, number] };
+
+/**
+ * The prints a package hands the customer, as they'd lie on the counter, at
+ * true size against each other. Mixed sizes tuck the smaller print over the
+ * bigger one's corner; one size fans two like cards; a whole-sheet fill fans three.
+ */
+function PackageIcon({ pkg }: { pkg: PhotoPackage }) {
+  const items = [...pkg.items].sort((a, b) => b.size.widthMm * b.size.heightMm - a.size.widthMm * a.size.heightMm);
+  const biggest = items[0].size;
+  const k = BIGGEST / Math.max(biggest.widthMm, biggest.heightMm);
+  const dims = (size: PhotoSize) => ({ w: size.widthMm * k, h: size.heightMm * k });
+
+  let prints: Print[];
+  if (items.length > 1) {
+    const back = dims(items[0].size);
+    const front = dims(items[1].size);
+    const fx = back.w * 0.58;
+    const fy = back.h * 0.5;
+    const ox = (BOX - Math.max(back.w, fx + front.w)) / 2;
+    const oy = (BOX - Math.max(back.h, fy + front.h)) / 2;
+    prints = [
+      { size: items[0].size, x: ox, y: oy, turn: -7 },
+      { size: items[1].size, x: ox + fx, y: oy + fy, turn: 6 }
+    ];
+  } else {
+    const { w, h } = dims(biggest);
+    const x = (BOX - w) / 2;
+    const y = (BOX - h) / 2 - 1;
+    // Fanned from a point below the prints, like a hand of cards; the last one drawn sits on top.
+    const pivot: [number, number] = [BOX / 2, y + h * 1.4];
+    const turns = items[0].count === 'fill' ? [-16, 16, 0] : items[0].count === 1 ? [-4] : [-10, 8];
+    prints = turns.map(turn => ({ size: biggest, x, y, turn, pivot }));
+  }
+
+  return (
+    <svg className="board-icon" viewBox={`0 0 ${BOX} ${BOX}`} aria-hidden="true">
+      {prints.map((print, i) => {
+        const { w, h } = dims(print.size);
+        const [px, py] = print.pivot ?? [print.x + w / 2, print.y + h / 2];
+        // The head sits higher on a passport, as its crop rules ask.
+        const head = Math.min(w, h) * 0.2;
+        const headY = h * (print.size.key === 'passport' ? 0.36 : 0.4);
+        const shoulder = h * 0.66;
+        return (
+          <g key={i} transform={`rotate(${print.turn} ${px} ${py}) translate(${print.x} ${print.y})`}>
+            {/* A gap in the tile's own colour where prints overlap, so each edge stays crisp. */}
+            {i > 0 ? <rect className="board-icon-gap" x={-1.4} y={-1.4} width={w + 2.8} height={h + 2.8} rx={2.4} /> : null}
+            <rect className="board-icon-print" width={w} height={h} rx={1.2} />
+            <circle className="board-icon-figure" cx={w / 2} cy={headY} r={head} />
+            <path
+              className="board-icon-figure"
+              d={`M ${w * 0.16} ${h} C ${w * 0.16} ${shoulder} ${w * 0.84} ${shoulder} ${w * 0.84} ${h} Z`}
+            />
+          </g>
+        );
+      })}
     </svg>
   );
 }
