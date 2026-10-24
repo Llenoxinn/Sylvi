@@ -1,4 +1,4 @@
-import { applyAdjust, type Adjust } from './image/adjust';
+import { applyAdjust, isNeutral, type Adjust } from './image/adjust';
 import { backdropColor } from './image/backdrop';
 import { autoCrop, cropToRect, type Crop, type FaceBox } from './image/crop';
 import type { LoadedPhoto } from './image/load';
@@ -55,7 +55,7 @@ export function renderCell(person: Person, size: PhotoSize, dpi: number): HTMLCa
   }
 
   const { adjust } = person;
-  if (adjust.brightness || adjust.contrast || adjust.sharpen) {
+  if (!isNeutral(adjust)) {
     const pixels = ctx.getImageData(0, 0, w, h);
     applyAdjust(pixels.data, w, h, adjust);
     ctx.putImageData(pixels, 0, 0);

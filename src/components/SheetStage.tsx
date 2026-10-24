@@ -9,10 +9,11 @@ import { formatSize, MM_PER_INCH } from '../lib/units';
 import { useStore } from '../state/store';
 import { SAMPLE_PERSON, useLayout } from '../state/useLayout';
 import { PeopleStrip } from './PeopleStrip';
+import { AdjustPanel, type PanelState } from './AdjustPanel';
 import { Rulers } from './Rulers';
 import { useCanvasPaint } from './useCanvasPaint';
 
-const PAD = { top: 96, right: 40, bottom: 104, left: 52 };
+const PAD = { top: 84, right: 40, bottom: 104, left: 52 };
 const MOD_KEY = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
 
 export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
@@ -26,6 +27,8 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
   const stageRef = useRef<HTMLElement>(null);
   const [box, setBox] = useState({ w: 0, h: 0 });
   const [page, setPage] = useState(0);
+  const [panel, setPanel] = useState<PanelState>('open');
+  const [panelAt, setPanelAt] = useState<{ x: number; y: number } | null>(null);
 
   useLayoutEffect(() => {
     const el = stageRef.current;
@@ -62,6 +65,15 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
   const unplaced = layout.unplaced.length;
   const total = layout.sheets.reduce((n, s) => n + s.placements.length, 0);
 
+  // The adjustments panel follows the selected customer and stays where it was put.
+  const selected = people.find(p => p.id === activeId) ?? null;
+  const showPanel = selected !== null && panel !== 'closed';
+  const openTools = (personId: string) => {
+    if (personId === SAMPLE_PERSON) return;
+    setActive(personId);
+    setPanel(state => (state === 'closed' ? 'open' : state));
+  };
+
   return (
     <section
       ref={stageRef}
@@ -75,7 +87,7 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
         } as React.CSSProperties
       }
     >
-      <PeopleStrip onBrowse={onBrowse} />
+      <PeopleStrip onBrowse={onBrowse} onOpen={openTools} />
 
       {layout.sheets.length > 1 ? (
         <div className="pager" role="group" aria-label="Sheets">
@@ -108,8 +120,8 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
                 scale={scale}
                 person={people.find(person => person.id === p.item.personId)}
                 canvas={cells.get(cellKey(p.item.personId, p.item.size))}
-                active={people.length > 1 && p.item.personId === activeId}
-                onSelect={() => p.item.personId !== SAMPLE_PERSON && setActive(p.item.personId)}
+                active={(showPanel && p.item.personId === activeId) || (people.length > 1 && p.item.personId === activeId)}
+                onSelect={() => openTools(p.item.personId)}
                 onOpen={() => p.item.personId !== SAMPLE_PERSON && openCropEditor(p.item.personId)}
               />
             ))}
@@ -140,6 +152,10 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
             </p>
           </div>
         </div>
+      ) : null}
+
+      {showPanel && selected && box.w > 0 ? (
+        <AdjustPanel person={selected} state={panel === 'collapsed' ? 'collapsed' : 'open'} onState={setPanel} position={panelAt} onMove={setPanelAt} bounds={box} />
       ) : null}
 
       {layout.error || unplaced > 0 ? (
@@ -242,7 +258,7 @@ function SheetCell({
       style={style}
       onClick={onSelect}
       onDoubleClick={onOpen}
-      aria-label={`${person.name}, ${p.item.size.label}. Double-click to adjust the crop.`}
+      aria-label={`${person.name}, ${p.item.size.label}. Click for photo tools, double-click to adjust the crop.`}
     >
       <canvas ref={ref} />
     </button>

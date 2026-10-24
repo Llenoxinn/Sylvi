@@ -1,0 +1,21 @@
+/*
+ * Sylvi: no Roboto Flex. The letters inherit the page's own variable face
+ * (Geist, which has a weight axis), so no second typeface or Google Fonts
+ * request is added.
+ */
+.variable-proximity {
+  font-family: inherit;
+}
+
+/* Scoped so it can't change the page's own .sr-only. */
+.variable-proximity .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

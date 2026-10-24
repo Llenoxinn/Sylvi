@@ -48,7 +48,7 @@ export function isRecentJob(value: unknown): value is RecentJob {
       p && typeof p.name === 'string' && typeof p.packageId === 'string' && p.photo instanceof Blob &&
       !!p.crops && typeof p.crops === 'object' && Object.values(p.crops).every(c => c &&
         [c.cx, c.cy, c.h].every(Number.isFinite) && c.h > 0 && c.cx >= 0 && c.cx <= 1 && c.cy >= 0 && c.cy <= 1) &&
-      !!p.adjust && [p.adjust.brightness, p.adjust.contrast, p.adjust.sharpen].every(Number.isFinite) &&
+      !!p.adjust && [p.adjust.brightness, p.adjust.contrast, p.adjust.sharpen, p.adjust.saturation ?? 0, p.adjust.warmth ?? 0].every(Number.isFinite) &&
       (p.face === null || !!p.face && [p.face.x, p.face.y, p.face.w, p.face.h].every(Number.isFinite)) &&
       (!p.packageSnapshot || isPhotoPackage(p.packageSnapshot) && !p.packageSnapshot.deletedAt));
 }

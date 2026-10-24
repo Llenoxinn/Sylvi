@@ -5,12 +5,11 @@ import { PHOTO_SIZES } from '../lib/sizes';
 import { findPackage, useStore } from '../state/store';
 import { useCanvasPaint } from './useCanvasPaint';
 
-/** The customers on this sheet. Picking one points the package wheel and photo controls at them. */
-export function PeopleStrip({ onBrowse }: { onBrowse: () => void }) {
+/** The customers on this sheet. Picking one points the package board at them and opens their photo tools. */
+export function PeopleStrip({ onBrowse, onOpen }: { onBrowse: () => void; onOpen: (personId: string) => void }) {
   const people = useStore(s => s.people);
   const activeId = useStore(s => s.activeId);
   const custom = useStore(s => s.customPackages);
-  const setActive = useStore(s => s.setActive);
   const removePerson = useStore(s => s.removePerson);
 
   if (people.length === 0) return null;
@@ -22,7 +21,7 @@ export function PeopleStrip({ onBrowse }: { onBrowse: () => void }) {
         const active = person.id === activeId;
         return (
           <div key={person.id} role="listitem" className={`person${active ? ' person--active' : ''}`}>
-            <button type="button" className="person-main" onClick={() => setActive(person.id)} aria-pressed={active}>
+            <button type="button" className="person-main" onClick={() => onOpen(person.id)} aria-pressed={active}>
               <Thumb person={person} />
               <span className="person-text">
                 <span className="person-name">{person.name}</span>

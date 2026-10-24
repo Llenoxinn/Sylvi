@@ -1,15 +1,16 @@
 import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { CircleCheck, CircleX, Download, History, ImagePlus, Info, LayoutGrid, Printer, Settings, X } from 'lucide-react';
+import { CircleCheck, CircleHelp, CircleX, History, ImagePlus, Info, LayoutGrid, Settings, X } from 'lucide-react';
 import { onSession } from './lib/cloud';
 import { imageFilesFrom } from './lib/image/load';
 import { AccountButton, ShopSetup } from './components/Account';
 import { CropEditor } from './components/CropEditor';
-import { Inspector } from './components/Inspector';
-import { PackagePicker } from './components/PackagePicker';
+import { PackageBoard } from './components/PackageBoard';
 import { PackagesPanel, type PackagesIntent } from './components/PackagesPanel';
+import { PrintBar } from './components/PrintBar';
 import { RecentPanel } from './components/RecentPanel';
 import { SettingsPanel } from './components/SettingsPanel';
 import { SheetStage } from './components/SheetStage';
+import { Tour, tourSeen } from './components/Tour';
 import { Logo } from './components/ui';
 import TechText from './components/reactbits/TechText/TechText';
 import Dock from './components/reactbits/Dock/Dock';
@@ -24,6 +25,7 @@ const glyph = (Icon: typeof ImagePlus) => <Icon size="1em" strokeWidth={1.8} />;
 export default function App() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [touring, setTouring] = useState(false);
   const [packagesIntent, setPackagesIntent] = useState<PackagesIntent>({ mode: 'list' });
   const panel = useStore(s => s.panel);
   const recentCount = useStore(s => s.recent.length);
@@ -43,6 +45,13 @@ export default function App() {
   };
 
   useApplyTheme(theme);
+
+  // A first visit gets the guide once the workspace has drawn.
+  useEffect(() => {
+    if (tourSeen()) return;
+    const timer = setTimeout(() => setTouring(true), 900);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Recent jobs: load, then sweep expired ones every minute.
   useEffect(() => {
@@ -140,20 +149,20 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   });
 
+  // Print and Download live in the print bar under the sheet, with their names on them.
   const dockItems = [
     { icon: glyph(ImagePlus), label: 'Add photos (Ctrl+O)', onClick: browse },
     { icon: glyph(History), label: 'Recent jobs', badge: recentCount || undefined, active: panel === 'recent', onClick: () => openPanel('recent') },
     { icon: glyph(LayoutGrid), label: 'Packages', active: panel === 'packages', onClick: () => openPackages({ mode: 'list' }) },
     { icon: glyph(Settings), label: 'Settings', active: panel === 'settings', onClick: () => openPanel('settings') },
-    { separator: true },
-    { icon: glyph(Printer), label: canExport ? 'Print (Ctrl+P)' : 'Print: add a photo first', onClick: print },
-    { icon: glyph(Download), label: canExport ? 'Download (Ctrl+S)' : 'Download: add a photo first', onClick: download }
+    { icon: glyph(CircleHelp), label: 'How Sylvi works', active: touring, onClick: () => setTouring(true) }
   ];
 
   return (
     <div className="app">
       <header className="topbar">
-        <span className="wordmark">
+        {/* Back to the landing page, the way a logo works on any site. */}
+        <a className="wordmark" href="/" aria-label="Sylvi home page">
           <Logo />
           <TechText
             className="wordmark-text"
@@ -175,14 +184,15 @@ export default function App() {
             intro="type"
             introDuration={1.1}
           />
-        </span>
+        </a>
         {shopName ? <span className="topbar-shop">{shopName}</span> : null}
         <span className="topbar-spacer" />
         <AccountButton />
       </header>
 
+      <PackageBoard onEdit={id => openPackages({ mode: 'edit', id })} onCreate={() => openPackages({ mode: 'new' })} />
+
       <main className="workspace">
-        <PackagePicker onEdit={id => openPackages({ mode: 'edit', id })} onCreate={() => openPackages({ mode: 'new' })} />
         <div className="stage-shell">
           <SheetStage onBrowse={browse} />
           {doneJobId ? (
@@ -203,8 +213,9 @@ export default function App() {
             style={{ '--dock-panel': 'rgba(14, 26, 22, 0.72)', '--dock-tile': 'linear-gradient(180deg, #2f3f39 0%, #1f2b27 100%)' }}
           />
         </div>
-        <Inspector />
       </main>
+
+      <PrintBar />
 
       <input
         ref={fileInput}
@@ -225,6 +236,7 @@ export default function App() {
       <ShopSetup />
       <CropEditor />
       <Toasts />
+      <Tour open={touring} onClose={() => setTouring(false)} />
 
       <div className={`drop-overlay${dragging ? ' drop-overlay--on' : ''}`} aria-hidden={!dragging}>
         <div className="drop-target">
