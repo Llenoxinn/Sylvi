@@ -10,7 +10,8 @@ import TechText from '../components/reactbits/TechText/TechText';
 import VariableProximity from '../components/reactbits/VariableProximity/VariableProximity';
 import { buildPackItems } from '../lib/layout/items';
 import { pack, type Sheet as PackedSheet } from '../lib/layout/pack';
-import { BUILT_IN_PACKAGES, describePackage } from '../lib/packages';
+import { BUILT_IN_PACKAGES } from '../lib/packages';
+import { SheetDemo } from './SheetDemo';
 
 gsap.registerPlugin(ScrollTrigger, CustomEase, useGSAP);
 
@@ -61,29 +62,18 @@ export default function Landing() {
           );
         });
 
-        // The "how it works" title holds still while the steps scroll past it.
-        if (wide) {
-          const pin = root.current!.querySelector<HTMLElement>('.how-pin')!;
-          const steps = root.current!.querySelector<HTMLElement>('.how-steps')!;
-          ScrollTrigger.create({
-            trigger: steps,
-            start: 'top top+=128',
-            end: () => `+=${Math.max(0, steps.offsetHeight - pin.offsetHeight)}`,
-            pin,
-            pinSpacing: false,
-            invalidateOnRefresh: true
+        // Each section's parts arrive once, in reading order: the heading, its words, then what it shows.
+        // 70ms apart, rising 20px; triggered once, so scrolling back up never hides anything.
+        gsap.utils.toArray<HTMLElement>('[data-enter]').forEach(group => {
+          gsap.from(group.querySelectorAll('[data-part]'), {
+            opacity: 0,
+            y: 20,
+            duration: 0.5,
+            ease: EASE_OUT,
+            stagger: 0.07,
+            scrollTrigger: { trigger: group, start: 'top 78%', once: true }
           });
-
-          // Card stacking: each step settles back as the next slides over it.
-          const cards = gsap.utils.toArray<HTMLElement>('.step');
-          cards.slice(0, -1).forEach((card, i) => {
-            gsap.to(card, {
-              scale: 0.94,
-              ease: 'none',
-              scrollTrigger: { trigger: cards[i + 1], start: 'top bottom', end: 'top top+=128', scrub: true }
-            });
-          });
-        }
+        });
         return cleanupPress;
       });
     },
@@ -96,10 +86,10 @@ export default function Landing() {
       <main className="landing-main">
         <Hero />
         <Marquee />
-        <AppScreen />
-        <Features />
+        {/* The problem, then the answer, then where it happens, then a sheet to try. */}
         <Statement />
-        <HowItWorks />
+        <Features />
+        <AppScreen />
         <Packages />
         <Requests />
         <Questions />
@@ -411,40 +401,80 @@ function Hero() {
   );
 }
 
-// The workspace top to bottom, with where each part sits on the 1440 × 900 screenshot, in percent.
+// The workspace top to bottom, with where each part sits on the 1440 × 900 screenshot, in percent,
+// and the keys that drive it from the counter.
 const SCREEN_PARTS = [
   {
     title: 'Package board',
     text: 'Every package across the top, drawn as the prints the customer takes home. Pick what they asked for.',
+    keys: [{ combo: ['←', '→'], does: 'move along the board' }],
     area: { x: 0, y: 5.8, w: 100, h: 8.6 }
   },
   {
     title: 'The sheet',
-    text: 'At true size on a ruler, every cut marked. Click a photo for Adjustments: crop, light and color.',
+    text: 'Drop, paste or browse for the photo. It lands at true size on a ruler, every cut marked. Click a print for crop, light and color.',
+    keys: [{ combo: ['Ctrl', 'V'], does: 'paste from Messenger' }],
     area: { x: 35.5, y: 20.5, w: 64, h: 72 }
   },
   {
     title: 'Print bar',
-    text: 'Paper, cut guides and file type in one strip, then Print or Download a 300 DPI file.',
+    text: 'Paper, cut guides and file type in one strip, then Print or Download a 300 DPI PDF, PNG or JPG.',
+    keys: [
+      { combo: ['Ctrl', 'P'], does: 'print' },
+      { combo: ['Ctrl', 'S'], does: 'download' }
+    ],
     area: { x: 0, y: 94.2, w: 100, h: 5.8 }
   }
 ];
 
 /**
- * The real workspace with its three parts named underneath. Pointing at a
- * part, or tabbing to it, lights that area of the screenshot and frames it
- * with crop marks, the way the in-app guide does.
+ * The real workspace beside its three parts. Pointing at a part, or tabbing
+ * to it, lights that area of the screenshot and frames both with crop marks,
+ * the way the in-app guide does; its shortcut keys press once as it lights.
  */
 function AppScreen() {
   const [shown, setShown] = useState(0);
   const area = SCREEN_PARTS[shown].area;
   return (
-    <section className="section screen" id="screen">
-      <div className="section-head">
-        <h2 className="section-title">Everything happens on one screen.</h2>
-        <p className="section-lede">No menus to dig through. Add the customer’s photo and the sheet is ready to check.</p>
+    <section className="section screen" id="how" data-enter>
+      {/* First in reading order; its title and parts are placed around the shot by the section's grid. */}
+      <div className="screen-rail">
+        <h2 className="section-title screen-title" data-part>
+          Everything happens on one screen.
+        </h2>
+        <p className="screen-lede" data-part>
+          No menus to dig through, and the same few moves for the first customer of the day and the fiftieth.
+        </p>
+        <div className="screen-parts" data-part>
+          {SCREEN_PARTS.map((part, i) => (
+            <button
+              key={part.title}
+              type="button"
+              className="screen-part"
+              aria-pressed={i === shown}
+              onMouseEnter={() => setShown(i)}
+              onFocus={() => setShown(i)}
+              onClick={() => setShown(i)}
+            >
+              <span className="screen-part-title">{part.title}</span>
+              <span className="screen-part-text">{part.text}</span>
+              <span className="screen-keys">
+                {part.keys.map(key => (
+                  <span key={key.does} className="screen-key">
+                    <span className="keycaps">
+                      {key.combo.map(cap => (
+                        <kbd key={cap}>{cap}</kbd>
+                      ))}
+                    </span>
+                    {key.does}
+                  </span>
+                ))}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
-      <figure className="screen-figure">
+      <figure className="screen-figure" data-part>
         <div className="screen-stage">
           <img
             className="screen-shot"
@@ -465,22 +495,6 @@ function AppScreen() {
             <span className="screen-mark screen-mark--br" />
           </span>
         </div>
-        <figcaption className="screen-parts">
-          {SCREEN_PARTS.map((part, i) => (
-            <button
-              key={part.title}
-              type="button"
-              className="screen-part"
-              aria-pressed={i === shown}
-              onMouseEnter={() => setShown(i)}
-              onFocus={() => setShown(i)}
-              onClick={() => setShown(i)}
-            >
-              <span className="screen-part-title">{part.title}</span>
-              <span className="screen-part-text">{part.text}</span>
-            </button>
-          ))}
-        </figcaption>
       </figure>
     </section>
   );
@@ -662,7 +676,8 @@ function animatePress(press: HTMLElement, wide: boolean) {
   const tl = gsap.timeline({
     onUpdate: () => mark(tl.time()),
     scrollTrigger: wide
-      ? { trigger: press, start: 'top top+=96', end: () => `+=${innerHeight * 2.6}`, pin: true, scrub: 0.6, invalidateOnRefresh: true }
+      ? // 1.8 screens of scroll: long enough to read each step, short enough that the finished sheet doesn't sit on an empty mat.
+        { trigger: press, start: 'top top+=96', end: () => `+=${innerHeight * 1.8}`, pin: true, scrub: 0.6, invalidateOnRefresh: true }
       : { trigger: stage, start: 'top 70%' }
   });
 
@@ -731,10 +746,21 @@ const CHORES = [
   'Guess the margins, print a test and fix what moved.'
 ];
 
+/**
+ * The problem, before the answer: the chores one order takes in Word, crossed
+ * off as they scroll past. Its last line hands over to the sequence below.
+ */
 function Statement() {
   return (
-    <section className="section statement">
-      <h2 className="statement-title">Stop nudging photos around a page in Word.</h2>
+    <section className="section statement" id="word">
+      <div className="statement-head" data-enter>
+        <h2 className="statement-title" data-part>
+          Stop nudging photos around a page in Word.
+        </h2>
+        <p className="statement-lede" data-part>
+          One order for four 2x2 and eight 1x1, done the usual way.
+        </p>
+      </div>
       <ol className="chores" aria-label="What one order takes in Word">
         {CHORES.map(chore => (
           <li key={chore} className="chore">
@@ -747,82 +773,9 @@ function Statement() {
   );
 }
 
-function HowItWorks() {
-  const wheel = BUILT_IN_PACKAGES.slice(0, 5);
-  return (
-    <section className="section how" id="how">
-      <div className="how-pin">
-        <h2 className="section-title">Three moves at the counter.</h2>
-        <p className="how-lede">The same three moves for the first customer of the day and the fiftieth. Shops can save their own packages too.</p>
-        <a className="text-link" href={APP_URL}>
-          Try it with any photo
-        </a>
-      </div>
-
-      <div className="how-steps">
-        <article className="step">
-          <div className="step-art mat" aria-hidden="true">
-            <div className="scan">
-              <img src={PHONE_PHOTO} alt="" loading="lazy" />
-              <span className="scan-line" />
-              <span className="scan-corners" />
-            </div>
-          </div>
-          <div className="step-copy">
-            <h3>Drop the photo in</h3>
-            <p>Drag it onto the page, paste it with Ctrl+V or browse your files. Sylvi finds the face and crops it for you.</p>
-          </div>
-        </article>
-
-        <article className="step">
-          <div className="step-art mat" aria-hidden="true">
-            <ul className="wheel">
-              {wheel.map((pkg, i) => (
-                <li key={pkg.id} className="wheel-item" data-offset={i - 1}>
-                  {pkg.name}
-                </li>
-              ))}
-            </ul>
-            <p className="wheel-detail">{describePackage(BUILT_IN_PACKAGES[1])}</p>
-          </div>
-          <div className="step-copy">
-            <h3>Spin to the package</h3>
-            <p>Packages A to D match the menus shops already post, plus whole-sheet fills. Sylvi packs them onto the paper and adds extra sheets when it runs out of room.</p>
-          </div>
-        </article>
-
-        <article className="step">
-          <div className="step-art mat" aria-hidden="true">
-            <div className="export">
-              <div className="export-row export-row--on">
-                <b>PDF</b>
-                <span>Best for printing</span>
-              </div>
-              <div className="export-row">
-                <b>PNG</b>
-                <span>Sharpest image</span>
-              </div>
-              <div className="export-row">
-                <b>JPG</b>
-                <span>Smallest file</span>
-              </div>
-              <div className="export-button">Download PDF</div>
-              <p className="export-hint">Print at Actual size (100%)</p>
-            </div>
-          </div>
-          <div className="step-copy">
-            <h3>Download or print</h3>
-            <p>Save a PDF, PNG or JPG at 300 DPI, or print straight from the browser. Crop marks, cut lines or a white border, your call.</p>
-          </div>
-        </article>
-      </div>
-    </section>
-  );
-}
-
 const FOUR_R = { w: 101.6, h: 152.4 };
-// Each built-in package laid out by Sylvi's own packer, exactly as it prints on 4R.
-const SHOWCASE = BUILT_IN_PACKAGES.map((pkg, i) => {
+// Each built-in package laid out by Sylvi's own packer on 4R, for the answer tiles beside the counter carousel.
+const SHOWCASE = BUILT_IN_PACKAGES.map(pkg => {
   const { sheets } = pack(buildPackItems([{ personId: 'sample', pkg }], FOUR_R.w * FOUR_R.h), {
     paperWidthMm: FOUR_R.w,
     paperHeightMm: FOUR_R.h,
@@ -830,14 +783,7 @@ const SHOWCASE = BUILT_IN_PACKAGES.map((pkg, i) => {
     gapMm: 0,
     orientation: 'auto'
   });
-  return {
-    pkg,
-    sheet: sheets[0],
-    sheets: sheets.length,
-    photos: sheets.reduce((total, sheet) => total + sheet.placements.length, 0),
-    short: pkg.name.startsWith('Package ') ? pkg.name.slice('Package '.length) : pkg.name.replace('Whole sheet ', ''),
-    portrait: ([2, 1, 4, 3, 2, 4] as Portrait[])[i]
-  };
+  return { pkg, sheet: sheets[0] };
 });
 
 function MiniLayout({ sheet, portrait }: { sheet: PackedSheet; portrait: Portrait }) {
@@ -861,51 +807,22 @@ function MiniLayout({ sheet, portrait }: { sheet: PackedSheet; portrait: Portrai
 }
 
 /**
- * The built-in packages as a horizontal accordion: each slice opens to the
- * real sheet Sylvi prints for it. Hover or focus opens a slice; on narrow
- * screens the slices stack and open downward.
+ * The built-in packages as the menu board a shop already has on its wall,
+ * beside a live sheet: picking a package or paper runs Sylvi's real packer.
  */
 function Packages() {
-  const [open, setOpen] = useState(1);
   return (
     <section className="packages mat" id="packages">
       <div className="packages-inner">
-        <div className="section-head">
-          <h2 className="section-title">The menu your counter already sells.</h2>
-          <p className="section-lede">
-            Packages A to D and whole-sheet fills come built in, shown here exactly as Sylvi lays them out on 4R. Shops can save their own.
+        <div className="packages-head" data-enter>
+          <h2 className="section-title" data-part>
+            The menu your counter already sells.
+          </h2>
+          <p className="section-lede" data-part>
+            Packages A to D and whole-sheet fills come built in. Pick one, or another paper, and the sheet packs itself the way it prints. Shops can save their own.
           </p>
         </div>
-        <ul className="pkg-list">
-          {SHOWCASE.map((item, i) => {
-            const isOpen = i === open;
-            return (
-              <li key={item.pkg.id} className="pkg" data-open={isOpen ? '' : undefined} onMouseEnter={() => setOpen(i)}>
-                <button
-                  type="button"
-                  className="pkg-tab"
-                  aria-expanded={isOpen}
-                  aria-controls={`pkg-${item.pkg.id}`}
-                  onClick={() => setOpen(i)}
-                  onFocus={() => setOpen(i)}
-                >
-                  <span className="pkg-short">{item.short}</span>
-                  <span className="pkg-name">{item.pkg.name}</span>
-                </button>
-                <div className="pkg-panel" id={`pkg-${item.pkg.id}`} aria-hidden={!isOpen}>
-                  <MiniLayout sheet={item.sheet} portrait={item.portrait} />
-                  <div className="pkg-info">
-                    <h3>{item.pkg.name}</h3>
-                    <p>{describePackage(item.pkg)}</p>
-                    <p className="pkg-meta">
-                      {item.photos} photos on {item.sheets === 1 ? 'one 4R sheet' : `${item.sheets} 4R sheets`}, borderless
-                    </p>
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <SheetDemo />
       </div>
     </section>
   );
@@ -1018,9 +935,11 @@ const QUESTIONS = [
 
 function Questions() {
   return (
-    <section className="section questions" id="questions">
-      <h2 className="section-title">What shops ask before they try it.</h2>
-      <div className="faq">
+    <section className="section questions" id="questions" data-enter>
+      <h2 className="section-title" data-part>
+        What shops ask before they try it.
+      </h2>
+      <div className="faq" data-part>
         {QUESTIONS.map((item, i) => (
           <details key={item.ask} className="faq-item" open={i === 0}>
             <summary>

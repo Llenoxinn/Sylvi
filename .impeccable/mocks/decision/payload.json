@@ -1,0 +1,64 @@
+{
+  "title": "Choose the landing page structure",
+  "question": "The colours, type and crop marks stay. Pick how the page is built: which arrangement tells a print shop what Sylvi does.",
+  "options": [
+    {
+      "id": "trimmer-passes",
+      "kind": "assigned",
+      "label": "Trimmer passes",
+      "kicker": "THE ROLL",
+      "thesis": "The page is one sheet cut apart in passes; every section is a strip.",
+      "palette": ["#24443b", "#f4f6f4", "#16201b", "#c2185b", "#f06a9b"],
+      "materials": ["cutting mat", "photo paper strips", "magenta cut lines"],
+      "viewport": "A tall 2x2-height strip holds the headline beside four prints; a magenta cut runs edge to edge under it, then a shorter 1x1 strip.",
+      "risk": "Strip heights follow print sizes, so long copy has to fit the rhythm, not the other way round.",
+      "raised": [
+        { "from": "Toy catalogue spread", "raise": "Strips pack edge to edge with no gap between them, the way Sylvi packs a sheet." }
+      ],
+      "html": ".impeccable/mocks/decision/trimmer-passes.html",
+      "comp": ".impeccable/mocks/decision/trimmer-passes.webp"
+    },
+    {
+      "id": "sheet-is-page",
+      "kind": "dealt",
+      "label": "The sheet is the page",
+      "thesis": "The whole landing page is one sheet lying on the mat, laid out like a Sylvi layout.",
+      "palette": ["#24443b", "#f6f7f5", "#16201b", "#c2185b"],
+      "materials": ["long-bond sheet", "inch ruler", "crop marks"],
+      "viewport": "A ruler along the top, one sheet with a mat border; the hero is the big cell, two 2x2 prints beside it, three short cells below.",
+      "risk": "A page inside a frame loses width on small laptops; the margin has to shrink hard on phones.",
+      "html": ".impeccable/mocks/decision/sheet-is-page.html",
+      "comp": ".impeccable/mocks/decision/sheet-is-page.webp"
+    },
+    {
+      "id": "one-job",
+      "kind": "dealt",
+      "label": "One job, start to finish",
+      "thesis": "Follow a single walk-in order on its job slip, from Messenger photo to cut prints.",
+      "palette": ["#24443b", "#f6f7f5", "#16201b", "#c2185b"],
+      "materials": ["job order slip", "clipped phone photo", "tick boxes"],
+      "viewport": "Headline on the mat at left; Bea's job order slip at right with her photo clipped on, stages ticking as you scroll.",
+      "risk": "One customer's story can hide that Sylvi handles many sizes and shared sheets; later sections must widen it.",
+      "html": ".impeccable/mocks/decision/one-job.html",
+      "comp": ".impeccable/mocks/decision/one-job.webp"
+    },
+    {
+      "id": "now-serving",
+      "kind": "challenger",
+      "catalogId": "signals-instruments-split-flap-concourse",
+      "verdict": "competitive",
+      "label": "Now serving board",
+      "thesis": "A shop's queue board: one row per customer, flipping to Ready as Sylvi finishes their sheet.",
+      "palette": ["#1c372f", "#13261f", "#f4f8f6", "#c2185b", "#f06a9b"],
+      "materials": ["queue board", "flip digits", "status pills"],
+      "viewport": "Headline over a full-width board of five customers with number, order, paper and status; rows flip as they're served.",
+      "case": "Fuses well: Filipinos know Now serving boards from NBI and PSA offices; loses narrowly on showing the sheet itself.",
+      "risk": "Shows the queue more than the photos, so the sheet must appear right below the board.",
+      "html": ".impeccable/mocks/decision/now-serving.html",
+      "comp": ".impeccable/mocks/decision/now-serving.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code" },
+  "steer": true
+}

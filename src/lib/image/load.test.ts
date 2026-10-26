@@ -24,11 +24,24 @@ describe('safe image loading', () => {
     const bitmap = { width: 3200, height: 2400, close: vi.fn() };
     const decode = vi.fn(async () => bitmap);
     vi.stubGlobal('createImageBitmap', decode);
-    vi.stubGlobal('document', { createElement: () => ({ getContext: () => ({ drawImage: vi.fn() }), toBlob: (callback: (blob: Blob) => void) => callback(new Blob(['resized'])) }) });
+    vi.stubGlobal('document', { createElement: () => ({ getContext: () => ({ drawImage: vi.fn(), fillRect: vi.fn() }), toBlob: (callback: (blob: Blob) => void) => callback(new Blob(['resized'])) }) });
     const photo = await loadPhoto(new Blob([png(6000, 4500)], { type: 'image/png' }));
     expect(decode).toHaveBeenCalledTimes(1);
     expect(decode).toHaveBeenCalledWith(expect.any(Blob), expect.objectContaining({ resizeWidth: 3200, resizeHeight: 2400 }));
     expect(photo.width).toBe(3200);
+  });
+
+  it('composites resized photos on white before saving a JPEG for reprints', async () => {
+    const bitmap = { width: 3200, height: 2400, close: vi.fn() };
+    vi.stubGlobal('createImageBitmap', vi.fn(async () => bitmap));
+    const context = { fillStyle: '', fillRect: vi.fn(), drawImage: vi.fn() };
+    const toBlob = vi.fn((callback: (blob: Blob) => void) => callback(new Blob(['resized'])));
+    vi.stubGlobal('document', { createElement: () => ({ getContext: () => context, toBlob }) });
+    await loadPhoto(new Blob([png(6000, 4500)], { type: 'image/png' }));
+    expect(context.fillStyle).toBe('#ffffff');
+    expect(context.fillRect).toHaveBeenCalledWith(0, 0, 3200, 2400);
+    expect(context.fillRect.mock.invocationCallOrder[0]).toBeLessThan(context.drawImage.mock.invocationCallOrder[0]);
+    expect(toBlob).toHaveBeenCalledWith(expect.any(Function), 'image/jpeg', 0.92);
   });
 
   it('rejects unsupported or damaged files before decoding', async () => {

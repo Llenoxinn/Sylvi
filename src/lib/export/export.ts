@@ -177,23 +177,43 @@ export async function printPdf(bytes: Uint8Array): Promise<void> {
   const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'application/pdf' }));
   const frame = document.createElement('iframe');
   frame.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0';
-  frame.src = url;
-  document.body.append(frame);
-  await new Promise<void>(resolve => {
-    frame.onload = () => {
-      try {
-        frame.contentWindow?.focus();
-        frame.contentWindow?.print();
-      } catch {
-        window.open(url, '_blank'); // some browsers block printing embedded PDFs
-      }
-      resolve();
-    };
-  });
-  setTimeout(() => {
+  const cleanup = () => {
     frame.remove();
     URL.revokeObjectURL(url);
-  }, 60_000);
+  };
+  let loadTimeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const failed = () => reject(new Error('The PDF couldn’t load for printing.'));
+      loadTimeout = setTimeout(failed, 15_000);
+      frame.onerror = failed;
+      frame.onload = () => {
+        clearTimeout(loadTimeout);
+        try {
+          if (!frame.contentWindow) throw new Error('The print frame is unavailable.');
+          frame.contentWindow.focus();
+          frame.contentWindow.print();
+          resolve();
+        } catch {
+          try {
+            // Some browsers block printing embedded PDFs.
+            if (!window.open(url, '_blank')) throw new Error('Printing was blocked. Download the PDF instead.');
+            resolve();
+          } catch (error) { reject(error); }
+        }
+      };
+      frame.src = url;
+      document.body.append(frame);
+    });
+  } catch (error) {
+    cleanup();
+    throw error;
+  } finally {
+    clearTimeout(loadTimeout);
+    frame.onload = null;
+    frame.onerror = null;
+  }
+  setTimeout(cleanup, 60_000);
 }
 
 function canvasBytes(canvas: HTMLCanvasElement, type: string, quality?: number): Promise<Uint8Array> {

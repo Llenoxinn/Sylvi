@@ -133,14 +133,14 @@ export const useStore = create<Store>((set, get) => ({
     const generation = photoGeneration;
     if (files.length) set({ doneJobId: null }); // new work: the last job is behind us
     for (const file of files) {
-      if (generation !== photoGeneration) return;
+      if (generation !== photoGeneration || get().busy) return;
       if (get().people.length >= MAX_PHOTOS) {
         get().toast(`A job can contain up to ${MAX_PHOTOS} photos. Finish this job before adding more.`, 'error');
         break;
       }
       try {
         const photo = await loadPhoto(file, file.name);
-        if (generation !== photoGeneration || get().people.length >= MAX_PHOTOS) {
+        if (generation !== photoGeneration || get().busy || get().people.length >= MAX_PHOTOS) {
           photo.bitmap.close();
           return;
         }

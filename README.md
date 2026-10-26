@@ -7,13 +7,14 @@ Upload or paste a photo, pick a package on the wheel, pick the paper, and downlo
 ## Run it
 
 ```bash
-npm install
+npm ci
 npm run dev        # landing page at http://localhost:5173, the tool at /app/
-npm test           # layout engine, crop, DPI and guide tests
+npm test           # layout, image loading, export, storage and account-sync tests
+npm run typecheck  # TypeScript checks for the app, build config and service worker
 npm run build      # production build in dist/
 ```
 
-Requires Node 20 or newer.
+Use Node 24.15 or newer in the 24.x line. Node 22.22.2+ and 26+ are also supported; the installed test tools no longer support Node 20.
 
 ## How it works
 

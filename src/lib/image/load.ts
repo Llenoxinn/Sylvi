@@ -52,7 +52,11 @@ export async function loadPhoto(file: Blob, name = ''): Promise<LoadedPhoto> {
   canvas.width = width;
   canvas.height = height;
   try {
-    canvas.getContext('2d', { willReadFrequently: true })!.drawImage(bitmap, 0, 0);
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+    // JPEG has no alpha; match the white print background instead of saving black.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(bitmap, 0, 0);
     const blob = await new Promise<Blob>((resolve, reject) =>
       canvas.toBlob(b => (b ? resolve(b) : reject(new PhotoError('The photo couldn’t be resized.'))), 'image/jpeg', 0.92)
     );

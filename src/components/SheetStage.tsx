@@ -14,6 +14,8 @@ import { Rulers } from './Rulers';
 import { useCanvasPaint } from './useCanvasPaint';
 
 const PAD = { top: 84, right: 40, bottom: 104, left: 52 };
+// On a mat this wide the order slips stand in a column down the left (workspace.css), so the sheet centres beside them.
+const SLIP_COLUMN = { from: 900, width: 276 };
 const MOD_KEY = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
 
 export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
@@ -46,14 +48,32 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
   const sheetW = sheet?.widthMm ?? fallbackW;
   const sheetH = sheet?.heightMm ?? fallbackH;
 
+  const padLeft = PAD.left + (people.length > 0 && box.w >= SLIP_COLUMN.from ? SLIP_COLUMN.width : 0);
   const scale = Math.max(
     0.5,
-    Math.min((box.w - PAD.left - PAD.right) / sheetW, (box.h - PAD.top - PAD.bottom) / sheetH)
+    Math.min((box.w - padLeft - PAD.right) / sheetW, (box.h - PAD.top - PAD.bottom) / sheetH)
   );
   const pxW = sheetW * scale;
   const pxH = sheetH * scale;
-  const left = PAD.left + (box.w - PAD.left - PAD.right - pxW) / 2;
+  const left = padLeft + (box.w - padLeft - PAD.right - pxW) / 2;
   const top = PAD.top + (box.h - PAD.top - PAD.bottom - pxH) / 2;
+
+  // When the sheet only moves over (the first order slip arrives, the last one goes), it slides there
+  // instead of jumping. Resizes and paper changes just redraw.
+  const frameRef = useRef<HTMLDivElement>(null);
+  const lastFrame = useRef<{ left: number; top: number; w: number; h: number; boxW: number } | null>(null);
+  useLayoutEffect(() => {
+    const prev = lastFrame.current;
+    lastFrame.current = { left, top, w: pxW, h: pxH, boxW: box.w };
+    const el = frameRef.current;
+    if (!prev || !el || prev.boxW !== box.w || prev.w !== pxW || prev.h !== pxH) return;
+    if (prev.left === left && prev.top === top) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    el.animate([{ transform: `translate(${prev.left - left}px, ${prev.top - top}px)` }, { transform: 'none' }], {
+      duration: 320,
+      easing: 'cubic-bezier(0.77, 0, 0.175, 1)'
+    });
+  }, [left, top, pxW, pxH, box.w]);
 
   // Screen resolution for the cells, in steps so resizing doesn't re-render constantly.
   const dpr = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
@@ -110,7 +130,7 @@ export function SheetStage({ onBrowse }: { onBrowse: () => void }) {
       ) : null}
 
       {box.w > 0 && sheet ? (
-        <div className="sheet-frame" style={{ left, top, width: pxW, height: pxH }}>
+        <div ref={frameRef} className="sheet-frame" style={{ left, top, width: pxW, height: pxH }}>
           <Rulers widthMm={sheetW} heightMm={sheetH} scale={scale} unit={settings.unit} />
           <div className={`sheet${layout.sample ? ' sheet--sample' : ''}`}>
             {sheet.placements.map(p => (

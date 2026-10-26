@@ -1,0 +1,50 @@
+{
+  "title": "Choose the landing page structure",
+  "question": "A fresh hand. The colours, type and crop marks stay; pick how the page is built.",
+  "options": [
+    {
+      "id": "price-board",
+      "kind": "assigned",
+      "label": "Price board",
+      "kicker": "THE ROLL",
+      "thesis": "The page opens on the package board a shop already has on its wall, and picking a package builds its sheet.",
+      "palette": ["#24443b", "#1c372f", "#f4f8f6", "#c2185b", "#f06a9b"],
+      "materials": ["menu board", "live sheet preview", "crop marks"],
+      "viewport": "Headline across the top; the board of packages A to D and whole-sheet fills at left; the chosen package's real 4R sheet at right; Open Sylvi under the board.",
+      "risk": "Leads with packages, so first-time visitors must still see in one glance that Sylvi crops the face for them.",
+      "raised": [
+        { "from": "Saul Bass titles", "raise": "One idea per section, set off-centre, never two claims side by side." },
+        { "from": "Drum machine step row", "raise": "Before a package is picked, the sheet waits empty with its crop marks, an invitation to choose." }
+      ],
+      "html": ".impeccable/mocks/decision/price-board.html",
+      "comp": ".impeccable/mocks/decision/price-board.webp"
+    },
+    {
+      "id": "day-at-counter",
+      "kind": "dealt",
+      "label": "A day at the counter",
+      "thesis": "One shop day from opening to closing, each walk-in customer pinned at their time with the sheet Sylvi made them.",
+      "palette": ["#24443b", "#f6f7f5", "#16201b", "#c2185b"],
+      "materials": ["time ruler", "customer slips", "mini sheets"],
+      "viewport": "Headline at left; a time ruler from 8 AM to 6 PM across the top; three customers hung from it with their request and finished sheet.",
+      "risk": "Sideways scrolling is slower to skim; it needs a plain vertical layout on phones.",
+      "html": ".impeccable/mocks/decision/day-at-counter.html",
+      "comp": ".impeccable/mocks/decision/day-at-counter.webp"
+    },
+    {
+      "id": "word-vs-sylvi",
+      "kind": "dealt",
+      "label": "Word vs Sylvi",
+      "thesis": "The same order made two ways, split down the middle by a handle you drag.",
+      "palette": ["#f3f5f4", "#24443b", "#16201b", "#c2185b"],
+      "materials": ["Word page", "Sylvi sheet", "drag handle"],
+      "viewport": "Headline over a full-width split: a crooked Word page at left, the clean Sylvi sheet at right, a magenta handle between them.",
+      "risk": "Leaning on the competitor can read as mockery; the Word side must look like real shop work, not a strawman.",
+      "html": ".impeccable/mocks/decision/word-vs-sylvi.html",
+      "comp": ".impeccable/mocks/decision/word-vs-sylvi.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code" },
+  "steer": true
+}

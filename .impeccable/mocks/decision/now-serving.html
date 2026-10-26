@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; }
+  body { font-family: 'Geist', sans-serif; color: #f4f8f6; background: #1c372f; position: relative; }
+  nav { position: absolute; top: 22px; left: 72px; right: 72px; display: flex; align-items: center; gap: 28px; font-size: 15px; color: #e8f2ed; }
+  nav b { font-size: 19px; color: #f4f8f6; margin-right: auto; }
+  nav .cta { background: #c2185b; color: #fff; padding: 10px 20px; border-radius: 999px; font-weight: 600; }
+  h1 { position: absolute; left: 72px; top: 110px; font-size: 80px; line-height: 1; letter-spacing: -.035em; font-weight: 600; width: 900px; }
+  .act { position: absolute; left: 72px; top: 300px; display: flex; gap: 12px; align-items: center; }
+  .btn { font-size: 18px; font-weight: 600; padding: 15px 26px; border-radius: 999px; }
+  .btn.p { background: #c2185b; color: #fff; }
+  .act p { font-size: 18px; color: rgb(232 242 237 / .75); margin-left: 16px; }
+  /* A shop's "Now serving" board: one row per customer, columns fixed; a row's cells flip
+     in character by character as Sylvi finishes that customer's sheet. */
+  .board { position: absolute; left: 72px; right: 72px; top: 400px; height: 440px; background: #13261f; border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); padding: 20px 28px; }
+  .cols, .row { display: grid; grid-template-columns: 120px 1.2fr 1.4fr 1fr 180px; align-items: center; gap: 16px; }
+  .cols { font-size: 14px; color: rgb(232 242 237 / .55); padding-bottom: 12px; border-bottom: 1px solid rgb(255 255 255 / .1); }
+  .row { height: 72px; border-bottom: 1px solid rgb(255 255 255 / .06); font-size: 28px; font-weight: 600; letter-spacing: .01em; }
+  .flap { display: inline-flex; gap: 3px; }
+  .flap i { font-style: normal; display: inline-grid; place-items: center; width: 30px; height: 44px; background: #0d1c17; border-radius: 3px;
+    box-shadow: inset 0 -22px 0 rgb(255 255 255 / .03); }
+  .num { color: #f06a9b; }
+  .st { justify-self: start; font-size: 20px; padding: 8px 16px; border-radius: 999px; background: rgb(255 255 255 / .08); }
+  .st.ready { background: #c2185b; color: #fff; }
+  .dim { opacity: .45; }
+</style>
+</head>
+<body>
+  <nav><b>Sylvi</b><span>How it works</span><span>Packages</span><span>Questions</span><span class="cta">Open Sylvi</span></nav>
+  <h1>Now serving: every customer, faster than Word.</h1>
+  <div class="act"><span class="btn p">Open Sylvi, free</span><p>Runs in your browser. Photos never leave the computer.</p></div>
+  <section class="board">
+    <div class="cols"><span>No.</span><span>Customer</span><span>Order</span><span>Paper</span><span>Status</span></div>
+    <div class="row"><span class="flap num"><i>0</i><i>4</i><i>2</i></span><span>Bea</span><span>Package B</span><span>4R</span><span class="st ready">Ready to cut</span></div>
+    <div class="row"><span class="flap num"><i>0</i><i>4</i><i>3</i></span><span>Jake</span><span>Whole sheet 1x1</span><span>4R</span><span class="st">Packing</span></div>
+    <div class="row"><span class="flap num"><i>0</i><i>4</i><i>4</i></span><span>Mika + 2</span><span>Shared sheet</span><span>A4</span><span class="st">Finding faces</span></div>
+    <div class="row dim"><span class="flap num"><i>0</i><i>4</i><i>5</i></span><span>Carlo</span><span>Package C</span><span>4R</span><span class="st">Waiting</span></div>
+    <div class="row dim"><span class="flap num"><i>0</i><i>4</i><i>6</i></span><span>Ana</span><span>Package D</span><span>5R</span><span class="st">Waiting</span></div>
+  </section>
+</body>
+</html>

@@ -13,6 +13,7 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  container: mat / inline-size;
   background-color: var(--mat);
   /* Inch (or centimetre) grid aligned to the sheet's top-left corner. */
   background-image:
@@ -219,8 +220,14 @@
   font-weight: 600;
 }
 
-/* ---------- People strip ---------- */
+/* ---------- Order slips: the customers on this sheet ---------- */
 
+/*
+ * Each customer is a paper slip laid on the mat: photo, name, prints, and the
+ * package letter as a shop writes it on the order. On a wide mat they stack
+ * down the left edge, beside the sheet; on a narrow one they run across the top.
+ * Slips are paper in both themes, so their ink is fixed rather than themed.
+ */
 .people {
   position: absolute;
   top: 12px;
@@ -229,25 +236,65 @@
   z-index: 2;
   display: flex;
   gap: 8px;
+  padding: 6px;
   overflow-x: auto;
   scrollbar-width: none;
   overscroll-behavior: contain;
 }
 
-.person,
-.person-add {
+/* Matches SLIP_COLUMN in SheetStage.tsx, which moves the sheet over to make room. */
+@container mat (min-width: 900px) {
+  .people {
+    top: 16px;
+    right: auto;
+    bottom: 96px;
+    flex-direction: column;
+    align-content: start;
+    width: 252px;
+    overflow-x: visible;
+    overflow-y: auto;
+  }
+}
+
+.person {
+  position: relative;
   flex: none;
   display: flex;
-  align-items: center;
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  background: rgb(10 22 18 / 0.5);
-  color: var(--mat-ink-strong);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  transition-property: background-color, box-shadow;
-  transition-duration: 150ms;
+  align-items: stretch;
+  border-radius: 3px;
+  background: #fbfcfb;
+  color: #16201b;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 0.2), 0 6px 14px -6px rgb(0 0 0 / 0.45);
+  transition-property: opacity, translate, box-shadow;
+  transition-duration: 240ms, 240ms, 150ms;
+  transition-timing-function: var(--ease-out);
+}
+
+/* The chosen customer's slip is framed in crop marks, like everything selected in Sylvi. */
+.person::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  --c: var(--accent);
+  background:
+    linear-gradient(var(--c) 0 0) 0 0 / 12px 2px,
+    linear-gradient(var(--c) 0 0) 0 0 / 2px 12px,
+    linear-gradient(var(--c) 0 0) 100% 0 / 12px 2px,
+    linear-gradient(var(--c) 0 0) 100% 0 / 2px 12px,
+    linear-gradient(var(--c) 0 0) 0 100% / 12px 2px,
+    linear-gradient(var(--c) 0 0) 0 100% / 2px 12px,
+    linear-gradient(var(--c) 0 0) 100% 100% / 12px 2px,
+    linear-gradient(var(--c) 0 0) 100% 100% / 2px 12px;
+  background-repeat: no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  transition-property: opacity, scale;
+  transition-duration: 180ms;
+  transition-timing-function: var(--ease-out);
+}
+
+.person--active::before {
+  opacity: 1;
 }
 
 @starting-style {
@@ -256,22 +303,23 @@
   }
 }
 
-.person {
-  transition-property: background-color, box-shadow, opacity, scale;
-  transition-duration: 150ms, 150ms, 200ms, 200ms;
-  transition-timing-function: ease-out, ease-out, var(--ease-out), var(--ease-out);
-}
-
 @media (prefers-reduced-motion: no-preference) {
+  /* A new order is laid down from above. */
   @starting-style {
     .person {
-      scale: 0.96;
+      translate: 0 -10px;
     }
+  }
+  .person::before {
+    scale: 1.06;
+  }
+  .person--active::before {
+    scale: 1;
   }
   .person-main:active,
   .person-add:active,
   .pager-btn:not(:disabled):active {
-    scale: 0.96;
+    scale: 0.97;
   }
 }
 
@@ -284,33 +332,35 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.person--active {
-  background: rgb(10 22 18 / 0.78);
-  box-shadow: inset 0 0 0 1.5px var(--accent);
-}
-
 .person-main {
   display: flex;
+  flex: 1;
   align-items: center;
-  gap: 9px;
-  padding: 5px 4px 5px 5px;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 6px 8px 8px;
   border: 0;
   background: none;
+  color: inherit;
+  font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
 .person-thumb {
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
-  outline: 1px solid rgb(255 255 255 / 0.1);
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 2px;
+  outline: 1px solid rgb(0 0 0 / 0.08);
   outline-offset: -1px;
-  background: #fff;
+  background: #eceeed;
 }
 
 .person-text {
   display: grid;
+  flex: 1;
+  min-width: 0;
   max-width: 140px;
 }
 
@@ -323,31 +373,55 @@
 
 .person-name {
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .person-pkg {
-  color: var(--mat-ink);
+  color: #4c5852;
   font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The package letter, big, the way it's written on the order. */
+.person-letter {
+  flex: none;
+  min-width: 1.4em;
+  padding-right: 4px;
+  color: #c2185b;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-align: right;
 }
 
 .person-remove {
   display: grid;
+  flex: none;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  margin-right: 4px;
+  width: 26px;
+  margin: 4px 4px 4px 0;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 2px;
   background: none;
-  color: var(--mat-ink);
+  color: #87918c;
   cursor: pointer;
 }
 
+/* An empty slip outline: where the next order goes. */
 .person-add {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 6px;
+  min-height: 54px;
   padding: 0 14px;
-  min-height: 46px;
+  border: 1.5px dashed rgb(255 255 255 / 0.32);
+  border-radius: 3px;
+  background: none;
+  color: var(--mat-ink-strong);
+  font: inherit;
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
@@ -355,19 +429,24 @@
 
 @media (hover: hover) {
   .person-remove:hover {
-    background: rgb(255 255 255 / 0.1);
-    color: #fff;
+    background: #edf0ee;
+    color: #16201b;
   }
   .person-add:hover {
-    background: rgb(10 22 18 / 0.7);
+    border-color: rgb(255 255 255 / 0.6);
+    background: rgb(255 255 255 / 0.05);
+  }
+  .person:not(.person--active):hover {
+    box-shadow: 0 1px 1px rgb(0 0 0 / 0.2), 0 10px 20px -8px rgb(0 0 0 / 0.5);
   }
 }
 
 /* ---------- Pager, alerts, empty state ---------- */
 
+/* Below the order slips on a narrow mat; in the free top-right corner, above the Adjustments panel, on a wide one. */
 .pager {
   position: absolute;
-  top: 72px;
+  top: 84px;
   right: 12px;
   z-index: 2;
   display: flex;
@@ -378,6 +457,13 @@
   background: rgb(10 22 18 / 0.6);
   color: var(--mat-ink-strong);
   font-size: var(--text-sm);
+}
+
+@container mat (min-width: 900px) {
+  .pager {
+    top: 16px;
+    right: 16px;
+  }
 }
 
 .pager span {
@@ -775,9 +861,24 @@
 }
 
 .job-summary b {
+  display: inline-block;
   color: var(--ink);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
+}
+
+/* A total rises into place when it changes (JobSummary keys it by value), so a new count reads as new. */
+@media (prefers-reduced-motion: no-preference) {
+  .job-summary b {
+    animation: tick-in 220ms var(--ease-out) both;
+  }
+}
+
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: translateY(45%);
+  }
 }
 
 @media (max-width: 820px) {
@@ -874,6 +975,33 @@
 
 .adjust[data-placed] {
   right: auto;
+}
+
+/*
+ * Clicking a print slides the panel in from the edge it rests on, instead of
+ * popping it up; switching customers keeps it in place. Only opacity, translate
+ * and scale transition, so dragging and folding stay instant.
+ */
+.adjust {
+  transform-origin: top right;
+  transition-property: opacity, translate, scale;
+  transition-duration: 200ms;
+  transition-timing-function: var(--ease-out);
+}
+
+@starting-style {
+  .adjust {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @starting-style {
+    .adjust {
+      translate: 10px 0;
+      scale: 0.98;
+    }
+  }
 }
 
 .adjust-bar {

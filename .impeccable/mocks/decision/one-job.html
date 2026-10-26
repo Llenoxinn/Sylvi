@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; }
+  body { font-family: 'Geist', sans-serif; color: #f4f8f6; background: #24443b;
+    background-image: linear-gradient(rgb(255 255 255 / .06) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .06) 1px, transparent 1px);
+    background-size: 24px 24px; position: relative; }
+  nav { position: absolute; top: 22px; left: 72px; right: 72px; display: flex; align-items: center; gap: 28px; font-size: 15px; color: #e8f2ed; }
+  nav b { font-size: 19px; color: #f4f8f6; margin-right: auto; }
+  nav .cta { background: #c2185b; color: #fff; padding: 10px 20px; border-radius: 999px; font-weight: 600; }
+  .copy { position: absolute; left: 72px; top: 170px; width: 610px; }
+  h1 { font-size: 88px; line-height: 1; letter-spacing: -.035em; font-weight: 600; }
+  .lede { font-size: 21px; line-height: 1.45; color: rgb(232 242 237 / .8); margin-top: 26px; }
+  .act { display: flex; gap: 12px; margin-top: 32px; }
+  .btn { font-size: 18px; font-weight: 600; padding: 15px 26px; border-radius: 999px; }
+  .btn.p { background: #c2185b; color: #fff; }
+  .btn.s { box-shadow: inset 0 0 0 1.5px rgb(232 242 237 / .5); }
+  /* The shop's job order slip for one walk-in customer, with her phone photo clipped to it.
+     As the page scrolls, each stage on the slip is ticked and its section opens below. */
+  .slip { position: absolute; left: 790px; top: 120px; width: 560px; height: 700px; background: #f6f7f5; color: #16201b;
+    rotate: 1.5deg; box-shadow: 0 30px 60px -20px rgb(0 0 0 / .6); padding: 36px 40px; }
+  .slip .head { display: flex; justify-content: space-between; border-bottom: 2px solid #16201b; padding-bottom: 14px; }
+  .slip .head b { font-size: 28px; letter-spacing: -.02em; }
+  .slip .head span { font-size: 18px; color: #4c5852; }
+  .line { display: flex; justify-content: space-between; font-size: 22px; padding: 16px 0; border-bottom: 1px solid #d6ddd9; }
+  .line span { color: #4c5852; }
+  .stages { margin-top: 26px; display: grid; gap: 14px; }
+  .stage { display: flex; align-items: center; gap: 16px; font-size: 24px; font-weight: 500; }
+  .box { width: 28px; height: 28px; border: 2px solid #16201b; border-radius: 4px; position: relative; }
+  .done .box { background: #c2185b; border-color: #c2185b; }
+  .now { color: #c2185b; }
+  .clip { position: absolute; right: 36px; top: 116px; width: 150px; height: 190px; background: #dfe6e2; rotate: -4deg;
+    box-shadow: 0 10px 20px -8px rgb(0 0 0 / .45); border: 6px solid #fff; overflow: hidden; }
+  .clip::before { content: ''; position: absolute; left: 50%; top: 22%; width: 44%; aspect-ratio: 1; border-radius: 50%; background: #b5c2bb; translate: -50% 0; }
+  .clip::after { content: ''; position: absolute; left: 50%; bottom: -10%; width: 86%; height: 40%; border-radius: 50% 50% 0 0; background: #b5c2bb; translate: -50% 0; }
+</style>
+</head>
+<body>
+  <nav><b>Sylvi</b><span>How it works</span><span>Packages</span><span>Questions</span><span class="cta">Open Sylvi</span></nav>
+  <div class="copy">
+    <h1>From Messenger to the trimmer in one go.</h1>
+    <p class="lede">Follow one real order through Sylvi: the photo arrives, the face is found, the sheet is packed, every cut is marked.</p>
+    <div class="act"><span class="btn p">Open Sylvi, free</span><span class="btn s">Follow Bea’s order</span></div>
+  </div>
+  <section class="slip">
+    <div class="head"><b>Job order 0241</b><span>9:41 AM</span></div>
+    <div class="line"><b>Bea Santos</b><span>Board exam</span></div>
+    <div class="line">Package B<span>4 × 2x2, 8 × 1x1</span></div>
+    <div class="line">Paper<span>4R, borderless</span></div>
+    <div class="stages">
+      <div class="stage done"><span class="box"></span>Photo received</div>
+      <div class="stage done"><span class="box"></span>Face found and cropped</div>
+      <div class="stage now"><span class="box"></span>Packed onto 4R</div>
+      <div class="stage"><span class="box"></span>Cuts marked</div>
+      <div class="stage"><span class="box"></span>Printed at 100%</div>
+    </div>
+    <div class="clip"></div>
+  </section>
+</body>
+</html>

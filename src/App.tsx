@@ -284,11 +284,12 @@ function JobSummary() {
         <span>No photos yet</span>
       ) : (
         <>
+          {/* Keyed by value, so each new total rises into place (workspace.css). */}
           <span>
-            <b>{customers}</b> customer{customers === 1 ? '' : 's'}
+            <b key={customers}>{customers}</b> customer{customers === 1 ? '' : 's'}
           </span>
           <span>
-            <b>{photos}</b> photo{photos === 1 ? '' : 's'}
+            <b key={photos}>{photos}</b> photo{photos === 1 ? '' : 's'}
           </span>
         </>
       )}
@@ -297,7 +298,7 @@ function JobSummary() {
           <>{paper} loaded</>
         ) : (
           <>
-            <b>{sheets}</b> sheet{sheets === 1 ? '' : 's'} of {paper}
+            <b key={sheets}>{sheets}</b> sheet{sheets === 1 ? '' : 's'} of {paper}
           </>
         )}
       </span>

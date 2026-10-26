@@ -26,8 +26,8 @@ export function useExport() {
       const job: ExportJob = { sheets: layout.sheets, people, cutStyle: settings.cutStyle, calibration: settings.calibration };
       state.setBusy(kind === 'download' ? 'export' : 'print');
       // Let the button show its busy state before the heavy work starts.
-      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
       try {
+        await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
         // pdf-lib and the zip encoder load on first export, keeping the first page load light.
         const { downloadFile, exportBaseName, exportFiles, exportPdf, printPdf, renderSheetCanvas } = await import('../lib/export/export');
         const base = exportBaseName(people);
@@ -39,7 +39,11 @@ export function useExport() {
           await printPdf(await exportPdf(job));
           state.toast('In the print dialog, set the scale to Actual size (100%).', 'info');
         }
-        await state.rememberJob(await recentFrom(job, customPackages, settings, renderSheetCanvas));
+        try {
+          await state.rememberJob(await recentFrom(job, customPackages, settings, renderSheetCanvas));
+        } catch {
+          state.toast('The file was created, but this job couldn’t be saved for reprinting.', 'error');
+        }
       } catch (error) {
         console.error(error);
         state.toast(kind === 'download' ? 'The file couldn’t be created. Try again, or try a different format.' : 'Printing couldn’t start. Download the PDF and print it instead.', 'error');
@@ -64,7 +68,9 @@ async function recentFrom(
   renderSheetCanvas: typeof import('../lib/export/export').renderSheetCanvas
 ): Promise<RecentJob> {
   const canvas = renderSheetCanvas(job.sheets[0], job, 40);
-  const thumbnail = await new Promise<Blob>(resolve => canvas.toBlob(b => resolve(b ?? new Blob()), 'image/jpeg', 0.8));
+  const thumbnail = await new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('The job preview couldn’t be created.')), 'image/jpeg', 0.8)
+  );
   const now = Date.now();
   const names = job.people.map(p => p.name);
   return {

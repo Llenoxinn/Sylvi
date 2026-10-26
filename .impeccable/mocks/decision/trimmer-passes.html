@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; }
+  body { font-family: 'Geist', sans-serif; color: #16201b; background: #24443b;
+    background-image: linear-gradient(rgb(255 255 255 / .06) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .06) 1px, transparent 1px);
+    background-size: 24px 24px; position: relative; }
+  /* Nav sits on the mat above the first strip. */
+  nav { position: absolute; top: 22px; left: 72px; right: 72px; display: flex; align-items: center; gap: 28px; color: #e8f2ed; font-size: 15px; }
+  nav b { font-size: 19px; color: #f4f8f6; margin-right: auto; }
+  nav a.cta { background: #c2185b; color: #fff; padding: 10px 20px; border-radius: 999px; font-weight: 600; }
+  /* The page is strips cut from one sheet, packed edge to edge, each as tall as a real print size. */
+  .strip { position: absolute; left: 72px; right: 72px; background: #f4f6f4; box-shadow: 0 18px 40px -18px rgb(0 0 0 / .55); }
+  .s1 { top: 84px; height: 468px; display: grid; grid-template-columns: 1.05fr 1fr; }
+  .s2 { top: 552px; height: 234px; display: grid; grid-template-columns: repeat(6, 1fr); }
+  .s3 { top: 786px; height: 160px; background: #eef1ef; }
+  h1 { font-size: 92px; line-height: .98; letter-spacing: -.035em; font-weight: 600; padding: 56px 0 0 56px; }
+  .lede { font-size: 22px; line-height: 1.45; color: #3c4943; max-width: 30em; padding: 26px 0 0 56px; }
+  .act { display: flex; gap: 14px; padding: 30px 0 0 56px; }
+  .btn { font-size: 18px; font-weight: 600; padding: 16px 28px; border-radius: 999px; }
+  .btn.p { background: #c2185b; color: #fff; }
+  .btn.s { border: 1.5px solid #16201b; }
+  .prints { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-left: 1px solid #d9dfdb; }
+  .ph { background: #dfe6e2; position: relative; overflow: hidden; border: .5px solid #fff; }
+  .ph::before { content: ''; position: absolute; left: 50%; top: 22%; width: 34%; aspect-ratio: 1; border-radius: 50%; background: #b9c5bf; translate: -50% 0; }
+  .ph::after { content: ''; position: absolute; left: 50%; bottom: -14%; width: 74%; height: 44%; border-radius: 50% 50% 0 0; background: #b9c5bf; translate: -50% 0; }
+  .s2 .ph { border-width: .5px; }
+  .s2 .note { grid-column: span 2; padding: 34px 40px; background: #24443b; color: #e8f2ed; }
+  .s2 .note h2 { font-size: 34px; letter-spacing: -.02em; font-weight: 600; color: #f4f8f6; }
+  .s2 .note p { font-size: 17px; line-height: 1.5; margin-top: 10px; color: rgb(232 242 237 / .75); }
+  /* The trimmer pass: a magenta line run edge to edge across the mat at each strip's top edge. */
+  .cut { position: absolute; left: 0; right: 0; height: 2px; background: #f06a9b; }
+  .cut span { position: absolute; right: 30px; top: -24px; color: #f06a9b; font-size: 14px; font-weight: 600; }
+  .dim { position: absolute; right: 36px; color: #e8f2ed; font-size: 13px; writing-mode: vertical-rl; }
+  .s3 p { font-size: 26px; padding: 30px 56px; letter-spacing: -.01em; }
+</style>
+</head>
+<body>
+  <nav><b>Sylvi</b><a>How it works</a><a>Packages</a><a>Questions</a><a class="cta">Open Sylvi</a></nav>
+
+  <section class="strip s1">
+    <div>
+      <h1>One photo in.<br>A cut-ready<br>sheet out.</h1>
+      <p class="lede">Sylvi lays out 1x1, 2x2 and passport photos for print shops. It finds the face, packs every size onto the paper you load and marks each cut.</p>
+      <div class="act"><span class="btn p">Open Sylvi, free</span><span class="btn s">Watch one sheet get made</span></div>
+    </div>
+    <div class="prints"><div class="ph"></div><div class="ph"></div><div class="ph"></div><div class="ph"></div></div>
+  </section>
+  <div class="cut" style="top:552px"><span>Pass 1 · 2x2 strip</span></div>
+  <span class="dim" style="top:600px">1 in</span>
+
+  <section class="strip s2">
+    <div class="ph"></div><div class="ph"></div><div class="ph"></div><div class="ph"></div>
+    <div class="note"><h2>Every pass goes straight across.</h2><p>Each layout splits edge to edge, so the trimmer never has to stop halfway.</p></div>
+  </section>
+  <div class="cut" style="top:786px"><span>Pass 2 · 1x1 strip</span></div>
+
+  <section class="strip s3"><p>Stop nudging photos around a page in Word.</p></section>
+</body>
+</html>

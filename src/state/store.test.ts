@@ -157,3 +157,28 @@ describe('recent-job actions', () => {
     expect(close).toHaveBeenCalledOnce();
   });
 });
+
+describe('photo imports', () => {
+  it('discards a pending photo if printing starts while it decodes', async () => {
+    let finish!: (photo: photos.LoadedPhoto) => void;
+    vi.mocked(photos.loadPhoto).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    const pending = store.getState().addPhotos([new File(['photo'], 'customer.png')]);
+    store.getState().setBusy('print');
+    const close = vi.fn();
+    finish({ bitmap: { width: 320, height: 320, close } as unknown as ImageBitmap, width: 320, height: 320, blob: new Blob(['photo']) });
+    await pending;
+    expect(store.getState().people).toEqual([]);
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  it('stops an import batch when an export starts between photos', async () => {
+    const unsubscribe = store.subscribe(state => {
+      if (state.people.length && !state.busy) state.setBusy('export');
+    });
+    try {
+      await store.getState().addPhotos([new File(['a'], 'a.png'), new File(['b'], 'b.png')]);
+      expect(photos.loadPhoto).toHaveBeenCalledTimes(1);
+      expect(store.getState().people).toHaveLength(1);
+    } finally { unsubscribe(); }
+  });
+});
