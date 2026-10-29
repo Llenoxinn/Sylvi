@@ -31,7 +31,7 @@ Use Node 24.15 or newer in the 24.x line. Node 22.22.2+ and 26+ are also support
 Without configuration Sylvi runs as a guest app and the sign-in button is hidden. Signed-in shops sync their custom packages, settings and shop details (name, mobile number, city) across computers. Shops sign in with Google, or with an emailed link.
 
 1. Create a [Supabase](https://supabase.com) project.
-2. Run `supabase/migrations/0001_shop_accounts.sql`, then `0002_grant_api_access.sql`, then `0003_safe_package_sync.sql`, in its SQL editor. Existing projects need only the migrations they have not already applied. Apply `0003` before deploying this version.
+2. Run the SQL files in `supabase/migrations/` in order, from `0001_shop_accounts.sql` through `0004_safe_settings_sync.sql`, in its SQL editor. Existing projects need only the migrations they have not already applied. Apply `0004` before deploying this version to prevent delayed settings uploads from overwriting newer shop settings.
 3. In Authentication → URL Configuration, set the Site URL to your domain and add `http://localhost:5173/app/` and `https://<your-domain>/app/` to the redirect URLs.
 4. Copy `.env.example` to `.env.local` and fill in the project URL and the publishable key (`sb_publishable_…`, or the legacy anon key), both shown under the dashboard's Connect button. Never use the secret or service_role key: `VITE_` variables are visible to every visitor.
 
@@ -43,6 +43,8 @@ Google sign-in:
 4. While the Google app is in Testing, only the test users you list can sign in. Publish it to let any shop sign in. Google asks for a home page and privacy policy link.
 
 Only packages, settings and shop details are synced. Customer photos stay on each computer.
+
+To check the database sync guard and account isolation, run `supabase/tests/shop_settings_sync.sql` as `postgres` after all migrations in a disposable Supabase test database. The test rolls back its changes and raises an error if a check fails.
 
 Account caches are separated by the authenticated user ID. Guest packages stay in their own browser cache and are not automatically uploaded into a shop account. Sync failures remain visible in Settings; reconnecting, returning to Sylvi, or **Retry sync** retries pending changes, including package deletions.
 
