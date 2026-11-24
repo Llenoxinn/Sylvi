@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 
 const SEEN_KEY = 'sylvi.tour.seen';
 
@@ -55,7 +55,7 @@ export function Tour({ open, onClose }: { open: boolean; onClose: () => void }) 
   const step = STEPS[index];
   const last = index === STEPS.length - 1;
 
-  const finish = () => {
+  const finish = useCallback(() => {
     try {
       localStorage.setItem(SEEN_KEY, '1');
     } catch {
@@ -63,7 +63,7 @@ export function Tour({ open, onClose }: { open: boolean; onClose: () => void }) 
     }
     setIndex(0);
     onClose();
-  };
+  }, [onClose]);
 
   // Follow the target as the window resizes or the layout settles.
   useLayoutEffect(() => {
@@ -94,7 +94,7 @@ export function Tour({ open, onClose }: { open: boolean; onClose: () => void }) 
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  });
+  }, [open, index, last, finish]);
 
   if (!open || !rect) return null;
 

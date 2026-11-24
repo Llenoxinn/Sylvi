@@ -1,6 +1,4 @@
-import { HugeiconsIcon } from '@hugeicons/react';
-import { FavouriteIcon } from '@hugeicons/core-free-icons';
-import { X } from 'lucide-react';
+import { Heart, X } from 'lucide-react';
 import SlingButton from './reactbits/SlingButton/SlingButton';
 import { useStore } from '../state/store';
 
@@ -36,7 +34,7 @@ export default function JobDone() {
         wellColor="var(--surface-3)"
         bandColor="var(--line-strong)"
       >
-        <HugeiconsIcon icon={FavouriteIcon} size={20} strokeWidth={2} />
+        <Heart size={20} strokeWidth={2} fill={liked ? 'currentColor' : 'none'} />
       </SlingButton>
 
       <div className="job-done-text" aria-live="polite">
