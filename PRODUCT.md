@@ -37,7 +37,7 @@ The name is Sylvi. Ricus is the owner's character and the product is deliberatel
 
 ## Evidence on Hand
 
-- Sample customer photos in `assets/landingpage/` (used on the landing page; whether the people pictured consented to public use is unconfirmed).
+- Sample customer photos in `public/landing/` (used on the landing page; whether the people pictured consented to public use is unconfirmed).
 - Real screenshots of the app can be captured from the running build.
 - No testimonials, customer counts, shop logos, usage statistics or press. None may be invented.
 
