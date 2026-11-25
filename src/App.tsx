@@ -149,7 +149,7 @@ export default function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  });
+  }, [canExport, download, print]);
 
   // Print and Download live in the print bar under the sheet, with their names on them.
   const dockItems = [

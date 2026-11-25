@@ -62,5 +62,5 @@ src/lib/image      photo loading, face detection, crop maths, adjustments
 src/lib/export     PDF / PNG / JPG export, DPI metadata, printing
 src/lib/storage    settings, custom packages, recent jobs
 src/state          zustand store, layout and export hooks
-src/components     UI, including React Bits OptionWheel and Dock
+src/components     UI, including React Bits Dock, GlideSelect, Stepper, TechText, Carousel and PillNav
 ```

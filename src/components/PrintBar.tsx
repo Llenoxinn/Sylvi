@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Download, LoaderCircle, Printer } from 'lucide-react';
 import { EXPORT_FORMATS } from '../lib/export/formats';
 import { CUT_STYLES } from '../lib/layout/guides';
@@ -71,8 +71,8 @@ export function PrintBar() {
         />
         {paper.paperId === CUSTOM_PAPER_ID ? (
           <>
-            <SizeField label="Width" unit={unit} value={toDisplay(paper.customWidthMm)} onChange={v => setPaper({ customWidthMm: Math.max(20, fromDisplay(v)) })} />
-            <SizeField label="Height" unit={unit} value={toDisplay(paper.customHeightMm)} onChange={v => setPaper({ customHeightMm: Math.max(20, fromDisplay(v)) })} />
+            <SizeField label="Width" unit={unit} min={toDisplay(20)} value={toDisplay(paper.customWidthMm)} onChange={v => setPaper({ customWidthMm: Math.max(20, fromDisplay(v)) })} />
+            <SizeField label="Height" unit={unit} min={toDisplay(20)} value={toDisplay(paper.customHeightMm)} onChange={v => setPaper({ customHeightMm: Math.max(20, fromDisplay(v)) })} />
           </>
         ) : null}
         <Segmented label="Orientation" value={paper.orientation} options={ORIENTATIONS} onChange={orientation => setPaper({ orientation })} />
@@ -88,15 +88,12 @@ export function PrintBar() {
                 : 'Space your printer can’t print on. Check your printer’s manual if unsure.'
             }
           >
-            <input
+            <NumericInput
               id={marginId}
-              className="input"
-              type="number"
-              inputMode="decimal"
               min={0}
               step={unit === 'in' ? 0.05 : 1}
               value={toDisplay(paper.marginMm)}
-              onChange={e => setPaper({ marginMm: Math.max(0, fromDisplay(Number(e.target.value) || 0)) })}
+              onChange={v => setPaper({ marginMm: Math.max(0, fromDisplay(v)) })}
             />
             <span>{unit}</span>
           </div>
@@ -147,7 +144,7 @@ export function PrintBar() {
   );
 }
 
-function SizeField({ label, unit, value, onChange }: { label: string; unit: string; value: number; onChange: (v: number) => void }) {
+function SizeField({ label, unit, min, value, onChange }: { label: string; unit: string; min: number; value: number; onChange: (v: number) => void }) {
   const id = useId();
   return (
     <div className="pb-field">
@@ -155,9 +152,71 @@ function SizeField({ label, unit, value, onChange }: { label: string; unit: stri
         {label}
       </label>
       <div className="input-unit input-unit--sm">
-        <input id={id} className="input" type="number" inputMode="decimal" min={0} step="any" value={value} onChange={e => onChange(Number(e.target.value) || 0)} />
+        <NumericInput id={id} min={min} step="any" value={value} onChange={onChange} />
         <span>{unit}</span>
       </div>
     </div>
+  );
+}
+
+/** Keeps the user's draft text intact while focused so clearing or typing decimals never snaps mid-edit. */
+function NumericInput({
+  id,
+  min,
+  step,
+  value,
+  onChange
+}: {
+  id: string;
+  min: number;
+  step: number | 'any';
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const [text, setText] = useState(String(value));
+  const focused = useRef(false);
+
+  useEffect(() => {
+    if (!focused.current) setText(String(value));
+  }, [value]);
+
+  const commit = () => {
+    const trimmed = text.trim();
+    const parsed = Number(trimmed);
+    if (!trimmed || !Number.isFinite(parsed)) {
+      setText(String(value));
+      return;
+    }
+    const clamped = Math.max(min, parsed);
+    onChange(clamped);
+    setText(String(clamped));
+  };
+
+  return (
+    <input
+      id={id}
+      className="input"
+      type="number"
+      inputMode="decimal"
+      min={0}
+      step={step}
+      value={text}
+      onFocus={() => {
+        focused.current = true;
+      }}
+      onChange={e => {
+        const next = e.target.value;
+        setText(next);
+        const parsed = Number(next);
+        if (next.trim() !== '' && Number.isFinite(parsed) && parsed >= min) onChange(parsed);
+      }}
+      onBlur={() => {
+        focused.current = false;
+        commit();
+      }}
+      onKeyDown={e => {
+        if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur();
+      }}
+    />
   );
 }
